@@ -45,7 +45,9 @@ HEADERS += \
     qt_tcp.h \
     custom_data.h
 
-LIBS += C:\\Users\\zz\\Documents\\build-com_net-Desktop_Qt_5_9_8_MinGW_32bit-Debug\\debug\\Modbus.dll
+#LIBS += C:\\Users\\zz\\Documents\\build-com_net-Desktop_Qt_5_9_8_MinGW_32bit-Debug\\debug\\Modbus.dll
+#LIBS += D:\\qt_prj\\build-untitled-Desktop_Qt_5_12_10_MinGW_32_bit-Debug\\Modbus\\debug\\Modbus.dll
+#LIBS += D:\\qt_prj\\build-untitled-Desktop_Qt_5_12_10_MinGW_32_bit-Debug\\Modbus\\debug\\Mitsubishi.dll
 
 FORMS += \
         mainwindow.ui
