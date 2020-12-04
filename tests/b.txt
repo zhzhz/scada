@@ -1,0 +1,57 @@
+{
+"device":[
+{"name": "modbus1"},
+{"name": "modbus2"}
+],
+
+"led":[
+{"name":"led1", "device":"modbus1", "variable":10001},
+{"name":"led2", "device":"modbus1", "variable":10002},
+{"name":"led3", "device":"modbus1", "variable":10003},
+{"name":"led4", "device":"modbus1", "variable":10004},
+{"name":"led5", "device":"modbus1", "variable":10005},
+{"name":"led6", "device":"modbus1", "variable":10006},
+{"name":"led7", "device":"modbus1", "variable":10007},
+{"name":"led8", "device":"modbus1", "variable":10008}
+],
+
+"key":[
+{"name":"key1", "device":"modbus1", "varible":1},
+{"name":"key2", "device":"modbus1", "varible":2},
+{"name":"key3", "device":"modbus1", "varible":3},
+{"name":"key4", "device":"modbus1", "varible":4},
+{"name":"key5", "device":"modbus1", "varible":5},
+{"name":"key6", "device":"modbus1", "varible":6},
+{"name":"key7", "device":"modbus1", "varible":7},
+{"name":"key8", "device":"modbus1", "varible":8}
+]
+}
+
+"led":[
+{"name":"led1", "device":"modbus","dev_id":1, "variable":10001},
+{"name":"led2", "device":"modbus","dev_id":1, "variable":10002},
+{"name":"led3", "device":"Mitsubishi", "dev_id":2,"variable":10003},
+{"name":"led4", "device":"modbus", "dev_id":1,"variable":10004}
+]
+
+,
+{"name":"led2", "device":"modbus","dev_id":1, "variable":10002},
+{"name":"led3", "device":"Mitsubishi", "dev_id":2,"variable":10003},
+{"name":"led4", "device":"modbus", "dev_id":1,"variable":10004}
+
+{
+    "book": [
+        {
+            "id":"01",
+            "language": "Java"
+        },
+        {
+            "id":"07",
+            "language": "C++"
+    }]
+}
+
+print array调用print_value调用cJSON_Object，依次调用，打印"name":"led1" "device":"modbus1" "variable":"10001"
+names[i]=str=print_string_ptr(child->string,0);
+entries[i++]=ret=print_value(child,depth,fmt,0);
+然后合并成一个字符串输出给print array，print array再调用print_value，再来一遍，然后将两次获得的数据合并成数组格式

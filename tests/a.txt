@@ -1,0 +1,24 @@
+{
+"device":[
+{"name": "modbus","id":1},
+{"name": "Mitsubishi","id":2}
+],
+
+"led":[
+{"name":"led1", "device":"modbus","dev_id":1, "variable":10001},
+{"name":"led2", "device":"modbus","dev_id":1, "variable":10002},
+{"name":"led3", "device":"Mitsubishi", "dev_id":2,"variable":10003},
+{"name":"led4", "device":"modbus", "dev_id":1,"variable":10004}
+],
+
+"key":[
+{"name":"key1", "device":"modbus","dev_id":1, "varible":1},
+{"name":"key2", "device":"modbus","dev_id":1, "varible":2},
+{"name":"key3", "device":"Mitsubishi","dev_id":2, "varible":3},
+{"name":"key4", "device":"modbus","dev_id":1, "varible":4},
+{"name":"key5", "device":"modbus","dev_id":1, "varible":5},
+{"name":"key6", "device":"modbus","dev_id":1, "varible":6},
+{"name":"key7", "device":"modbus","dev_id":1, "varible":7},
+{"name":"key8", "device":"modbus","dev_id":1, "varible":8}
+]
+}
