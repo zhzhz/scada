@@ -56,7 +56,7 @@ Gui::Gui(ConfigFile *configure, QWidget *parent) : QWidget(parent)
     //qDebug() << "led" << leds;
     device_map.insert("key", keys);
 
-    this->setLayout(pLayout);
+    //this->setLayout(pLayout);
 }
 
 QMap<int, void *> Gui::getDevice(QString str)
