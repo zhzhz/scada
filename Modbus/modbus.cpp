@@ -170,8 +170,8 @@ QByteArray input_data_exchange(data_exchange *data_ex)
 //    data[1] = 2;
 //    return data;
     //根据data_ex数据（用户组态）生成modbus指令返回给系统。
-    int addr = data_ex->dev_id["dev_id"];
-    int variable = data_ex->variable["variable"];
+    int addr = data_ex->dev_id;
+    int variable = data_ex->variable;
     QByteArray data = data_ex->write_data;
     int count = 1;
     int control_byte = 0;

@@ -78,7 +78,7 @@ void Sys_ctl::data_come(QByteArray &data)
     //看看数据是不是led数据，根据led数据设置gui显示
     if (dev_driver->data_save.read_write == 0)
     {
-        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name["name"]);
+        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
 
         if (info->type == "led")
         {
@@ -113,7 +113,7 @@ void Sys_ctl::data_come(QByteArray &data)
 //                 }
 //             }
 //        }
-        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name["name"]);
+        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
         if (info->type == "led")
         {
             //QRadioButton *r = (QRadioButton *)info->ptr;

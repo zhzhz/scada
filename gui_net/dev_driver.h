@@ -19,11 +19,14 @@ typedef struct
 typedef struct data_exchange
 {
     int read_write;
-    QMap<QString, QString> name;
+    QString name;
+    //QMap<QString, QString> name;
     //QMap<QString, QString> device;
     QString device;
-    QMap<QString, int> dev_id;
-    QMap<QString, int> variable;
+    //QMap<QString, int> dev_id;
+    //QMap<QString, int> variable;
+    int dev_id;
+    int variable;
     QByteArray write_data;
 }data_exchange;
 

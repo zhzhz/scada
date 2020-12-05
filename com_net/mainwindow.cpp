@@ -118,8 +118,8 @@ void MainWindow::handle_data(QTcpSocket *serverSocket)
     Custom_data custom_data_rev;
     in >> id >> custom_data_rev;//将数据留出到custom_data_rev，反序列化
     //if (custom_data_rev.l.read_write == 1)
-    qDebug() << "custom" << id << custom_data_rev.l.read_write << custom_data_rev.l.name["name"] << custom_data_rev.l.device <<
-                custom_data_rev.l.dev_id["dev_id"] << custom_data_rev.l.variable["variable"] << custom_data_rev.l.write_data;
+    qDebug() << "custom" << id << custom_data_rev.l.read_write << custom_data_rev.l.name << custom_data_rev.l.device <<
+                custom_data_rev.l.dev_id << custom_data_rev.l.variable << custom_data_rev.l.write_data;
     if (id == 0)//0则调用如下函数
     {
         //dev_driver.write_read_data(&custom_data_rev.l, "led");

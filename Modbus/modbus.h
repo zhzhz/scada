@@ -18,10 +18,10 @@ public:
 typedef struct data_exchange
 {
     int read_write;
-    QMap<QString, QString> name;
-    QMap<QString, QString> device;
-    QMap<QString, int> dev_id;
-    QMap<QString, int> variable;
+    QString name;
+    QString device;
+    int dev_id;
+    int variable;
     QByteArray write_data;
 }data_exchange;
 

@@ -31,7 +31,7 @@ Gui::Gui(ConfigFile *configure, QWidget *parent) : QWidget(parent)
         gui_info *info = new gui_info();
         //led.insert(i, radioButton);
         led *l = (led *)leds[i];
-        info->name = l->name["name"];
+        info->name = l->name;
         info->type = "led";
         info->ptr = radioButton;
         leds.insert(i, info);
@@ -44,7 +44,7 @@ Gui::Gui(ConfigFile *configure, QWidget *parent) : QWidget(parent)
         gui_info *info = new gui_info();
         //led.insert(i, radioButton);
         key *l = (key *)keys[i];
-        info->name = l->name["name"];
+        info->name = l->name;
         info->type = "key";
         info->ptr = pushButton;
         keys.insert(i, info);
