@@ -67,35 +67,35 @@ void ConfigFile::printJson(cJSON * root)
 
                     if (QString(item_data->string) == "name")
                     {
-                        led1->name.insert("name", item_data->valuestring);
+                        led1->name = item_data->valuestring;
                         //qDebug() << "led1->name.insert" << item_data->valuestring;
                         //qDebug() << led1 << "led1 insert name" <<  item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "device") {
-                        led1->device.insert("device", item_data->valuestring);
+                        led1->device = item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "dev_id"){
-                        led1->dev_id.insert("dev_id", item_data->valueint);
+                        led1->dev_id = item_data->valueint;
                     }
                     else if (QString(item_data->string) == "variable") {
-                        led1->variable.insert("variable", item_data->valueint);
+                        led1->variable= item_data->valueint;
                     }
                 }
                 else if (QString(item->string) == "key") {
                     if (QString(item_data->string) == "name")
                     {
-                        key1->name.insert("name", item_data->valuestring);
+                        key1->name = item_data->valuestring;
                         //qDebug() << "led1->name.insert" << item_data->valuestring;
                         //qDebug() << led1 << "led1 insert name" <<  item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "device") {
-                        key1->device.insert("device", item_data->valuestring);
+                        key1->device = item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "dev_id"){
-                        key1->dev_id.insert("dev_id", item_data->valueint);
+                        key1->dev_id = item_data->valueint;
                     }
                     else if (QString(item_data->string) == "variable") {
-                        key1->variable.insert("variable", item_data->valueint);
+                        key1->variable = item_data->valueint;
                     }
                 }
 
@@ -258,7 +258,7 @@ void *ConfigFile::get_gui_info_byname(QString name)
     {
          led *info = (led *)leds[i];
          //qDebug() << info->name << dev_driver->data_save.name["name"];
-         if (info->name["name"] == name)
+         if (info->name == name)
          {
             return info;
          }
@@ -269,7 +269,7 @@ void *ConfigFile::get_gui_info_byname(QString name)
     {
          key *info = (key *)keys[i];
          //qDebug() << info->name << dev_driver->data_save.name["name"];
-         if (info->name["name"] == name)
+         if (info->name == name)
          {
             return info;
          }
