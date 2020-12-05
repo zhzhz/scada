@@ -72,7 +72,7 @@ void ConfigFile::printJson(cJSON * root)
                         //qDebug() << led1 << "led1 insert name" <<  item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "device") {
-                        led1->device.insert("device", item_data->valuestring);
+                        led1->device = item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "dev_id"){
                         led1->dev_id.insert("dev_id", item_data->valueint);
@@ -89,7 +89,7 @@ void ConfigFile::printJson(cJSON * root)
                         //qDebug() << led1 << "led1 insert name" <<  item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "device") {
-                        key1->device.insert("device", item_data->valuestring);
+                        key1->device = item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "dev_id"){
                         key1->dev_id.insert("dev_id", item_data->valueint);

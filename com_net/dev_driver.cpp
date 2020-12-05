@@ -165,7 +165,7 @@ void Dev_driver::write_data(void *data)
     data_save.read_write = data_ex->read_write;//保存这个为了接收到数据后处理读和写
 
     //根据驱动名得到驱动
-    QString dev_name = data_ex->device["device"];
+    QString dev_name = data_ex->device;
     dev_info dev_inf = devinfo[dev_name];
     //qDebug() << dev_name << dev_inf.dev;
 
@@ -197,7 +197,7 @@ void Dev_driver::handle_data(QByteArray &data)
     //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
     //qDebug() << "Dev_driver:" << data;
     //根据驱动名得到驱动
-    QString dev_name = data_save.device["device"];//modbus
+    QString dev_name = data_save.device;//modbus
     dev_info dev_inf = devinfo[dev_name];
     output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
     //qDebug() << output_fil(data);

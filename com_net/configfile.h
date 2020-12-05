@@ -14,7 +14,8 @@ typedef struct device
 typedef struct led
 {
     QMap<QString, QString> name;
-    QMap<QString, QString> device;
+    //QMap<QString, QString> device;
+    QString device;
     QMap<QString, int> dev_id;
     QMap<QString, int> variable;
 }led;
@@ -22,7 +23,8 @@ typedef struct led
 typedef struct key
 {
     QMap<QString, QString> name;
-    QMap<QString, QString> device;
+    //QMap<QString, QString> device;
+    QString device;
     QMap<QString, int> dev_id;
     QMap<QString, int> variable;
 }key;
