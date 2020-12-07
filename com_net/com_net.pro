@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    controller.cpp \
         main.cpp \
         mainwindow.cpp \
     qt_tcp_client.cpp \
@@ -33,9 +34,11 @@ SOURCES += \
     cJSON.c \
     dev_driver.cpp \
     qt_tcp.cpp \
-    custom_data.cpp
+    custom_data.cpp \
+    worker.cpp
 
 HEADERS += \
+    controller.h \
         mainwindow.h \
     qt_tcp_client.h \
     client.h \
@@ -43,7 +46,8 @@ HEADERS += \
     cJSON.h \
     dev_driver.h \
     qt_tcp.h \
-    custom_data.h
+    custom_data.h \
+    worker.h
 
 #LIBS += C:\\Users\\zz\\Documents\\build-com_net-Desktop_Qt_5_9_8_MinGW_32bit-Debug\\debug\\Modbus.dll
 #LIBS += D:\\qt_prj\\build-untitled-Desktop_Qt_5_12_10_MinGW_32_bit-Debug\\Modbus\\debug\\Modbus.dll

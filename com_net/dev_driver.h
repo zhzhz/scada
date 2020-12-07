@@ -16,20 +16,19 @@ typedef struct
     Client *client;
 }dev_info;
 
+
+
+
 typedef struct data_exchange
 {
     int read_write;
     QString name;
-    //QMap<QString, QString> name;
-    //QMap<QString, QString> device;
     QString device;
-    //QMap<QString, int> dev_id;
-    //QMap<QString, int> variable;
     int dev_id;
     int variable;
     QByteArray write_data;
 }data_exchange;
-
+Q_DECLARE_METATYPE(data_exchange)
 
 
 class Dev_driver : public QObject

@@ -20,7 +20,8 @@ signals:
 
 private:
     QTcpServer *server;
-    QTcpSocket *serverSocket;
+    //QTcpSocket *serverSocket;
+    QVector <QTcpSocket *> clientSockets;
 };
 
 #endif // QT_TCP_H

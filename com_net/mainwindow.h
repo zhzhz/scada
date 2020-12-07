@@ -6,6 +6,7 @@
 #include "configfile.h"
 #include "dev_driver.h"
 #include "qt_tcp.h"
+#include "controller.h"
 
 namespace Ui {
 class MainWindow;
@@ -24,11 +25,22 @@ private:
     //Qt_tcp_client *qt_tcp_client;
 
     ConfigFile configFile;
-    Dev_driver dev_driver;
+    //Dev_driver dev_driver;
 
     QTimer *m_timer;
 
     Qt_tcp qt_tcp;
+
+    QMap<QTcpSocket *, Controller *> tcp2thread;
+
+    //挂起相关
+    typedef struct
+    {
+        bool is_suspend;
+        QVector <QTcpSocket *> tcp_clients;
+    }suspand;
+
+    QMap<QString, suspand *> dev_suspend;
 
     void test1();
 
@@ -42,7 +54,8 @@ private slots:
     void ImageTimerTimeout();
 private slots:
     void handle_data(QTcpSocket *);
-    void data_come(QByteArray &data);
+    void data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data);
+
 };
 
 #endif // MAINWINDOW_H

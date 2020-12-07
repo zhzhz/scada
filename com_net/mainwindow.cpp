@@ -6,6 +6,7 @@
 //#include "modbus_global.h"
 #include "QLibrary"
 #include "custom_data.h"
+#include <QMetaType>
 
 
 
@@ -14,40 +15,22 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    qRegisterMetaType<data_exchange>();
+    qRegisterMetaType<QByteArray>("QByteArray&");
+    qRegisterMetaType<QMap<int, void *>>();
+
     ui->setupUi(this);
 
     //读取json配置文件，得到系统配置信息
     configFile.read_config_file("../tests/a.txt");
 
     //用device结构初始化驱动结构
-    dev_driver.get_Device(configFile.getDevice("device"));
-    //QMap<int, void *> device = configFile.getDevice("device");
+    //dev_driver.get_Device(configFile.getDevice("device"));
 
     connect(&qt_tcp, SIGNAL(data_come(QTcpSocket *)), this, SLOT(handle_data(QTcpSocket *)));//收到gui发来的消息
 
-    connect(&dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));//收到plc驱动发来的消息
+    //connect(&dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));//收到plc驱动发来的消息
 
-//    sys_ctl = new Sys_ctl(&dev_driver, this);
-//    sys_ctl->setConfigureFile(&configFile);
-
-
-
-
-    //this->setCentralWidget(gui);
-
-    //sys_ctl->start();//开始采集数据
-
-
-
-    //connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-
-    /*
-    QByteArray data;
-    data.resize(2);
-    data[0] = 1;
-    data[1] = 2;
-    client->write_data(data);
-    */
     //发送modbus命令，接收modbus数据，并打印出来，后续把这项工作放到dll中实现
     //modbus();
     m_timer = new QTimer;
@@ -57,88 +40,133 @@ MainWindow::MainWindow(QWidget *parent) :
       //定时器触发信号槽
     connect(m_timer, SIGNAL(timeout()), this, SLOT(ImageTimerTimeout()));
 
-    /*
-    Modbus modbus;
-    int a = 3, b = 4;
-    qDebug() << modbus.add(a,b);
-    */
-
 }
 
 void MainWindow::ImageTimerTimeout()
 {
-    //modbus();
-    //调用dll函数实现功能
-    //test();//调用dll的发送函数，本质没有变，还是com知道modbus协议，只不过是封装了一些细节
-    //test1();
+
 }
 
-void MainWindow::test1()
+//void MainWindow::test1()
+//{
+//    //依次发送要读取的leds,而不是modbus协议的细节，让modbus.dll去实现发送细节
+//    QMap<int, void *> leds = configFile.getDevice("led");
+//    QMap<int, void *> keys = configFile.getDevice("key");
+//    static int i = 0;
+//    QByteArray data;
+//    data[0] = 0;
+
+//    if ((i++) % 2 == 0)
+//    {
+//        qDebug() << "dev_driver leds";
+//        dev_driver.write_read_data(leds[2], "led");
+//    }
+//    else
+//    {
+//        qDebug() << "dev_driver keys";
+//        //dev_driver.write_read_data(keys[2], "key");
+//        dev_driver.write_write_data(keys[2],"key",data);
+//    }
+//}
+
+//读取gui net客户端发来的数据,调用driver函数，发送数据给plc，接收plc的数据
+//多个gui eth对象数据来了，都是这个函数处理
+
+void MainWindow::handle_data(QTcpSocket *guiSocket)
 {
-    //依次发送要读取的leds,而不是modbus协议的细节，让modbus.dll去实现发送细节
-    QMap<int, void *> leds = configFile.getDevice("led");
-    QMap<int, void *> keys = configFile.getDevice("key");
-    static int i = 0;
-    QByteArray data;
-    data[0] = 0;
-
-    if ((i++) % 2 == 0)
-    {
-        qDebug() << "dev_driver leds";
-        dev_driver.write_read_data(leds[2], "led");
-    }
-    else
-    {
-        qDebug() << "dev_driver keys";
-        //dev_driver.write_read_data(keys[2], "key");
-        dev_driver.write_write_data(keys[2],"key",data);
-    }
-
-     /*
-    for (int i = 0; i < leds.count(); i++)
-    {
-        dev_driver.write_data(leds[i]);
-    }
-
-    QMap<int, void *> keys = configFile.getDevice("key");
-    for (int i = 0; i < keys.count(); i++)
-    {
-        dev_driver.write_data(keys[i]);
-    }
-    */
-}
-//读取com net客户端发来的数据,调用driver函数，发送数据给plc，接收plc的数据
-void MainWindow::handle_data(QTcpSocket *serverSocket)
-{
-    QByteArray data = serverSocket->readAll();
+    //QByteArray data = guiSocket->readAll();
+    QByteArray data = guiSocket->peek(10000);
     //qDebug() << "读取发来的数据，反序列化，调用函数";
     QDataStream in(&data, QIODevice::ReadOnly);//从网络中读取的data中读到数据
 
     int id;
     Custom_data custom_data_rev;
     in >> id >> custom_data_rev;//将数据留出到custom_data_rev，反序列化
-    //if (custom_data_rev.l.read_write == 1)
-    qDebug() << "custom" << id << custom_data_rev.l.read_write << custom_data_rev.l.name << custom_data_rev.l.device <<
+
+    qDebug() << "custom" << guiSocket << id << custom_data_rev.l.read_write << custom_data_rev.l.name << custom_data_rev.l.device <<
                 custom_data_rev.l.dev_id << custom_data_rev.l.variable << custom_data_rev.l.write_data;
+    //只有没挂起的数据才能读取出来。
+
+    static int i = 0;
     if (id == 0)//0则调用如下函数
     {
-        //dev_driver.write_read_data(&custom_data_rev.l, "led");
-        dev_driver.write_data(&custom_data_rev.l);
+       // dev_driver.write_data(&custom_data_rev.l);
+        //判断gui数据是否挂起，如果不挂起，则发送采集线程采集数据，并置位当前设备busy标志位，如果挂起则挂起。
+        //挂起的标准是，当前设备标志位busy = 1，则挂起。
+        //为每个gui eth创建唯一的采集线程。
+
+        //qDebug() << "主线程id：" << QThread::currentThreadId();
+        if (tcp2thread[guiSocket] == 0)
+        {
+            //创建gui对应的新线程--采集线程
+            Controller *p = new Controller(configFile.getDevice("device"), this);
+            tcp2thread[guiSocket] = p;
+            //p->worker->dev_driver.get_Device(configFile.getDevice("device"));//采集线程程序初始化//这一句会有错误，因为跨线程了
+            //收到数据后处理
+            connect(p, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
+                    this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
+            qDebug() << "新线程------------------------------" << ++i;
+        }
+
+        //判断当前数据是执行还是挂起
+        QString dev_name = custom_data_rev.l.device;
+        if (dev_suspend[dev_name] == 0)//初始化挂起相关
+        {
+            suspand *suspand_ = new suspand;
+            suspand_->is_suspend = false;
+            dev_suspend[dev_name] = suspand_;
+        }
+
+        //如果is_suspend==0没有挂起，则执行；如果is_suspend==1，则挂起
+        if (dev_suspend[dev_name]->is_suspend == false)
+        {
+            //当前设备忙
+            dev_suspend[dev_name]->is_suspend = true;
+
+            //执行当前gui请求
+            //调用Controller的get_data函数来执行采集任务
+            //清空缓存区数据，防止对下次造成干扰。
+            guiSocket->readAll();
+            tcp2thread[guiSocket]->get_data(custom_data_rev.l, guiSocket);
+        }
+        else
+        {
+            //挂起当前gui请求
+            dev_suspend[dev_name]->tcp_clients << guiSocket;
+
+
+
+            qDebug() << "挂起" << dev_name << guiSocket;
+        }
+
+
+        //qDebug() << "tcp2thread[serverSocket]" << tcp2thread[serverSocket];
     }
 
 }
 
-//plc驱动返回的数据，把数据返回给gui net
-void MainWindow::data_come(QByteArray &data)
-{
-    int id = 1;//call data_come函数
 
-    QByteArray data_send;
-    QDataStream * stream = new QDataStream(&data_send, QIODevice::WriteOnly);
-    (*stream) << id << data;//将custom_data序列化写入QByteArray
-    qt_tcp.serverSocket->write(data_send);
-    delete stream;
+void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
+{
+//qDebug() << "MainWindow::data_handle" << dev_name << tcp << data;
+    tcp->write(data);//返回数据给gui
+
+    //如果当前设备有挂起的则解挂运行，如果没有挂起的设置is_suspend==false
+    if (dev_suspend[dev_name]->tcp_clients.size() != 0)
+    {
+
+        dev_suspend[dev_name]->is_suspend = false;//一定要记住解挂flag，不然刚解挂的又会被挂回去
+        //取出最前面运行（最先挂入的gui）
+        qDebug() << "解挂" << dev_suspend[dev_name]->tcp_clients.size() << dev_name << dev_suspend[dev_name]->tcp_clients.at(0);
+        handle_data(dev_suspend[dev_name]->tcp_clients.at(0));
+        dev_suspend[dev_name]->tcp_clients.remove(0);
+    }
+    else
+    {
+        dev_suspend[dev_name]->is_suspend = false;
+    }
 }
+
 
 
 MainWindow::~MainWindow()

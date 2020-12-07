@@ -84,14 +84,14 @@ void Dev_driver::init_dev(QString dev_name)
     if (dev_name == "modbus")
     {
         //qDebug() << "modbus";
-        Qt_tcp_client *client = new Qt_tcp_client(this);
+        Qt_tcp_client *client = new Qt_tcp_client;
         client->set_param(QString("192.168.2.101"), 9999);
         client->connect_line();
         devinfo1.client = client;
         connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
     }
     else if (dev_name == "Mitsubishi") {
-        Qt_tcp_client *client = new Qt_tcp_client(this);
+        Qt_tcp_client *client = new Qt_tcp_client;
         client->set_param(QString("192.168.2.101"), 8888);
         client->connect_line();
         devinfo1.client = client;
