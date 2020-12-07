@@ -11,7 +11,7 @@ class Qt_tcp : public QObject
 public:
     explicit Qt_tcp(QObject *parent = nullptr);
 
-    QTcpSocket *serverSocket;
+    QVector <QTcpSocket *> clientSockets;
 
 public slots:
     void acceptConnection();
