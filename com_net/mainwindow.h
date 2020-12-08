@@ -37,6 +37,8 @@ private:
     typedef struct
     {
         bool is_suspend;
+        QTcpSocket *busy_client;
+        QString dev_name;
         QVector <QTcpSocket *> tcp_clients;
     }suspand;
 
@@ -55,6 +57,7 @@ private slots:
 private slots:
     void handle_data(QTcpSocket *);
     void data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data);
+    void host_closed(QTcpSocket *);
 
 };
 

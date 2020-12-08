@@ -27,7 +27,7 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
 //如果init过，退出，如果没init过，初始化
 void Dev_driver::init_dev(QString dev_name)
 {
-    dev_info devinfo1 = {0};
+    dev_info devinfo1 = {0, 0};
 //    for(int i = 0; i < devinfo.count(); i++)
 //    {
 //        if (devinfo.at(i).name == dev_name)
