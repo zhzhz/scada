@@ -40,6 +40,7 @@ Controller::~Controller()
 {
     workerThread.quit();
     workerThread.wait();
+    qDebug() << "Controller::~Controller()";
 }
 
 //发送采集数据

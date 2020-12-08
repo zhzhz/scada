@@ -16,9 +16,11 @@ public:
 public slots:
     void acceptConnection();
     void replyToClient();
+    void msg_error(QAbstractSocket::SocketError);
 
 signals:
     void data_come(QTcpSocket *);
+    void host_closed(QTcpSocket *);
 
 private:
     QTcpServer *server;
