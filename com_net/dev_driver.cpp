@@ -1,6 +1,7 @@
 #include "dev_driver.h"
 #include "configfile.h"
 #include "qdebug.h"
+#include "dev_factor.h"
 
 
 Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
@@ -28,15 +29,7 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
 void Dev_driver::init_dev(QString dev_name)
 {
     dev_info devinfo1 = {0, 0};
-//    for(int i = 0; i < devinfo.count(); i++)
-//    {
-//        if (devinfo.at(i).name == dev_name)
-//        {
-//            //初始化过，直接退出
-////            qDebug() <<  "exit";
-//            return;
-//        }
-//    }
+
     QMap<QString, dev_info>::Iterator it=devinfo.begin();
     while(it!=devinfo.end())
     {
@@ -49,30 +42,10 @@ void Dev_driver::init_dev(QString dev_name)
         it++;
     }
 
-    //没初始化过，初始化
-    //devinfo1.name = dev_name;
-
-     //qDebug() << "devinfo.insert";
-
-
-    //QLibrary test_dll("modbus.dll");//加载dll
     QLibrary *test_dll = new QLibrary(dev_name + ".dll");
     devinfo1.dev = test_dll;
     if(test_dll->load()) {//判断是否加载成功
         qDebug() << "dll load ok" << dev_name;
-//        gen_code fun1 = (gen_code)test_dll.resolve("gen_code");//获取dll的函数
-//        fun = fun1;
-//        if (fun1) {//判断是否获取到此函数
-
-//           // client->write_data(code);
-//            qDebug()<<QStringLiteral("ok") << fun1(1,1,0,8,NULL);
-//        }
-//        else {
-//            //函数解析失败
-//            qDebug()<<QStringLiteral("dll function load error");
-//        }
-
-
     }
     else {
         qDebug()<< dev_name << QStringLiteral("dll load error");//dll文件加载失败
@@ -81,22 +54,25 @@ void Dev_driver::init_dev(QString dev_name)
     //加载驱动对应的数据通讯器
     //modbus为网络通讯
     //三菱也为网络通讯,假设端口
-    if (dev_name == "modbus")
-    {
-        //qDebug() << "modbus";
-        Qt_tcp_client *client = new Qt_tcp_client;
-        client->set_param(QString("192.168.2.101"), 9999);
-        client->connect_line();
-        devinfo1.client = client;
-        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-    }
-    else if (dev_name == "Mitsubishi") {
-        Qt_tcp_client *client = new Qt_tcp_client;
-        client->set_param(QString("192.168.2.101"), 8888);
-        client->connect_line();
-        devinfo1.client = client;
-        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-    }
+//    if (dev_name == "modbus")
+//    {
+//        //qDebug() << "modbus";
+//        Qt_tcp_client *client = new Qt_tcp_client;
+//        client->set_param(QString("192.168.2.101"), 9999);
+//        client->connect_line();
+//        devinfo1.client = client;
+//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
+//    }
+//    else if (dev_name == "Mitsubishi") {
+//        Qt_tcp_client *client = new Qt_tcp_client;
+//        client->set_param(QString("192.168.2.101"), 8888);
+//        client->connect_line();
+//        devinfo1.client = client;
+//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
+//    }
+    //多个设备用工厂模式
+    devinfo1.client = dev_factor::product(dev_name);
+    connect(devinfo1.client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
 
     devinfo.insert(dev_name, devinfo1);
     //qDebug() << devinfo.count();
