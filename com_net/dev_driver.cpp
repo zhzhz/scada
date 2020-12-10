@@ -11,6 +11,7 @@ Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 //在这释放init时申请的资源
 Dev_driver::~Dev_driver()
 {
+    //qDebug() << "Dev_driver::~Dev_driver()1";
     QMap<QString, dev_info>::Iterator it=devinfo.begin();
     while(it!=devinfo.end())
     {
@@ -21,10 +22,12 @@ Dev_driver::~Dev_driver()
 //            return;
 //        }
 //        it++;
-        //delete it.value().dev;
-        //delete it.value().client;
+        delete it.value().dev;
+        delete it.value().client;
+        it++;
     }
-qDebug() << "Dev_driver::~Dev_driver()";
+    qDebug() << "Dev_driver::~Dev_driver()";
+
 }
 
 //从内存结构得到设备信息，并初始化驱动

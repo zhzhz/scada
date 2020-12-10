@@ -8,7 +8,11 @@ Worker::Worker(QObject* parent)
 
 Worker::~Worker()
 {
-    qDebug() << "Worker::~Worker()";
+    //qDebug() << "Worker::~Worker()1";
+//    for (int i = 0; i < 1000000; i++)
+//        ;
+    //qDebug() << "Worker::~Worker()2";
+
 }
 
 //发送查询指令，接收返回数据

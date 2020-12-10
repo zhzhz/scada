@@ -96,7 +96,8 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
         if (tcp2thread[guiSocket] == 0)
         {
             //创建gui对应的新线程--采集线程
-            Controller *p = new Controller(configFile.getDevice("device"), this);
+            //Controller *p = new Controller(configFile.getDevice("device"), this);
+            Controller *p = new Controller(configFile.getDevice("device"));
             tcp2thread[guiSocket] = p;
 
             //收到数据后处理
@@ -177,7 +178,7 @@ void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
 //注意当前gui连接关闭后还有可能原来被挂起的解挂运行造成程序错误
 void MainWindow::host_closed(QTcpSocket *tcp)
 {
-    //qDebug() << "网络断开" << tcp;
+    qDebug() << "网络断开" << tcp;
     Controller *p = tcp2thread[tcp];
     delete p;
     //qDebug() << "remove前" << tcp2thread.count();

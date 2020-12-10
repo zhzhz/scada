@@ -2,7 +2,7 @@
 
 Controller::Controller(QMap<int, void *> device, QObject *parent) : QObject(parent)
 {
-    worker = new Worker;
+    Worker *worker = new Worker;
     //worker->dev_driver.get_Device(device);
     //调用moveToThread将该任务交给workThread
     worker->moveToThread(&workerThread);
@@ -20,28 +20,36 @@ Controller::Controller(QMap<int, void *> device, QObject *parent) : QObject(pare
 
     /////////////////////////////////////////////////
     //数据发送给采集线程
+    connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, SIGNAL(operate(data_exchange, QTcpSocket *)), worker, SLOT(doWork(data_exchange, QTcpSocket *)));
 
     //采集线程返回数据
     connect(worker, SIGNAL(resultReady(QString , QTcpSocket *, QByteArray )), this,
             SLOT(handleResults(QString , QTcpSocket *, QByteArray )));
 
+
     //启动线程
     workerThread.start();
+
 
     //初始化worker线程
     connect(this, SIGNAL(init(QMap<int, void *>)), worker, SLOT(init(QMap<int, void *>)));
 
     emit init(device);
 
+
+
 }
 //析构函数中调用quit()函数结束线程
 Controller::~Controller()
 {
+    //qDebug() << "Controller::~Controller()1";
     workerThread.quit();
+    //qDebug() << "Controller::~Controller()2";
     workerThread.wait();
+    //qDebug() << "Controller::~Controller()3";
     //delete  worker;
-    qDebug() << "Controller::~Controller()";
+
 }
 
 //发送采集数据

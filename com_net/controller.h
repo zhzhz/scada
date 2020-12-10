@@ -14,7 +14,7 @@ public:
     Controller(QMap<int, void *> device, QObject *parent= nullptr);
     ~Controller();
 
-    Worker *worker;
+    //Worker *worker;
 
     void get_data(data_exchange data, QTcpSocket *tcp);
 

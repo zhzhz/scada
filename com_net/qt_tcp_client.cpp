@@ -8,7 +8,8 @@ Qt_tcp_client::Qt_tcp_client(QObject *parent):Client(parent)
 
 Qt_tcp_client::~Qt_tcp_client()
 {
-qDebug() << "Qt_tcp_client::~Qt_tcp_client()";
+    qDebug() << "Qt_tcp_client::~Qt_tcp_client()";
+    delete socket;
 }
 
 void Qt_tcp_client::set_param(QString IP, int port)

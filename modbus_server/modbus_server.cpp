@@ -4,6 +4,7 @@
 Modbus_server::Modbus_server(QObject *parent) : QObject(parent)
 {
     connect(&qt_tcp, SIGNAL(data_come(QTcpSocket *)), this, SLOT(handle_data(QTcpSocket *)));
+    connect(&qt_tcp, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//收到gui网络断开的消息
 }
 
 //读取客户端发来的数据。处理返回modbus指令
@@ -67,5 +68,10 @@ void Modbus_server::handle_data(QTcpSocket *serverSocket)
     }
 }
 
+//关闭连接
+void Modbus_server::host_closed(QTcpSocket *tcp)
+{
+    qDebug() << "关闭" << tcp;
 
+}
 

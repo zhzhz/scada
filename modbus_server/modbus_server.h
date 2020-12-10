@@ -16,6 +16,7 @@ private:
 
 private slots:
     void handle_data(QTcpSocket *);
+    void host_closed(QTcpSocket *);
 };
 
 #endif // MODBUS_SERVER_H
