@@ -25,5 +25,15 @@ public:
     static Client * Mitsubishi();
 };
 
+class tcp508neth_dev :Client
+{
+public:
+    tcp508neth_dev();
+    static Client * tcp508neth();
+    ~tcp508neth_dev();
+};
+
+
+
 
 #endif // DEV_FACTOR_H

@@ -19,6 +19,7 @@ void Qt_tcp::acceptConnection()
     qDebug() << "Qt_tcp::acceptConnection()" << 9999;
     clientSockets << server->nextPendingConnection();
     connect(clientSockets.last(),SIGNAL(readyRead()),this,SLOT(replyToClient()));
+    qDebug() << "当前连接数" << clientSockets.count();
 }
 
 //回复客户端

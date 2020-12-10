@@ -6,6 +6,11 @@ Qt_tcp_client::Qt_tcp_client(QObject *parent):Client(parent)
     connect(socket, SIGNAL(readyRead()), this, SLOT(socket_Read_Data()));
 }
 
+Qt_tcp_client::~Qt_tcp_client()
+{
+qDebug() << "Qt_tcp_client::~Qt_tcp_client()";
+}
+
 void Qt_tcp_client::set_param(QString IP, int port)
 {
     this->IP = IP;

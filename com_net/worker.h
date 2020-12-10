@@ -11,6 +11,7 @@ class Worker:public QObject
     Q_OBJECT
 public:
     Worker(QObject* parent = nullptr);
+    ~Worker();
 
     Dev_driver dev_driver;
 public slots:
@@ -30,6 +31,7 @@ private slots:
 
 private:
     QTcpSocket *tcp_save;
+    QString device_save;
 
 };
 

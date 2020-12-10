@@ -10,7 +10,7 @@ Modbus_server::Modbus_server(QObject *parent) : QObject(parent)
 void Modbus_server::handle_data(QTcpSocket *serverSocket)
 {
     QByteArray data = serverSocket->readAll();
-    qDebug() << data.toHex();
+    //qDebug() << data.toHex();
     //int j = 4;(int)
     QByteArray ba;
     switch (data.at(1)) {

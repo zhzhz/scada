@@ -9,6 +9,7 @@ class Qt_tcp_client :public Client
     Q_OBJECT
 public:
     explicit Qt_tcp_client(QObject *parent = nullptr);
+    ~Qt_tcp_client();
     //QByteArray gen_data(void);
     /*
     void write_data(QByteArray &data);

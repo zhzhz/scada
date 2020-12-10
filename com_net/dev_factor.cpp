@@ -29,6 +29,20 @@ Client * Mitsubishi_dev::Mitsubishi()
     return client;
 }
 
+Client * tcp508neth_dev::tcp508neth()
+{
+    Qt_tcp_client *client = new Qt_tcp_client;
+    client->set_param(QString("192.168.2.75"), 502);
+    client->connect_line();
+    return client;
+}
+
+tcp508neth_dev::~tcp508neth_dev()
+{
+    qDebug() << "tcp508neth_dev::~tcp508neth_dev()";
+}
+
+
 
 Client * dev_factor::product(QString name)
 {
@@ -39,5 +53,9 @@ Client * dev_factor::product(QString name)
     else if(name == "Mitsubishi")
     {
         return Mitsubishi_dev::Mitsubishi();
+    }
+    else if(name == "tcp508neth")
+    {
+        return tcp508neth_dev::tcp508neth();
     }
 }

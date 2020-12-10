@@ -40,12 +40,14 @@ Controller::~Controller()
 {
     workerThread.quit();
     workerThread.wait();
+    //delete  worker;
     qDebug() << "Controller::~Controller()";
 }
 
 //发送采集数据
 void Controller::get_data(data_exchange data, QTcpSocket *tcp)
 {
+    //qDebug() << "2.gui发送读请求给Controller::get_data";
     emit operate(data, tcp);
 }
 

@@ -37,6 +37,8 @@ class Dev_driver : public QObject
 public:
     explicit Dev_driver(QObject *parent = nullptr);
 
+    ~Dev_driver();
+
     void get_Device(QMap<int, void*> dev_table);
 
     //void setClient(Client *client);
@@ -65,7 +67,7 @@ private:
 
     gen_code fun;
 private slots:
-    void handle_data(QByteArray &data);
+    void handle_dev_data(QByteArray &data);
 };
 
 #endif // DEV_DRIVER_H

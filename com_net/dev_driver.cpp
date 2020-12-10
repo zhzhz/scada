@@ -8,6 +8,25 @@ Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 {
 }
 
+//在这释放init时申请的资源
+Dev_driver::~Dev_driver()
+{
+    QMap<QString, dev_info>::Iterator it=devinfo.begin();
+    while(it!=devinfo.end())
+    {
+        //qDebug()<<it.key()<<"\t"<<it.value();
+//        if (it.key() == dev_name)
+//        {
+//            qDebug() << "Dev_driver name exit";
+//            return;
+//        }
+//        it++;
+        //delete it.value().dev;
+        //delete it.value().client;
+    }
+qDebug() << "Dev_driver::~Dev_driver()";
+}
+
 //从内存结构得到设备信息，并初始化驱动
 void Dev_driver::get_Device(QMap<int, void*> dev_table)
 {
@@ -52,27 +71,9 @@ void Dev_driver::init_dev(QString dev_name)
     }
 
     //加载驱动对应的数据通讯器
-    //modbus为网络通讯
-    //三菱也为网络通讯,假设端口
-//    if (dev_name == "modbus")
-//    {
-//        //qDebug() << "modbus";
-//        Qt_tcp_client *client = new Qt_tcp_client;
-//        client->set_param(QString("192.168.2.101"), 9999);
-//        client->connect_line();
-//        devinfo1.client = client;
-//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-//    }
-//    else if (dev_name == "Mitsubishi") {
-//        Qt_tcp_client *client = new Qt_tcp_client;
-//        client->set_param(QString("192.168.2.101"), 8888);
-//        client->connect_line();
-//        devinfo1.client = client;
-//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-//    }
     //多个设备用工厂模式
     devinfo1.client = dev_factor::product(dev_name);
-    connect(devinfo1.client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
+    connect(devinfo1.client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_dev_data(QByteArray &)));
 
     devinfo.insert(dev_name, devinfo1);
     //qDebug() << devinfo.count();
@@ -168,7 +169,7 @@ void Dev_driver::write_data(void *data)
 //}
 
 //收到数据打印出来
-void Dev_driver::handle_data(QByteArray &data)
+void Dev_driver::handle_dev_data(QByteArray &data)
 {
     //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
     //qDebug() << "Dev_driver:" << data;
