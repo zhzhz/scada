@@ -5,6 +5,7 @@
 //#include "modbus.h"
 //#include "modbus_global.h"
 #include "QLibrary"
+//#include "error_dialog.h"
 
 
 
@@ -21,6 +22,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //用device结构初始化驱动结构
     //dev_driver.get_Device(configFile.getDevice("device"));
     //QMap<int, void *> device = configFile.getDevice("device");
+    //error_dialog *dlg = new error_dialog();
+
+
+    //qDebug() << "可以执行";
 
     gui = new Gui(&configFile, this);
 

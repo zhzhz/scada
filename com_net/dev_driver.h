@@ -43,7 +43,8 @@ public:
 
     //void setClient(Client *client);
 
-    QMap<QString, dev_info> devinfo;//设备总信息
+    QMap<QString, dev_info> devinfo;
+    QMap<int, void*> dev_table;//设备总信息
 
     void write_write_data(void *data, QString data_type, QByteArray data_write);
     void write_read_data(void *data, QString data_type);
@@ -52,11 +53,11 @@ public:
     data_exchange data_save;
     //void test();
 signals:
-    void data_rev(QByteArray &);
+    void data_rev(QByteArray &, int id);
 
 public slots:
 private:
-    QMap<int, void*> dev_table;
+
     void init_dev(QString dev_name);
 
     typedef QByteArray  (*gen_code)(uchar addr, uchar control_byte, ushort start, ushort count, QByteArray byte_send);

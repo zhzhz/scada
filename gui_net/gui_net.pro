@@ -25,6 +25,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    error_dialog.cpp \
         main.cpp \
         mainwindow.cpp \
     qt_tcp_client.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
     custom_data.cpp
 
 HEADERS += \
+    error_dialog.h \
         mainwindow.h \
     qt_tcp_client.h \
     client.h \

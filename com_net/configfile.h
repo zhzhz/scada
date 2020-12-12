@@ -7,8 +7,8 @@
 
 typedef struct device
 {
-    QMap<QString, QString> name;//name:modbus1 name:Mitsubishi
-    QMap<QString, int> id;
+    QString name;//name:modbus1 name:Mitsubishi
+    int id;
 }device;
 
 typedef struct led

@@ -38,7 +38,7 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
     for (int i = 0; i < dev_table.count(); i++) {
         device *dev = (device *)dev_table[i];
         //qDebug() << dev->name["name"];
-        init_dev(dev->name["name"]);
+        init_dev(dev->name);
     }
 }
 
@@ -47,7 +47,7 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
 //    qDebug()<<QStringLiteral("test") << fun(1,1,0,8,NULL);
 //}
 
-//如果init过，退出，如果没init过，初始化
+//如果没有初始化过，初始化。如果被删除了，也初始化
 void Dev_driver::init_dev(QString dev_name)
 {
     dev_info devinfo1 = {0, 0};
@@ -58,11 +58,12 @@ void Dev_driver::init_dev(QString dev_name)
         //qDebug()<<it.key()<<"\t"<<it.value();
         if (it.key() == dev_name)
         {
-            qDebug() << "Dev_driver name exit";
+            //qDebug() << "1.Dev_driver init_dev exit";
             return;
         }
         it++;
     }
+    qDebug() << "Dev_driver::init_dev" << dev_name;
 
     QLibrary *test_dll = new QLibrary(dev_name + ".dll");
     devinfo1.dev = test_dll;
@@ -183,5 +184,5 @@ void Dev_driver::handle_dev_data(QByteArray &data)
     //qDebug() << output_fil(data);
     //告诉上级，数据接收ok了
     QByteArray data_fil = output_fil(data);
-    emit data_rev(data_fil);
+    emit data_rev(data_fil, 1);
 }

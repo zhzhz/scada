@@ -7,6 +7,7 @@
 #include "QLibrary"
 #include "custom_data.h"
 #include <QMetaType>
+#include "csingleton.h"
 
 
 
@@ -27,7 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&qt_tcp, SIGNAL(data_come(QTcpSocket *)), this, SLOT(handle_gui(QTcpSocket *)));//收到gui发来的消息
     connect(&qt_tcp, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//收到gui网络断开的消息
 
-
+    //CSingleton* p1 = CSingleton::GetInstance();
+    //p1->get_dev_info("modbus");
 
     //发送modbus命令，接收modbus数据，并打印出来，后续把这项工作放到dll中实现
     //modbus();
