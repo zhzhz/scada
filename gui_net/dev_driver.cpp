@@ -235,6 +235,7 @@ void Dev_driver::write_data(void *data)
 //}
 
 //com发数据来了，收数据，emit信号
+//如果收到的id是2，则代表出错
 void Dev_driver::handle_data(QByteArray &data)
 {
 //    //根据驱动名得到驱动
@@ -252,5 +253,11 @@ void Dev_driver::handle_data(QByteArray &data)
     QByteArray data_fil;
     in >> id >> data_fil;//将数据留出到custom_data_rev，反序列化
     if (id == 1)
+    {
         emit data_rev(data_fil);
+    }
+    else if (id == 2)
+    {
+        emit data_rev_error(data_fil);
+    }
 }

@@ -50,7 +50,9 @@ public:
     data_exchange data_save;
     //void test();
 signals:
+    //void data_rev(QByteArray &, int id);
     void data_rev(QByteArray &);
+    void data_rev_error(QByteArray &);
 
 public slots:
 private:

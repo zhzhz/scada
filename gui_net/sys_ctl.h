@@ -7,6 +7,7 @@
 #include "gui.h"
 #include "qradiobutton.h"
 #include "qpushbutton.h"
+#include "error_dialog.h"
 
 class Sys_ctl : public QObject
 {
@@ -22,6 +23,8 @@ signals:
 
 private slots:
     void data_come(QByteArray &data);
+    void data_come_error(QByteArray &data);
+
     void button_clicked(void);
 private:
     Dev_driver *dev_driver;
@@ -31,6 +34,9 @@ private:
     bool data_save_bool;
     data_exchange data_save;
     bool read_none;
+
+    error_dialog *dlg;
+    int i, j;
 };
 
 #endif // SYS_CTL_H

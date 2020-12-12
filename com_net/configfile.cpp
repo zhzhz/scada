@@ -52,12 +52,12 @@ void ConfigFile::printJson(cJSON * root)
                     //给device结构赋值
                     if (QString(item_data->string) == "name")
                     {
-                        dev1->name.insert("name", item_data->valuestring);
+                        dev1->name = item_data->valuestring;
                         //qDebug() << "led1->name.insert" << item_data->valuestring;
                         //qDebug() << led1 << "led1 insert name" <<  item_data->valuestring;
                     }
                     else if (QString(item_data->string) == "id") {
-                        dev1->id.insert("id", item_data->valueint);
+                        dev1->id = item_data->valueint;
                     }
 
                 }

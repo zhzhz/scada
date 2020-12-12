@@ -6,6 +6,13 @@ Qt_tcp_client::Qt_tcp_client(QObject *parent):Client(parent)
     connect(socket, SIGNAL(readyRead()), this, SLOT(socket_Read_Data()));
 }
 
+Qt_tcp_client::~Qt_tcp_client()
+{
+    qDebug() << "Qt_tcp_client::~Qt_tcp_client()1";
+    delete socket;
+    qDebug() << "Qt_tcp_client::~Qt_tcp_client()2";
+}
+
 void Qt_tcp_client::set_param(QString IP, int port)
 {
     this->IP = IP;
@@ -16,7 +23,7 @@ void Qt_tcp_client::connect_line(void)
 {
     qDebug() << "Qt_tcp_client::connect_line" <<IP <<port;
     socket->connectToHost(IP, port);
-    if(!socket->waitForConnected(30000))
+    if(!socket->waitForConnected(1000))
     {
         qDebug() << "Connection failed!" << port;
         return;

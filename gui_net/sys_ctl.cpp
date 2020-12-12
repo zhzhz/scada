@@ -3,8 +3,13 @@
 
 Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
 {
+    dlg = 0;
+    i = j = 0;
+
     this->dev_driver = dev_driver;
     connect(dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));
+    connect(dev_driver, SIGNAL(data_rev_error(QByteArray &)), this, SLOT(data_come_error(QByteArray &)));
+
     data_save_bool = false;
     read_none = false;
 
@@ -15,50 +20,23 @@ void Sys_ctl::start(void)
 {
     QMap<int, void *> leds = configFile->getDevice("led");
     QMap<int, void *> keys = configFile->getDevice("key");
-    static int i = 0,j = 0;
+
     QByteArray data;
     data[0] = 0;
 
     if (data_save_bool == false)
     {
-//        if ((i++) % 2 == 0)
-//        {
-//            qDebug() << "dev_driver leds";
-//            dev_driver->write_read_data(leds[3], "led");
-//        }
-//        else
-//        {
-//            qDebug() << "dev_driver keys";
-//            //dev_driver->write_write_data(keys[2],"key",data);
-//            dev_driver->write_read_data(keys[3], "key");
-//        }
-        //依次发送读led数据,然后依次发送读key数据
-        //如果发送指令的为空，则置位read_none = 1;
         if (leds.count() == 0 && keys.count() == 0)
         {
             read_none = 1;
         }
         if (i < leds.count())
-            dev_driver->write_read_data(leds[i++], "led");
-        else {
-            if (j < keys.count())
-            {
-                dev_driver->write_read_data(keys[j++], "key");//led为空时，发送这条指令。
-            }
-            else
-            {
-                //qDebug() << j << "==" << keys.count();
-                //qDebug() << i << "==" << keys.count();
-                i = 0;
-                j = 0;
-                if (i < leds.count())
-                    dev_driver->write_read_data(leds[i++], "led");//led为空，发送上面两条指令后发送这条指令，出错，因为led为空
-                else if (j < keys.count())
-                {
-                    dev_driver->write_read_data(keys[j++], "key");
-                }
-            }
+            dev_driver->write_read_data(leds[i], "led");
+        else if (j < keys.count())
+        {
+            dev_driver->write_read_data(keys[j], "key");//led为空时，发送这条指令。
         }
+
 
 
     }
@@ -71,8 +49,29 @@ void Sys_ctl::start(void)
 }
 
 //接收返回数据,根据name更新对应的系统参数led,key，并继续采集数据
+//如果有错误弹出窗口，关闭
 void Sys_ctl::data_come(QByteArray &data)
 {
+    if (dlg)
+    {
+        delete dlg;
+        dlg = 0;
+    }
+    QMap<int, void *> leds = configFile->getDevice("led");
+    QMap<int, void *> keys = configFile->getDevice("key");
+
+    if (i < leds.count())
+    {
+        i++;
+    }
+    else if (j < keys.count() - 1)
+    {
+        j++;
+    }
+    else
+    {
+        i = j = 0;
+    }
     //qDebug() << "Sys_ctl::data_come" << dev_driver->data_save.name["name"] << data;
     //qDebug() << "Sys_ctl::data_come";
     //看看数据是不是led数据，根据led数据设置gui显示
@@ -92,27 +91,6 @@ void Sys_ctl::data_come(QByteArray &data)
         }
     }
     else {
-        //处理写指令返回数据，根据name找到指针，设置button指针内容=0x1
-//        qDebug()  << "Sys_ctl::data_come" << dev_driver->data_save.name["name"] << data;
-//        QMap<int, void *> keys = gui->getDevice("key");
-//        for (int i = 0; i < keys.count(); i++)
-//        {
-//             gui_info *info = (gui_info *)keys[i];
-//             //qDebug() << info->name << dev_driver->data_save.name["name"];
-//             if (info->name == dev_driver->data_save.name["name"])
-//             {
-
-//                 if (info->type == "key")//如果类型是key，设置key显示出来
-//                 {
-//                    qDebug() << "type == led" << info->name;
-//                    QPushButton *r = (QPushButton *)info->ptr;
-//                    QFont font;
-//                    font.setFamily("微软雅黑");
-//                    r->setFont(font);
-//                    break;
-//                 }
-//             }
-//        }
         gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
         if (info->type == "led")
         {
@@ -133,6 +111,19 @@ void Sys_ctl::data_come(QByteArray &data)
 
 
     start();//继续采集数据
+}
+
+//com没有从设备处取得数据，而是从超时处返回，此时data为空
+//1.显示通讯出错对话框
+//2.发送失败的通讯指令，直到通讯成功才发下一条指令
+void Sys_ctl::data_come_error(QByteArray &data)
+{
+//qDebug() << "超时data_come_error";
+    if (dlg == 0)
+        dlg = new error_dialog();
+
+    start();//继续采集数据
+
 }
 
 void Sys_ctl::setConfigureFile(ConfigFile *configFile)

@@ -55,7 +55,7 @@ private:
 private slots:
     void ImageTimerTimeout();
 private slots:
-    void handle_data(QTcpSocket *);
+    void handle_gui(QTcpSocket *);
     void data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data);
     void host_closed(QTcpSocket *);
 

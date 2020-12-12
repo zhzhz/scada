@@ -26,6 +26,8 @@ CONFIG += c++11
 
 SOURCES += \
     controller.cpp \
+    csingleton.cpp \
+    dev_factor.cpp \
         main.cpp \
         mainwindow.cpp \
     qt_tcp_client.cpp \
@@ -39,6 +41,8 @@ SOURCES += \
 
 HEADERS += \
     controller.h \
+    csingleton.h \
+    dev_factor.h \
         mainwindow.h \
     qt_tcp_client.h \
     client.h \

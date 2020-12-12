@@ -5,12 +5,14 @@
 #include<QDebug>
 #include<QThread>
 #include "dev_driver.h"
+#include "qtimer.h"
 
 class Worker:public QObject
 {
     Q_OBJECT
 public:
     Worker(QObject* parent = nullptr);
+    ~Worker();
 
     Dev_driver dev_driver;
 public slots:
@@ -24,12 +26,15 @@ signals:
 
 private slots:
 
-    void data_come(QByteArray &data);
+    void data_come(QByteArray &data, int id);
+    void data_come_error();
 
     void init(QMap<int, void *> device);
 
 private:
     QTcpSocket *tcp_save;
+    QString device_save;
+    QTimer *m_timer;
 
 };
 

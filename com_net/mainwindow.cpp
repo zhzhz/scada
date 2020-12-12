@@ -7,6 +7,7 @@
 #include "QLibrary"
 #include "custom_data.h"
 #include <QMetaType>
+#include "csingleton.h"
 
 
 
@@ -24,10 +25,11 @@ MainWindow::MainWindow(QWidget *parent) :
     //读取json配置文件，得到系统配置信息
     configFile.read_config_file("../tests/a.txt");
 
-    connect(&qt_tcp, SIGNAL(data_come(QTcpSocket *)), this, SLOT(handle_data(QTcpSocket *)));//收到gui发来的消息
+    connect(&qt_tcp, SIGNAL(data_come(QTcpSocket *)), this, SLOT(handle_gui(QTcpSocket *)));//收到gui发来的消息
     connect(&qt_tcp, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//收到gui网络断开的消息
 
-
+    //CSingleton* p1 = CSingleton::GetInstance();
+    //p1->get_dev_info("modbus");
 
     //发送modbus命令，接收modbus数据，并打印出来，后续把这项工作放到dll中实现
     //modbus();
@@ -70,7 +72,7 @@ void MainWindow::ImageTimerTimeout()
 //读取gui net客户端发来的数据,调用driver函数，发送数据给plc，接收plc的数据
 //多个gui eth对象数据来了，都是这个函数处理
 
-void MainWindow::handle_data(QTcpSocket *guiSocket)
+void MainWindow::handle_gui(QTcpSocket *guiSocket)
 {
     QByteArray data = guiSocket->peek(10000);
     //qDebug() << "读取发来的数据，反序列化，调用函数";
@@ -96,9 +98,10 @@ void MainWindow::handle_data(QTcpSocket *guiSocket)
         if (tcp2thread[guiSocket] == 0)
         {
             //创建gui对应的新线程--采集线程
-            Controller *p = new Controller(configFile.getDevice("device"), this);
+            //Controller *p = new Controller(configFile.getDevice("device"), this);
+            Controller *p = new Controller(configFile.getDevice("device"));
             tcp2thread[guiSocket] = p;
-            //p->worker->dev_driver.get_Device(configFile.getDevice("device"));//采集线程程序初始化//这一句会有错误，因为跨线程了
+
             //收到数据后处理
             connect(p, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
                     this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
@@ -164,7 +167,7 @@ void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
         dev_suspend[dev_name]->is_suspend = false;//一定要记住解挂flag，不然刚解挂的又会被挂回去
         //取出最前面运行（最先挂入的gui）
         //qDebug() << "解挂" << dev_suspend[dev_name]->tcp_clients.size() << dev_name << dev_suspend[dev_name]->tcp_clients.at(0);
-        handle_data(dev_suspend[dev_name]->tcp_clients.at(0));
+        handle_gui(dev_suspend[dev_name]->tcp_clients.at(0));
         dev_suspend[dev_name]->tcp_clients.remove(0);
     }
     else
@@ -177,7 +180,7 @@ void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
 //注意当前gui连接关闭后还有可能原来被挂起的解挂运行造成程序错误
 void MainWindow::host_closed(QTcpSocket *tcp)
 {
-    //qDebug() << "网络断开" << tcp;
+    qDebug() << "网络断开" << tcp;
     Controller *p = tcp2thread[tcp];
     delete p;
     //qDebug() << "remove前" << tcp2thread.count();
@@ -227,6 +230,7 @@ void MainWindow::host_closed(QTcpSocket *tcp)
             data[2] = 3;
             data[3] = 4;
             data[4] = 5;
+            data[5] = 6;
             data_handle(itr.value()->dev_name, tcp, data);
 
         }

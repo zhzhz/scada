@@ -10,6 +10,7 @@ class Client :public QObject
 public:
     explicit Client(QObject *parent = nullptr);
     virtual void write_data(QByteArray &data) = 0;
+    virtual ~Client();
 
 signals:
     void data_come(QByteArray &data);

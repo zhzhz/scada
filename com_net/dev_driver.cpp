@@ -1,10 +1,33 @@
 #include "dev_driver.h"
 #include "configfile.h"
 #include "qdebug.h"
+#include "dev_factor.h"
 
 
 Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 {
+}
+
+//在这释放init时申请的资源
+Dev_driver::~Dev_driver()
+{
+    //qDebug() << "Dev_driver::~Dev_driver()1";
+    QMap<QString, dev_info>::Iterator it=devinfo.begin();
+    while(it!=devinfo.end())
+    {
+        //qDebug()<<it.key()<<"\t"<<it.value();
+//        if (it.key() == dev_name)
+//        {
+//            qDebug() << "Dev_driver name exit";
+//            return;
+//        }
+//        it++;
+        delete it.value().dev;
+        delete it.value().client;
+        it++;
+    }
+    qDebug() << "Dev_driver::~Dev_driver()";
+
 }
 
 //从内存结构得到设备信息，并初始化驱动
@@ -15,7 +38,7 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
     for (int i = 0; i < dev_table.count(); i++) {
         device *dev = (device *)dev_table[i];
         //qDebug() << dev->name["name"];
-        init_dev(dev->name["name"]);
+        init_dev(dev->name);
     }
 }
 
@@ -24,79 +47,37 @@ void Dev_driver::get_Device(QMap<int, void*> dev_table)
 //    qDebug()<<QStringLiteral("test") << fun(1,1,0,8,NULL);
 //}
 
-//如果init过，退出，如果没init过，初始化
+//如果没有初始化过，初始化。如果被删除了，也初始化
 void Dev_driver::init_dev(QString dev_name)
 {
     dev_info devinfo1 = {0, 0};
-//    for(int i = 0; i < devinfo.count(); i++)
-//    {
-//        if (devinfo.at(i).name == dev_name)
-//        {
-//            //初始化过，直接退出
-////            qDebug() <<  "exit";
-//            return;
-//        }
-//    }
+
     QMap<QString, dev_info>::Iterator it=devinfo.begin();
     while(it!=devinfo.end())
     {
         //qDebug()<<it.key()<<"\t"<<it.value();
         if (it.key() == dev_name)
         {
-            qDebug() << "Dev_driver name exit";
+            //qDebug() << "1.Dev_driver init_dev exit";
             return;
         }
         it++;
     }
+    qDebug() << "Dev_driver::init_dev" << dev_name;
 
-    //没初始化过，初始化
-    //devinfo1.name = dev_name;
-
-     //qDebug() << "devinfo.insert";
-
-
-    //QLibrary test_dll("modbus.dll");//加载dll
     QLibrary *test_dll = new QLibrary(dev_name + ".dll");
     devinfo1.dev = test_dll;
     if(test_dll->load()) {//判断是否加载成功
         qDebug() << "dll load ok" << dev_name;
-//        gen_code fun1 = (gen_code)test_dll.resolve("gen_code");//获取dll的函数
-//        fun = fun1;
-//        if (fun1) {//判断是否获取到此函数
-
-//           // client->write_data(code);
-//            qDebug()<<QStringLiteral("ok") << fun1(1,1,0,8,NULL);
-//        }
-//        else {
-//            //函数解析失败
-//            qDebug()<<QStringLiteral("dll function load error");
-//        }
-
-
     }
     else {
         qDebug()<< dev_name << QStringLiteral("dll load error");//dll文件加载失败
     }
 
     //加载驱动对应的数据通讯器
-    //modbus为网络通讯
-    //三菱也为网络通讯,假设端口
-    if (dev_name == "modbus")
-    {
-        //qDebug() << "modbus";
-        Qt_tcp_client *client = new Qt_tcp_client;
-        client->set_param(QString("192.168.2.101"), 9999);
-        client->connect_line();
-        devinfo1.client = client;
-        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-    }
-    else if (dev_name == "Mitsubishi") {
-        Qt_tcp_client *client = new Qt_tcp_client;
-        client->set_param(QString("192.168.2.101"), 8888);
-        client->connect_line();
-        devinfo1.client = client;
-        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-    }
+    //多个设备用工厂模式
+    devinfo1.client = dev_factor::product(dev_name);
+    connect(devinfo1.client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_dev_data(QByteArray &)));
 
     devinfo.insert(dev_name, devinfo1);
     //qDebug() << devinfo.count();
@@ -192,7 +173,7 @@ void Dev_driver::write_data(void *data)
 //}
 
 //收到数据打印出来
-void Dev_driver::handle_data(QByteArray &data)
+void Dev_driver::handle_dev_data(QByteArray &data)
 {
     //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
     //qDebug() << "Dev_driver:" << data;
@@ -203,5 +184,5 @@ void Dev_driver::handle_data(QByteArray &data)
     //qDebug() << output_fil(data);
     //告诉上级，数据接收ok了
     QByteArray data_fil = output_fil(data);
-    emit data_rev(data_fil);
+    emit data_rev(data_fil, 1);
 }

@@ -1,0 +1,12 @@
+#ifndef TCP508NETH_GLOBAL_H
+#define TCP508NETH_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(TCP508NETH_LIBRARY)
+#  define TCP508NETH_EXPORT Q_DECL_EXPORT
+#else
+#  define TCP508NETH_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // TCP508NETH_GLOBAL_H
