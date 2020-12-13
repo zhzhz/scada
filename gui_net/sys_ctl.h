@@ -37,6 +37,8 @@ private:
 
     error_dialog *dlg;
     int i, j;
+
+    bool write_flag;
 };
 
 #endif // SYS_CTL_H

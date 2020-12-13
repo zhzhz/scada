@@ -6,6 +6,8 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
     dlg = 0;
     i = j = 0;
 
+    write_flag = false;
+
     this->dev_driver = dev_driver;
     connect(dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));
     connect(dev_driver, SIGNAL(data_rev_error(QByteArray &)), this, SLOT(data_come_error(QByteArray &)));
@@ -42,7 +44,8 @@ void Sys_ctl::start(void)
     }
     else {
         //有写指令，发送写指令
-        data_save_bool = false;
+        //data_save_bool = false;
+        write_flag = true;
         qDebug() << "write plc data;----------------------------------";
         dev_driver->write_data(&data_save);
     }
@@ -52,6 +55,13 @@ void Sys_ctl::start(void)
 //如果有错误弹出窗口，关闭
 void Sys_ctl::data_come(QByteArray &data)
 {
+    //data_save_bool = false;
+    if (write_flag == true)
+    {
+        write_flag = false;
+        data_save_bool = false;
+    }
+
     if (dlg)
     {
         delete dlg;
@@ -60,18 +70,22 @@ void Sys_ctl::data_come(QByteArray &data)
     QMap<int, void *> leds = configFile->getDevice("led");
     QMap<int, void *> keys = configFile->getDevice("key");
 
-    if (i < leds.count())
+    if (data_save_bool == false)
     {
-        i++;
+        if (i < leds.count())
+        {
+            i++;
+        }
+        else if (j < keys.count() - 1)
+        {
+            j++;
+        }
+        else
+        {
+            i = j = 0;
+        }
     }
-    else if (j < keys.count() - 1)
-    {
-        j++;
-    }
-    else
-    {
-        i = j = 0;
-    }
+
     //qDebug() << "Sys_ctl::data_come" << dev_driver->data_save.name["name"] << data;
     //qDebug() << "Sys_ctl::data_come";
     //看看数据是不是led数据，根据led数据设置gui显示
@@ -121,6 +135,12 @@ void Sys_ctl::data_come_error(QByteArray &data)
 //qDebug() << "超时data_come_error";
     if (dlg == 0)
         dlg = new error_dialog();
+
+    if (write_flag == true)
+    {
+        write_flag = false;
+        //data_save_bool = false;
+    }
 
     start();//继续采集数据
 
