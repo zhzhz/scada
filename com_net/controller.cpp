@@ -1,6 +1,6 @@
 #include "controller.h"
 
-Controller::Controller(QMap<int, void *> device, QObject *parent) : QObject(parent)
+Controller::Controller(QString device_name, QObject *parent) : QObject(parent)
 {
     Worker *worker = new Worker;
     //worker->dev_driver.get_Device(device);
@@ -33,9 +33,9 @@ Controller::Controller(QMap<int, void *> device, QObject *parent) : QObject(pare
 
 
     //初始化worker线程
-    connect(this, SIGNAL(init(QMap<int, void *>)), worker, SLOT(init(QMap<int, void *>)));
+    connect(this, SIGNAL(init(QString)), worker, SLOT(init(QString)));
 
-    emit init(device);
+    emit init(device_name);
 
 
 
@@ -43,7 +43,7 @@ Controller::Controller(QMap<int, void *> device, QObject *parent) : QObject(pare
 //析构函数中调用quit()函数结束线程
 Controller::~Controller()
 {
-    //qDebug() << "Controller::~Controller()1";
+    qDebug() << "Controller::~Controller()1";
     workerThread.quit();
     //qDebug() << "Controller::~Controller()2";
     workerThread.wait();

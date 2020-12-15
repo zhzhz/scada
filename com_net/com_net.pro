@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network serialport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,6 +30,7 @@ SOURCES += \
     dev_factor.cpp \
         main.cpp \
         mainwindow.cpp \
+    qt_serial_client.cpp \
     qt_tcp_client.cpp \
     client.cpp \
     configfile.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     csingleton.h \
     dev_factor.h \
         mainwindow.h \
+    qt_serial_client.h \
     qt_tcp_client.h \
     client.h \
     configfile.h \

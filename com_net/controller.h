@@ -11,7 +11,7 @@ class Controller : public QObject
     Q_OBJECT
     QThread workerThread;
 public:
-    Controller(QMap<int, void *> device, QObject *parent= nullptr);
+    Controller(QString device_name, QObject *parent= nullptr);
     ~Controller();
 
     //Worker *worker;
@@ -31,7 +31,7 @@ signals:
     // 发送信号触发线程
     void operate(data_exchange, QTcpSocket *);
 
-    void init(QMap<int, void *>);
+    void init(QString);
 
     //发送给主处理程序处理
     void data_come(QString , QTcpSocket *, QByteArray);

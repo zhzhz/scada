@@ -31,7 +31,7 @@ private:
 
     Qt_tcp qt_tcp;
 
-    QMap<QTcpSocket *, Controller *> tcp2thread;
+    QMap<QString, Controller *> dev2thread;
 
     //挂起相关
     typedef struct
@@ -58,6 +58,10 @@ private slots:
     void handle_gui(QTcpSocket *);
     void data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data);
     void host_closed(QTcpSocket *);
+
+ private:
+
+
 
 };
 

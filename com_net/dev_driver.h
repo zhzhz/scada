@@ -37,14 +37,16 @@ class Dev_driver : public QObject
 public:
     explicit Dev_driver(QObject *parent = nullptr);
 
+    QByteArray data_;
+
     ~Dev_driver();
 
-    void get_Device(QMap<int, void*> dev_table);
+    void get_Device(QString dev_name);
 
     //void setClient(Client *client);
 
     QMap<QString, dev_info> devinfo;
-    QMap<int, void*> dev_table;//设备总信息
+    QString dev_name;//设备总信息
 
     void write_write_data(void *data, QString data_type, QByteArray data_write);
     void write_read_data(void *data, QString data_type);
@@ -60,6 +62,7 @@ private:
 
     void init_dev(QString dev_name);
 
+    typedef int (*get_expect_len)(void);
     typedef QByteArray  (*gen_code)(uchar addr, uchar control_byte, ushort start, ushort count, QByteArray byte_send);
     typedef QByteArray (*input_data_exchange)(data_exchange *);
     typedef QByteArray (*output_filter)(QByteArray data);

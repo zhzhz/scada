@@ -1,4 +1,5 @@
 #include "qt_tcp.h"
+#include "QMessageBox"
 
 Qt_tcp::Qt_tcp(QObject *parent) : QObject(parent)
 {
@@ -46,7 +47,9 @@ void Qt_tcp::msg_error(QAbstractSocket::SocketError error)
         default:
         {
             //error = -1;
-            //QMessageBox::information(this, "show", serverConnect->errorString());
+            //QMessageBox::information(this, "show", "error");
+        QMessageBox::information(NULL, "Title", "Content",
+                                 QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
             break;
         }
     }
