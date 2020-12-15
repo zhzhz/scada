@@ -29,7 +29,7 @@ private slots:
     void data_come(QByteArray &data, int id);
     void data_come_error();
 
-    void init(QMap<int, void *> device);
+    void init(QString device_name);
 
 private:
     QTcpSocket *tcp_save;

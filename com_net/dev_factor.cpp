@@ -1,5 +1,6 @@
 #include "dev_factor.h"
 #include "qt_tcp_client.h"
+#include "qt_serial_client.h"
 
 dev_factor::dev_factor()
 {
@@ -57,5 +58,9 @@ Client * dev_factor::product(QString name)
     else if(name == "tcp508neth")
     {
         return tcp508neth_dev::tcp508neth();
+    }
+    else if(name == "tcp508nserial")
+    {
+        return new Qt_serial_client();
     }
 }

@@ -11,7 +11,7 @@ Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 //在这释放init时申请的资源
 Dev_driver::~Dev_driver()
 {
-    //qDebug() << "Dev_driver::~Dev_driver()1";
+    qDebug() << "Dev_driver::~Dev_driver()1";
     QMap<QString, dev_info>::Iterator it=devinfo.begin();
     while(it!=devinfo.end())
     {
@@ -26,20 +26,22 @@ Dev_driver::~Dev_driver()
         delete it.value().client;
         it++;
     }
-    qDebug() << "Dev_driver::~Dev_driver()";
+    qDebug() << "Dev_driver::~Dev_driver()2";
 
 }
 
 //从内存结构得到设备信息，并初始化驱动
-void Dev_driver::get_Device(QMap<int, void*> dev_table)
+void Dev_driver::get_Device(QString dev_name)
 {
-    this->dev_table = dev_table;
-//得到driver，初始化驱动.dll
-    for (int i = 0; i < dev_table.count(); i++) {
-        device *dev = (device *)dev_table[i];
-        //qDebug() << dev->name["name"];
-        init_dev(dev->name);
-    }
+//    this->dev_table = dev_table;
+////得到driver，初始化驱动.dll
+//    for (int i = 0; i < dev_table.count(); i++) {
+//        device *dev = (device *)dev_table[i];
+//        //qDebug() << dev->name["name"];
+//        init_dev(dev->name);
+//    }
+    this->dev_name = dev_name;
+    init_dev(dev_name);
 }
 
 //void Dev_driver::test()
@@ -153,11 +155,11 @@ void Dev_driver::write_data(void *data)
     //调用dll驱动
     input_data_exchange data_exchange = (input_data_exchange)dev_inf.dev->resolve("input_data_exchange");
     if (data_exchange) {
-       // qDebug() << "data_exchange ok";
-        //qDebug() << "variable:" << data_ex->variable["variable"];
+        //qDebug() << "data_exchange ok" << data_save.device;
+        //qDebug() << "variable:" << data_ex->variable;
         QByteArray data = data_exchange(data_ex);
         //发送数据,得到对应的client
-        //qDebug() << "plc_data" << data;
+        //qDebug() << "plc_data" << (int)data[6] << (int)data[7] << data.size();
         dev_inf.client->write_data(data);
     }
     else {
@@ -172,17 +174,48 @@ void Dev_driver::write_data(void *data)
 //    connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
 //}
 
-//收到数据打印出来
+//收到设备数据，过滤一下，发送出去
+//bug修复，对于串口，需要多次等待调用这个函数，将数据拼凑起来
 void Dev_driver::handle_dev_data(QByteArray &data)
 {
-    //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
-    //qDebug() << "Dev_driver:" << data;
-    //根据驱动名得到驱动
+    //static QByteArray data_;
     QString dev_name = data_save.device;//modbus
-    dev_info dev_inf = devinfo[dev_name];
-    output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
-    //qDebug() << output_fil(data);
-    //告诉上级，数据接收ok了
-    QByteArray data_fil = output_fil(data);
-    emit data_rev(data_fil, 1);
+    if (dev_name != "tcp508nserial")
+    {
+        //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
+        //qDebug() << "Dev_driver:" << data_save.device << data.size();
+        //根据驱动名得到驱动
+
+        dev_info dev_inf = devinfo[dev_name];
+        output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
+        //qDebug() << output_fil(data);
+        //告诉上级，数据接收ok了
+        QByteArray data_fil = output_fil(data);
+        emit data_rev(data_fil, 1);
+        //qDebug() <<"过滤前"<<dev_name <<data;
+        //qDebug() <<"过滤后"<<dev_name <<data_fil;
+    }
+    else
+    {
+
+        dev_info dev_inf = devinfo[dev_name];
+        get_expect_len f = (get_expect_len)dev_inf.dev->resolve("get_expect_len");
+
+        data_ = data_ + data;
+
+        if (data_.size() == f())
+        {
+            //收到想要的数据长度了
+            //qDebug() <<"串口数据3" << data_;
+
+            output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
+            //qDebug() << output_fil(data_);
+            //告诉上级，数据接收ok了
+            QByteArray data_fil = output_fil(data_);
+            //qDebug() <<"串口数据4" << data_fil;
+            emit data_rev(data_fil, 1);
+            data_.clear();
+        }
+    }
+
 }

@@ -9,9 +9,6 @@
 #include <QMetaType>
 #include "csingleton.h"
 
-
-
-
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -74,6 +71,7 @@ void MainWindow::ImageTimerTimeout()
 
 void MainWindow::handle_gui(QTcpSocket *guiSocket)
 {
+    qDebug() << "handle_gui1" << guiSocket;
     QByteArray data = guiSocket->peek(10000);
     //qDebug() << "读取发来的数据，反序列化，调用函数";
     QDataStream in(&data, QIODevice::ReadOnly);//从网络中读取的data中读到数据
@@ -86,30 +84,26 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
 //                custom_data_rev.l.dev_id << custom_data_rev.l.variable << custom_data_rev.l.write_data;
     //只有没挂起的数据才能读取出来。
 
-    static int i = 0;
+
     if (id == 0)//0则调用如下函数
     {
-       // dev_driver.write_data(&custom_data_rev.l);
+        QString dev_name = custom_data_rev.l.device;
+        //qDebug() << "dev_name" << dev_name;
         //判断gui数据是否挂起，如果不挂起，则发送采集线程采集数据，并置位当前设备busy标志位，如果挂起则挂起。
         //挂起的标准是，当前设备标志位busy = 1，则挂起。
-        //为每个gui eth创建唯一的采集线程。
-
-        //qDebug() << "主线程id：" << QThread::currentThreadId();
-        if (tcp2thread[guiSocket] == 0)
+        //gui都在主线程，采集线程多少根据采集设备来确定，一个设备，对应唯一一个采集线程
+        if (dev2thread[dev_name] == 0)
         {
-            //创建gui对应的新线程--采集线程
-            //Controller *p = new Controller(configFile.getDevice("device"), this);
-            Controller *p = new Controller(configFile.getDevice("device"));
-            tcp2thread[guiSocket] = p;
+            //Controller *p = new Controller(configFile.getDevice("device"));
+            Controller *p = new Controller(dev_name);
+            dev2thread[dev_name] = p;
 
-            //收到数据后处理
             connect(p, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
-                    this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
-            qDebug() << "新线程------------------------------" << tcp2thread.count() << guiSocket;
+                              this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
         }
 
         //判断当前数据是执行还是挂起
-        QString dev_name = custom_data_rev.l.device;
+
         if (dev_suspend[dev_name] == 0)//初始化挂起相关
         {
             suspand *suspand_ = new suspand;
@@ -134,29 +128,29 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
             //调用Controller的get_data函数来执行采集任务
             //清空缓存区数据，防止对下次造成干扰。
             guiSocket->readAll();
-            tcp2thread[guiSocket]->get_data(custom_data_rev.l, guiSocket);
+            dev2thread[dev_name]->get_data(custom_data_rev.l, guiSocket);
         }
         else
         {
             //挂起当前gui请求
             dev_suspend[dev_name]->tcp_clients << guiSocket;
-
-
-
-            //qDebug() << "挂起" << dev_name << guiSocket;
         }
 
-
-        //qDebug() << "tcp2thread[serverSocket]" << tcp2thread[serverSocket];
     }
+    qDebug() << "handle_gui2" << guiSocket;
 
 }
 
 
 void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
 {
-//qDebug() << "MainWindow::data_handle" << dev_name << tcp << data;
+qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
+//    if (link_closed == false)
+//    {
+        //data.clear();
+        //delete  tcp;
     tcp->write(data);//返回数据给gui
+
     dev_suspend[dev_name]->busy_client = 0;
     dev_suspend[dev_name]->dev_name = "";
 
@@ -167,6 +161,7 @@ void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
         dev_suspend[dev_name]->is_suspend = false;//一定要记住解挂flag，不然刚解挂的又会被挂回去
         //取出最前面运行（最先挂入的gui）
         //qDebug() << "解挂" << dev_suspend[dev_name]->tcp_clients.size() << dev_name << dev_suspend[dev_name]->tcp_clients.at(0);
+        //qDebug() << "解挂" << tcp;
         handle_gui(dev_suspend[dev_name]->tcp_clients.at(0));
         dev_suspend[dev_name]->tcp_clients.remove(0);
     }
@@ -174,18 +169,22 @@ void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
     {
         dev_suspend[dev_name]->is_suspend = false;
     }
+    qDebug() << "MainWindow::data_handle2" << dev_name << tcp << data;
 }
 
 //处理gui网络断开的资源回收问题
 //注意当前gui连接关闭后还有可能原来被挂起的解挂运行造成程序错误
 void MainWindow::host_closed(QTcpSocket *tcp)
 {
-    qDebug() << "网络断开" << tcp;
-    Controller *p = tcp2thread[tcp];
-    delete p;
-    //qDebug() << "remove前" << tcp2thread.count();
-    tcp2thread.remove(tcp);
-    qDebug() << "remove后" << tcp2thread.count() << tcp;
+    qDebug() << "gui网络断开1" << tcp;
+    //tcp_closed = tcp;
+    //link_closed = true;
+//    Controller *p = tcp2thread[tcp];
+//    delete p;
+//    tcp2thread.remove(tcp);
+//    qDebug() << "remove后" << tcp2thread.count() << tcp;
+    //先清除connect，然后再connect
+    //dev2thread[dev_name]
 
     //1.如果gui tcp有挂起的，清除挂载(不管是被挂载在哪个dev_name下)
     QMapIterator<QString, suspand *> itr(dev_suspend);
@@ -202,12 +201,12 @@ void MainWindow::host_closed(QTcpSocket *tcp)
             //qDebug()<<*itr;
             if (*itr_ == tcp)
             {
-                //qDebug() << tcp << "解除挂载1";
+                qDebug() << tcp << "解除挂载1";
                 itr.value()->tcp_clients.remove(itr.value()->tcp_clients.indexOf(tcp));
                 if (itr.value()->tcp_clients.count() == 0)
                 {
                     itr.value()->is_suspend = false;
-                    //qDebug() << tcp << "解除挂载2";
+                    qDebug() << tcp << "解除挂载2";
                     //看看最初的有没有解挂
                     //qDebug() << "最初的2："<<dev_suspend["modbus"]->is_suspend << dev_suspend["Mitsubishi"]->is_suspend;
                 }
@@ -215,35 +214,33 @@ void MainWindow::host_closed(QTcpSocket *tcp)
         }
 
         //2.如果清除的gui是当前busy的gui,则恢复suspend标志位==0;
-        if (tcp == itr.value()->busy_client)
-        {
-            //qDebug() << "当前正在运行" << tcp;
-            itr.value()->is_suspend = false;
-            //因为前面调用Controller *p = tcp2thread[tcp];
-            //delete p;
-            //使得不会再从Controller返回数据，无法执行data_handle函数
-            //也就无法执行挂起的gui，所以需要手动调用data_handle函数
-            QByteArray data;
-            data.resize(6);
-            data[0] = 1;
-            data[1] = 2;
-            data[2] = 3;
-            data[3] = 4;
-            data[4] = 5;
-            data[5] = 6;
-            data_handle(itr.value()->dev_name, tcp, data);
-
-        }
-    }
+//        if (tcp == itr.value()->busy_client)
+//        {
+//            qDebug() << "当前正在运行,还在等待返回" << tcp;
+//            itr.value()->is_suspend = false;
+//            //因为前面调用Controller *p = tcp2thread[tcp];
+//            //delete p;
+//            //使得不会再从Controller返回数据，无法执行data_handle函数
+//            //也就无法执行挂起的gui，所以需要手动调用data_handle函数
+//            QByteArray data;
+//            data.resize(6);
+//            data[0] = 1;
+//            data[1] = 2;
+//            data[2] = 3;
+//            data[3] = 4;
+//            data[4] = 5;
+//            data[5] = 6;
+//            data_handle(itr.value()->dev_name, tcp, data);
 
 
-//    if (tcp == dev_suspend[dev_name]->busy_client)
-//    {
+////        }
+            if (tcp == itr.value()->busy_client)
+            {
+                //设置标志位，防止程序异常结束
 
-//    }
-
-
-
+            }
+      }
+    qDebug() << "gui网络断开2" << tcp;
 }
 
 
