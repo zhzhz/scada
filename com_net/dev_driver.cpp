@@ -205,14 +205,8 @@ void Dev_driver::handle_dev_data(QByteArray &data)
 
         if (data_.size() == f())
         {
-            //收到想要的数据长度了
-            //qDebug() <<"串口数据3" << data_;
-
             output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
-            //qDebug() << output_fil(data_);
-            //告诉上级，数据接收ok了
             QByteArray data_fil = output_fil(data_);
-            //qDebug() <<"串口数据4" << data_fil;
             emit data_rev(data_fil, 1);
             data_.clear();
         }

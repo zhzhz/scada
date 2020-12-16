@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::ImageTimerTimeout()
 {
-
+    qDebug() << "定时器事件";
 }
 
 //void MainWindow::test1()
@@ -71,7 +71,7 @@ void MainWindow::ImageTimerTimeout()
 
 void MainWindow::handle_gui(QTcpSocket *guiSocket)
 {
-    qDebug() << "handle_gui1" << guiSocket;
+    qDebug() << "handle_gui1" << guiSocket << dev2thread.size();
     QByteArray data = guiSocket->peek(10000);
     //qDebug() << "读取发来的数据，反序列化，调用函数";
     QDataStream in(&data, QIODevice::ReadOnly);//从网络中读取的data中读到数据
@@ -169,7 +169,7 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
     {
         dev_suspend[dev_name]->is_suspend = false;
     }
-    qDebug() << "MainWindow::data_handle2" << dev_name << tcp << data;
+    //qDebug() << "MainWindow::data_handle2" << dev_name << tcp << data;
 }
 
 //处理gui网络断开的资源回收问题
@@ -205,7 +205,11 @@ void MainWindow::host_closed(QTcpSocket *tcp)
                 itr.value()->tcp_clients.remove(itr.value()->tcp_clients.indexOf(tcp));
                 if (itr.value()->tcp_clients.count() == 0)
                 {
-                    itr.value()->is_suspend = false;
+                    //不能直接置为false！！！1,如果删除的gui正好挂在还没返回的busy运行的gui之后
+                    //当旧的gui请求还没返回,新的gui请求会被接收，从而造成两次运行被设计为只能单独运行的代码，导致出错
+                    //itr.value()->is_suspend = false;
+
+                    //if (dev_suspend[itr.key()]->is_suspend == false)
                     qDebug() << tcp << "解除挂载2";
                     //看看最初的有没有解挂
                     //qDebug() << "最初的2："<<dev_suspend["modbus"]->is_suspend << dev_suspend["Mitsubishi"]->is_suspend;

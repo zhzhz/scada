@@ -27,7 +27,9 @@ void Worker::doWork(data_exchange l, QTcpSocket *tcp)
     dev_driver.write_data(&l);//调用dev_driver发送数据给设备。
     tcp_save = tcp;
 
+
     m_timer = new QTimer;
+    qDebug() << "Worker::doWork" << m_timer;
     m_timer->setSingleShot(true);
     //并设置定时器时间：1秒超时
     m_timer->start(1000);
@@ -40,7 +42,10 @@ void Worker::doWork(data_exchange l, QTcpSocket *tcp)
 //id == 1 ,正常数据； id==2 ，出错数据
 void Worker::data_come(QByteArray &data, int id)
 {
+    qDebug() << "Worker::data_come1";
+    m_timer->disconnect();
     delete m_timer;
+    qDebug() << "Worker::data_come2";
     //int id = 1;//call data_come函数
 //    if (device_save == "tcp508neth")
 //        qDebug() << "3.数据由plc返回";
@@ -50,6 +55,7 @@ void Worker::data_come(QByteArray &data, int id)
     //qt_tcp.clientSockets->write(data_send);
     emit resultReady(dev_driver.data_save.device, tcp_save, data_send);//返回数据及相关变量
     delete stream;
+    qDebug() << "Worker::data_come3";
 }
 
 //出错数据返回在这
@@ -60,7 +66,7 @@ void Worker::data_come_error()
     QByteArray data;
     int id = 2;
     //关闭连接（保证有这个连接才删除）
-    qDebug() << "Worker::data_come_error()";
+    qDebug() << "Worker::data_come_error()1" << tcp_save << device_save << sender() << QThread::currentThread();
 
     dev_driver.data_.clear();
 
@@ -69,10 +75,10 @@ void Worker::data_come_error()
     {
         if (it.key() == device_save)
         {
-            qDebug() << "Worker::data_come_error()1";
+            qDebug() << "Worker::data_come_error()2";
             delete it.value().dev;
             delete it.value().client;
-            qDebug() << "Worker::data_come_error()2";
+            qDebug() << "Worker::data_come_error()3";
             //这个地方执行下一句，程序会报错！！！！！！！！
             //qDebug() << "1.数据超时，删除连接" << (it.value().client);
             break;
@@ -81,7 +87,7 @@ void Worker::data_come_error()
         it++;
     }
     dev_driver.devinfo.remove(device_save);
-    qDebug() << "Worker::data_come_error()3";
+    qDebug() << "Worker::data_come_error()4";
 
     //qDebug() << "2.返回数据超时，返回id==2，数据为空";
     data_come(data, id);
