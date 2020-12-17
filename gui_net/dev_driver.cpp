@@ -3,114 +3,38 @@
 #include "qdebug.h"
 #include "custom_data.h"
 
-
+//如果连接出错则显示报错，并不断重连直到连接上，关闭报错窗口。
 Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 {
-    Qt_tcp_client *client = new Qt_tcp_client(this);//连接8686 com端口，用来发送数据
+    dlg = 0;
+    if (connect_net() == false)
+    {
+        if (dlg == 0)
+            dlg = new error_dialog();
+
+        while (1)
+        {
+            delete client;
+            if (connect_net() == true)
+                break;
+        }
+
+        delete dlg;
+        dlg = 0;
+    }
+}
+
+bool Dev_driver::connect_net(void)
+{
+    Qt_tcp_client *client = new Qt_tcp_client();//连接8686 com端口，用来发送数据
     client->set_param(QString("192.168.2.101"), 8686);
-    client->connect_line();
+    bool b = client->connect_line();
     this->client = client;
     connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));//com发数据来了，处理之
+    connect(client, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//网络连接错误
+    return b;
 }
-//void Dev_driver::test()
-//{
-//    qDebug()<<QStringLiteral("test") << fun(1,1,0,8,NULL);
-//}
 
-//从内存结构得到设备信息，并初始化驱动
-//void Dev_driver::get_Device(QMap<int, void*> dev_table)
-//{
-//    this->dev_table = dev_table;
-////得到driver，初始化驱动.dll
-//    for (int i = 0; i < dev_table.count(); i++) {
-//        device *dev = (device *)dev_table[i];
-//        //qDebug() << dev->name["name"];
-//        init_dev(dev->name["name"]);
-//    }
-//}
-
-////void Dev_driver::test()
-////{
-////    qDebug()<<QStringLiteral("test") << fun(1,1,0,8,NULL);
-////}
-
-////如果init过，退出，如果没init过，初始化
-//void Dev_driver::init_dev(QString dev_name)
-//{
-//    dev_info devinfo1 = {0};
-////    for(int i = 0; i < devinfo.count(); i++)
-////    {
-////        if (devinfo.at(i).name == dev_name)
-////        {
-////            //初始化过，直接退出
-//////            qDebug() <<  "exit";
-////            return;
-////        }
-////    }
-//    QMap<QString, dev_info>::Iterator it=devinfo.begin();
-//    while(it!=devinfo.end())
-//    {
-//        //qDebug()<<it.key()<<"\t"<<it.value();
-//        if (it.key() == dev_name)
-//        {
-//            qDebug() << "Dev_driver name exit";
-//            return;
-//        }
-//        it++;
-//    }
-
-//    //没初始化过，初始化
-//    //devinfo1.name = dev_name;
-
-//     //qDebug() << "devinfo.insert";
-
-
-//    //QLibrary test_dll("modbus.dll");//加载dll
-//    QLibrary *test_dll = new QLibrary(dev_name + ".dll");
-//    devinfo1.dev = test_dll;
-//    if(test_dll->load()) {//判断是否加载成功
-//        qDebug() << "dll load ok" << dev_name;
-////        gen_code fun1 = (gen_code)test_dll.resolve("gen_code");//获取dll的函数
-////        fun = fun1;
-////        if (fun1) {//判断是否获取到此函数
-
-////           // client->write_data(code);
-////            qDebug()<<QStringLiteral("ok") << fun1(1,1,0,8,NULL);
-////        }
-////        else {
-////            //函数解析失败
-////            qDebug()<<QStringLiteral("dll function load error");
-////        }
-
-
-//    }
-//    else {
-//        qDebug()<< dev_name << QStringLiteral("dll load error");//dll文件加载失败
-//    }
-
-//    //加载驱动对应的数据通讯器
-//    //modbus为网络通讯
-//    //三菱也为网络通讯,假设端口
-//    if (dev_name == "modbus")
-//    {
-//        //qDebug() << "modbus";
-//        Qt_tcp_client *client = new Qt_tcp_client(this);
-//        client->set_param(QString("192.168.2.100"), 9999);
-//        client->connect_line();
-//        devinfo1.client = client;
-//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-//    }
-//    else if (dev_name == "Mitsubishi") {
-//        Qt_tcp_client *client = new Qt_tcp_client(this);
-//        client->set_param(QString("192.168.2.100"), 8888);
-//        client->connect_line();
-//        devinfo1.client = client;
-//        connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-//    }
-
-//    devinfo.insert(dev_name, devinfo1);
-//    //qDebug() << devinfo.count();
-//}
 
 void Dev_driver::write_write_data(void *data, QString data_type,QByteArray data_write)
 {
@@ -173,25 +97,6 @@ void Dev_driver::write_data(void *data)
     data_save.name = data_ex->name;//保存这个为了发和收之间的对应
     data_save.read_write = data_ex->read_write;//保存这个为了接收到数据后处理读和写
 
-    //根据驱动名得到驱动
-//    QString dev_name = data_ex->device["device"];
-//    dev_info dev_inf = devinfo[dev_name];
-//    //qDebug() << dev_name << dev_inf.dev;
-
-//    //调用dll驱动
-//    input_data_exchange data_exchange = (input_data_exchange)dev_inf.dev->resolve("input_data_exchange");
-//    if (data_exchange) {
-//       // qDebug() << "data_exchange ok";
-//        //qDebug() << "variable:" << data_ex->variable["variable"];
-//        QByteArray data = data_exchange(data_ex);
-//        //发送数据,得到对应的client
-//        //qDebug() << "plc_data" << data;
-//        dev_inf.client->write_data(data);
-//    }
-//    else {
-//        qDebug() << "data_exchange error";
-//    }
-
     //网络发送数据结构，接收方解码后执行函数调用
     int ID = 0;
     Custom_data custom_data;
@@ -212,40 +117,10 @@ void Dev_driver::write_data(void *data)
     delete stream;
 }
 
-//只支持一个设备out了，改用新方法
-//void Dev_driver::setClient(Client *client)
-//{
-//    this->client = client;
-//    connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));
-//}
-
-//收到数据打印出来
-//void Dev_driver::handle_data(QByteArray &data)
-//{
-//    //qDebug() << "Qt_tcp_client::socket_Read_Data 3";
-//    //qDebug() << "Dev_driver:" << data;
-//    //根据驱动名得到驱动
-//    QString dev_name = data_save.device["device"];//modbus
-//    dev_info dev_inf = devinfo[dev_name];
-//    output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
-//    //qDebug() << output_fil(data);
-//    //告诉上级，数据接收ok了
-//    QByteArray data_fil = output_fil(data);
-//    emit data_rev(data_fil);
-//}
-
 //com发数据来了，收数据，emit信号
 //如果收到的id是2，则代表出错
 void Dev_driver::handle_data(QByteArray &data)
 {
-//    //根据驱动名得到驱动
-//    QString dev_name = data_save.device["device"];//modbus
-//    dev_info dev_inf = devinfo[dev_name];
-//    output_filter output_fil = (output_filter)dev_inf.dev->resolve("output_filter");
-//    //qDebug() << output_fil(data);
-//    //告诉上级，数据接收ok了
-//    QByteArray data_fil = output_fil(data);
-//    emit data_rev(data_fil);
 
     QDataStream in(&data, QIODevice::ReadOnly);//从网络中读取的data中读到数据
 
@@ -261,3 +136,12 @@ void Dev_driver::handle_data(QByteArray &data)
         emit data_rev_error(data_fil);
     }
 }
+
+
+void Dev_driver::host_closed(QTcpSocket *tcp)
+{
+    qDebug() << "Dev_driver::host_closed";
+    emit host_closed_signal(tcp);
+}
+
+

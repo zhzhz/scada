@@ -4,6 +4,7 @@
 Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
 {
     dlg = 0;
+    dlg_neterror = 0;
     i = j = 0;
 
     write_flag = false;
@@ -11,6 +12,7 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
     this->dev_driver = dev_driver;
     connect(dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));
     connect(dev_driver, SIGNAL(data_rev_error(QByteArray &)), this, SLOT(data_come_error(QByteArray &)));
+    connect(dev_driver, SIGNAL(host_closed_signal(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));
 
     data_save_bool = false;
     read_none = false;
@@ -238,4 +240,85 @@ void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
     {
         start();
     }
+}
+
+//gui与com连接中断
+//1.弹出error报警框，关闭tcp连接
+//2.不断重连服务器，连接上后复位发送（相当于重连新的tcp连接）
+void Sys_ctl::host_closed(QTcpSocket *tcp)
+{
+
+    qDebug() << "Sys_ctl::host_closed1";
+    //tcp->deleteLater();
+    //delete  tcp;
+    qDebug() << "Sys_ctl::host_closed2";
+
+    dev_driver->client->deleteLater();
+
+    if (dlg_neterror == 0)
+            dlg_neterror = new error_dialog();
+
+    while(1)
+    {
+            if (dev_driver->connect_net() == true)
+            {
+                //qDebug() << "网络返回true1";
+                delete dlg_neterror;
+                dlg_neterror = 0;
+                break;
+            }
+            else
+            {
+                //连接无效,关闭连接
+                delete dev_driver->client;
+            }
+    }
+
+    if (dlg)
+        delete dlg;
+
+    i = j = 0;
+    write_flag = false;
+    data_save_bool = false;
+    read_none = false;
+
+    start();
+
+
+
+
+//    if (dlg_neterror == 0)
+//        dlg_neterror = new error_dialog();
+
+
+//    delete  tcp;
+
+//    while(1)
+//    {
+//        if (dev_driver->connect_net() == true)
+//        {
+//            //qDebug() << "网络返回true1";
+//            delete dlg_neterror;
+//            dlg_neterror = 0;
+//            break;
+//        }
+//        else
+//        {
+//            //连接无效,关闭连接
+//            delete dev_driver->client;
+//        }
+//    }
+
+
+//    if (dlg)
+//        delete dlg;
+
+
+
+//    i = j = 0;
+//    write_flag = false;
+//    data_save_bool = false;
+//    read_none = false;
+
+
 }

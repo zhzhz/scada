@@ -4,6 +4,9 @@ Qt_tcp_client::Qt_tcp_client(QObject *parent):Client(parent)
 {
     socket = new QTcpSocket(this);
     connect(socket, SIGNAL(readyRead()), this, SLOT(socket_Read_Data()));
+
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)),
+                            this, SLOT(msg_error(QAbstractSocket::SocketError)));
 }
 
 void Qt_tcp_client::set_param(QString IP, int port)
@@ -12,17 +15,24 @@ void Qt_tcp_client::set_param(QString IP, int port)
     this->port = port;
 }
 
-void Qt_tcp_client::connect_line(void)
+Qt_tcp_client::~Qt_tcp_client()
+{
+    qDebug() << "Qt_tcp_client::~Qt_tcp_client()";
+    delete socket;
+}
+
+bool Qt_tcp_client::connect_line(void)
 {
     socket->connectToHost(IP, port);
-    if(!socket->waitForConnected(30000))
+    if(!socket->waitForConnected(5000))
     {
         qDebug() << "Connection failed!" << port;
-        return;
+        return false;
     }
     else
     {
         qDebug() << "Connect successfully!" << port;
+        return true;
     }
 }
 
@@ -42,4 +52,28 @@ void Qt_tcp_client::write_data(QByteArray &data)
 {
 //发送数据给server
     socket->write(data);
+}
+
+void Qt_tcp_client::msg_error(QAbstractSocket::SocketError error)
+{
+    qDebug() << "Qt_tcp_client::msg_error" << "网络断开";
+    QTcpSocket *sender_client = qobject_cast<QTcpSocket  *>(sender());
+    qDebug() << "网络断开" << error;
+    switch(error)
+    {
+        case QAbstractSocket::RemoteHostClosedError://客户端断开
+        {
+            emit host_closed(sender_client);
+
+            break;
+        }
+        default:
+        {
+            //error = -1;
+            //QMessageBox::information(this, "show", "error");
+        //QMessageBox::information(NULL, "Title", "Content",
+        //                         QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            break;
+        }
+    }
 }

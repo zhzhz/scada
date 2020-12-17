@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::ImageTimerTimeout()
 {
-    qDebug() << "定时器事件";
+    //qDebug() << "定时器事件";
 }
 
 //void MainWindow::test1()
