@@ -58,7 +58,7 @@ void Qt_tcp_client::msg_error(QAbstractSocket::SocketError error)
 {
     //qDebug() << "Qt_tcp_client::msg_error" << "网络断开";
     QTcpSocket *sender_client = qobject_cast<QTcpSocket  *>(sender());
-    //qDebug() << "网络断开" << error;
+    qDebug() << "Qt_tcp_client::msg_error" << error;
     switch(error)
     {
         case QAbstractSocket::RemoteHostClosedError://客户端断开
@@ -68,8 +68,12 @@ void Qt_tcp_client::msg_error(QAbstractSocket::SocketError error)
             break;
         }
 
-    case QAbstractSocket::NetworkError:
+    case QAbstractSocket::NetworkError://网络断开
             //emit host_closed(sender_client);
+            emit networkerror(sender_client);
+        break;
+
+    case QAbstractSocket::ConnectionRefusedError://有网络没server
             emit networkerror(sender_client);
         break;
         default:

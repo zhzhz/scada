@@ -177,14 +177,9 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
 void MainWindow::host_closed(QTcpSocket *tcp)
 {
     qDebug() << "gui网络断开1" << tcp;
-    //tcp_closed = tcp;
-    //link_closed = true;
-//    Controller *p = tcp2thread[tcp];
-//    delete p;
-//    tcp2thread.remove(tcp);
-//    qDebug() << "remove后" << tcp2thread.count() << tcp;
-    //先清除connect，然后再connect
-    //dev2thread[dev_name]
+
+    tcp->deleteLater();
+
 
     //1.如果gui tcp有挂起的，清除挂载(不管是被挂载在哪个dev_name下)
     QMapIterator<QString, suspand *> itr(dev_suspend);
@@ -208,41 +203,11 @@ void MainWindow::host_closed(QTcpSocket *tcp)
                     //不能直接置为false！！！1,如果删除的gui正好挂在还没返回的busy运行的gui之后
                     //当旧的gui请求还没返回,新的gui请求会被接收，从而造成两次运行被设计为只能单独运行的代码，导致出错
                     //itr.value()->is_suspend = false;
-
-                    //if (dev_suspend[itr.key()]->is_suspend == false)
                     qDebug() << tcp << "解除挂载2";
-                    //看看最初的有没有解挂
-                    //qDebug() << "最初的2："<<dev_suspend["modbus"]->is_suspend << dev_suspend["Mitsubishi"]->is_suspend;
+
                 }
             }
         }
-
-        //2.如果清除的gui是当前busy的gui,则恢复suspend标志位==0;
-//        if (tcp == itr.value()->busy_client)
-//        {
-//            qDebug() << "当前正在运行,还在等待返回" << tcp;
-//            itr.value()->is_suspend = false;
-//            //因为前面调用Controller *p = tcp2thread[tcp];
-//            //delete p;
-//            //使得不会再从Controller返回数据，无法执行data_handle函数
-//            //也就无法执行挂起的gui，所以需要手动调用data_handle函数
-//            QByteArray data;
-//            data.resize(6);
-//            data[0] = 1;
-//            data[1] = 2;
-//            data[2] = 3;
-//            data[3] = 4;
-//            data[4] = 5;
-//            data[5] = 6;
-//            data_handle(itr.value()->dev_name, tcp, data);
-
-
-////        }
-            if (tcp == itr.value()->busy_client)
-            {
-                //设置标志位，防止程序异常结束
-
-            }
       }
     qDebug() << "gui网络断开2" << tcp;
 }
