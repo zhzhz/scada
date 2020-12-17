@@ -24,6 +24,7 @@ signals:
 
 signals:
     void host_closed(QTcpSocket *);
+    void networkerror(QTcpSocket *);
 //    void data_come(QByteArray &data);
 
 private slots:

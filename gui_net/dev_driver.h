@@ -8,6 +8,7 @@
 #include "client.h"
 #include "qt_tcp_client.h"
 #include "error_dialog.h"
+#include "qtimer.h"
 
 typedef struct
 {
@@ -49,7 +50,7 @@ public:
     void write_data(void *);
 
     data_exchange data_save;
-
+    bool wait_for_first_connect;
     Client *client;
     //void test();
 signals:
@@ -57,12 +58,14 @@ signals:
     void data_rev(QByteArray &);
     void data_rev_error(QByteArray &);
     void host_closed_signal(QTcpSocket *);
+    void networkerror_signal(QTcpSocket *);
 
 public slots:
+    //void TimerTimeout(void);
 private:
     QMap<int, void*> dev_table;
-    error_dialog *dlg;
 
+    QTimer *m_timer;
 
     typedef QByteArray  (*gen_code)(uchar addr, uchar control_byte, ushort start, ushort count, QByteArray byte_send);
     typedef QByteArray (*input_data_exchange)(data_exchange *);
@@ -74,6 +77,7 @@ private:
 private slots:
     void handle_data(QByteArray &data);
     void host_closed(QTcpSocket *tcp);
+    void networkerror(QTcpSocket *tcp);
 };
 
 #endif // DEV_DRIVER_H
