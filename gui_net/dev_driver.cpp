@@ -6,33 +6,19 @@
 //如果连接出错则显示报错，并不断重连直到连接上，关闭报错窗口。
 Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 {
-    dlg = 0;
-    if (connect_net() == false)
-    {
-        if (dlg == 0)
-            dlg = new error_dialog();
 
-        while (1)
-        {
-            delete client;
-            if (connect_net() == true)
-                break;
-        }
-
-        delete dlg;
-        dlg = 0;
-    }
 }
 
 bool Dev_driver::connect_net(void)
 {
     Qt_tcp_client *client = new Qt_tcp_client();//连接8686 com端口，用来发送数据
     client->set_param(QString("192.168.2.101"), 8686);
-    bool b = client->connect_line();
     this->client = client;
     connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));//com发数据来了，处理之
     connect(client, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//网络连接错误
-    return b;
+    connect(client, SIGNAL(networkerror(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
+
+    return client->connect_line();
 }
 
 
@@ -142,6 +128,12 @@ void Dev_driver::host_closed(QTcpSocket *tcp)
 {
     qDebug() << "Dev_driver::host_closed";
     emit host_closed_signal(tcp);
+}
+
+void Dev_driver::networkerror(QTcpSocket *tcp)
+{
+    qDebug() << "Dev_driver::networkerror";
+    emit networkerror_signal(tcp);
 }
 
 

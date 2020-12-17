@@ -8,6 +8,7 @@
 #include "qradiobutton.h"
 #include "qpushbutton.h"
 #include "error_dialog.h"
+#include "QTimer"
 
 class Sys_ctl : public QObject
 {
@@ -26,7 +27,9 @@ private slots:
     void data_come_error(QByteArray &data);
 
     void host_closed(QTcpSocket *tcp);
+    void networkerror(QTcpSocket *);
     void button_clicked(void);
+    void TimerTimeout(void);
 private:
     Dev_driver *dev_driver;
     ConfigFile *configFile;
@@ -41,6 +44,9 @@ private:
     int i, j;
 
     bool write_flag;
+    QTimer *m_timer;
+
+    bool host_closed_f;
 };
 
 #endif // SYS_CTL_H

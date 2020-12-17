@@ -26,6 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     //qDebug() << "可以执行";
+    //while(dev_driver.wait_for_first_connect);
 
     gui = new Gui(&configFile, this);
 

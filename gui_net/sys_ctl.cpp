@@ -5,14 +5,22 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
 {
     dlg = 0;
     dlg_neterror = 0;
+    m_timer = 0;
     i = j = 0;
+
+    host_closed_f = false;
 
     write_flag = false;
 
     this->dev_driver = dev_driver;
     connect(dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));
     connect(dev_driver, SIGNAL(data_rev_error(QByteArray &)), this, SLOT(data_come_error(QByteArray &)));
+
+    //连接了下面这两项，才可以使用slot
     connect(dev_driver, SIGNAL(host_closed_signal(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));
+    connect(dev_driver, SIGNAL(networkerror_signal(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
+
+    dev_driver->connect_net();
 
     data_save_bool = false;
     read_none = false;
@@ -247,78 +255,55 @@ void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
 //2.不断重连服务器，连接上后复位发送（相当于重连新的tcp连接）
 void Sys_ctl::host_closed(QTcpSocket *tcp)
 {
-
-    qDebug() << "Sys_ctl::host_closed1";
-    //tcp->deleteLater();
-    //delete  tcp;
-    qDebug() << "Sys_ctl::host_closed2";
-
+    host_closed_f = true;
+    qDebug() << "Sys_ctl::host_closed";
     dev_driver->client->deleteLater();
 
     if (dlg_neterror == 0)
             dlg_neterror = new error_dialog();
 
-    while(1)
+    m_timer = new QTimer;
+    m_timer->setSingleShot(false);
+      //启动或重启定时器, 并设置定时器时间：毫秒
+    m_timer->start(500);
+      //定时器触发信号槽
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(TimerTimeout()));
+}
+
+void Sys_ctl::networkerror(QTcpSocket *tcp)
+{
+qDebug() << "Sys_ctl::networkerror";
+    if (host_closed_f == false)//说明最开始连接时网络断开
     {
-            if (dev_driver->connect_net() == true)
-            {
-                //qDebug() << "网络返回true1";
-                delete dlg_neterror;
-                dlg_neterror = 0;
-                break;
-            }
-            else
-            {
-                //连接无效,关闭连接
-                delete dev_driver->client;
-            }
+        host_closed(tcp);
     }
+}
 
-    if (dlg)
-        delete dlg;
+//每500ms执行一次，如果成功则关闭定时器，防止再进来
+void Sys_ctl::TimerTimeout(void)
+{
+    if (dev_driver->connect_net() == true)
+    {
+        //qDebug() << "网络返回true1";
+        delete dlg_neterror;//关闭错误窗口
+        dlg_neterror = 0;
 
-    i = j = 0;
-    write_flag = false;
-    data_save_bool = false;
-    read_none = false;
+        delete m_timer;//关闭定时器
 
-    start();
+        if (dlg)
+            delete dlg;
 
+        i = j = 0;
+        write_flag = false;
+        data_save_bool = false;
+        read_none = false;
 
+        start();
 
-
-//    if (dlg_neterror == 0)
-//        dlg_neterror = new error_dialog();
-
-
-//    delete  tcp;
-
-//    while(1)
-//    {
-//        if (dev_driver->connect_net() == true)
-//        {
-//            //qDebug() << "网络返回true1";
-//            delete dlg_neterror;
-//            dlg_neterror = 0;
-//            break;
-//        }
-//        else
-//        {
-//            //连接无效,关闭连接
-//            delete dev_driver->client;
-//        }
-//    }
-
-
-//    if (dlg)
-//        delete dlg;
-
-
-
-//    i = j = 0;
-//    write_flag = false;
-//    data_save_bool = false;
-//    read_none = false;
-
-
+    }
+    else
+    {
+        //连接无效,关闭连接
+        delete dev_driver->client;
+    }
 }
