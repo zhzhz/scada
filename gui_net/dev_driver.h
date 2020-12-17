@@ -7,6 +7,7 @@
 #include "QLibrary"
 #include "client.h"
 #include "qt_tcp_client.h"
+#include "error_dialog.h"
 
 typedef struct
 {
@@ -38,7 +39,7 @@ class Dev_driver : public QObject
 public:
     explicit Dev_driver(QObject *parent = nullptr);
 
-
+    bool connect_net(void);
     //void setClient(Client *client);
 
     QMap<QString, dev_info> devinfo;//设备总信息
@@ -48,16 +49,19 @@ public:
     void write_data(void *);
 
     data_exchange data_save;
+
+    Client *client;
     //void test();
 signals:
     //void data_rev(QByteArray &, int id);
     void data_rev(QByteArray &);
     void data_rev_error(QByteArray &);
+    void host_closed_signal(QTcpSocket *);
 
 public slots:
 private:
     QMap<int, void*> dev_table;
-    Client *client;
+    error_dialog *dlg;
 
 
     typedef QByteArray  (*gen_code)(uchar addr, uchar control_byte, ushort start, ushort count, QByteArray byte_send);
@@ -69,6 +73,7 @@ private:
     gen_code fun;
 private slots:
     void handle_data(QByteArray &data);
+    void host_closed(QTcpSocket *tcp);
 };
 
 #endif // DEV_DRIVER_H

@@ -25,6 +25,7 @@ private slots:
     void data_come(QByteArray &data);
     void data_come_error(QByteArray &data);
 
+    void host_closed(QTcpSocket *tcp);
     void button_clicked(void);
 private:
     Dev_driver *dev_driver;
@@ -36,6 +37,7 @@ private:
     bool read_none;
 
     error_dialog *dlg;
+    error_dialog *dlg_neterror;
     int i, j;
 
     bool write_flag;
