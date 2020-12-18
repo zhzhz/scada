@@ -17,5 +17,5 @@
 ![](picture/修改ip2.png)
 ##### 4.运行Modbus生成Modbus.dll，将Modbus.dll复制一份并改名为Mitsubishi.dll，运行com_net，
 ##### 将Modbus.dll和Mitsubishi.dll两个文件拷贝到build-com_net-Desktop_Qt_5_12_10_MinGW_32_bit-Debug\debug。
-##### 5.依次运行modbus_server和Mitsubishi_server。然后运行com_net，最后运行gui_net。gui_net正常显示入下图所示
+##### 5.依次运行modbus_server和Mitsubishi_server。然后运行com_net，最后运行gui_net。gui_net正常显示如下图所示
 ![](picture/正常运行.png)
