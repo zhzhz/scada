@@ -47,6 +47,7 @@ private:
     QTimer *m_timer;
 
     bool host_closed_f;
+    bool networkerror_f;
 };
 
 #endif // SYS_CTL_H

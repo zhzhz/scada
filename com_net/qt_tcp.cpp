@@ -40,6 +40,7 @@ void Qt_tcp::msg_error(QAbstractSocket::SocketError error)
     {
         case QAbstractSocket::RemoteHostClosedError://客户端断开
         {
+            clientSockets.remove(clientSockets.indexOf(sender_client));
             emit host_closed(sender_client);
 
             break;

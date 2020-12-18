@@ -8,6 +8,7 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
     m_timer = 0;
     i = j = 0;
 
+    networkerror_f = false;
     host_closed_f = false;
 
     write_flag = false;
@@ -20,7 +21,15 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
     connect(dev_driver, SIGNAL(host_closed_signal(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));
     connect(dev_driver, SIGNAL(networkerror_signal(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
 
-    dev_driver->connect_net();
+    //在ip=服务器ip上连接失败会触发ConnectionRefusedError
+    //在别的ip的机子上不会触发任何error，此时需要手动触发error处理函数
+    if (dev_driver->connect_net() == false)
+    {
+        if (networkerror_f == false)
+        {
+            host_closed(0);
+        }
+    }
 
     data_save_bool = false;
     read_none = false;
@@ -273,6 +282,7 @@ void Sys_ctl::host_closed(QTcpSocket *tcp)
 void Sys_ctl::networkerror(QTcpSocket *tcp)
 {
 qDebug() << "Sys_ctl::networkerror";
+    networkerror_f = true;
     if (host_closed_f == false)//说明最开始连接时网络断开
     {
         host_closed(tcp);
@@ -289,9 +299,6 @@ void Sys_ctl::TimerTimeout(void)
         dlg_neterror = 0;
 
         delete m_timer;//关闭定时器
-
-        if (dlg)
-            delete dlg;
 
         i = j = 0;
         write_flag = false;
