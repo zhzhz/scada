@@ -1,5 +1,5 @@
-# scada-组态软件
-####1.文件说明
+﻿# scada-组态软件
+#### 1.文件说明
 Mitsubishi_server--模拟三菱设备
 Modbus--modbus驱动
 com_net--数据采集
@@ -9,7 +9,7 @@ tcp508neth--tcp-508n以太网驱动
 tcp508nserial--tcp-508n串口驱动
 tests--配置文件
 
-####2.使用说明
+#### 2.使用说明
 1.下载qt-opensource-windows-x86-5.12.10
 2.查看本地ip地址，修改com_net文件夹下dev_factor.cpp中两处ip为本机ip。
 ![](picture/修改ip1.png)
