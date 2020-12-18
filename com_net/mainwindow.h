@@ -22,10 +22,13 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    //Qt_tcp_client *qt_tcp_client;
+
+    //QVector <bool> delete_tcp_later_flag;
+    //QVector <QTcpSocket *>delete_tcp;
+    QMap <QTcpSocket *, bool> tcp_delete_later;
 
     ConfigFile configFile;
-    //Dev_driver dev_driver;
+
 
     QTimer *m_timer;
 

@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<QByteArray>("QByteArray&");
     qRegisterMetaType<QMap<int, void *>>();
 
+    //delete_tcp_later_flag = false;
+    //delete_tcp = 0;
+
     ui->setupUi(this);
 
     //读取json配置文件，得到系统配置信息
@@ -145,11 +148,40 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
 void MainWindow::data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data)
 {
 qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
-//    if (link_closed == false)
+
+//    if (tcp_delete_later.contains(tcp) == true)
 //    {
-        //data.clear();
-        //delete  tcp;
-    tcp->write(data);//返回数据给gui
+//        qDebug() << "tcp延迟删除，不调用write函数";
+//        tcp->disconnect();
+//        tcp->disconnectFromHost();
+//        tcp->deleteLater();
+//    }
+//    else
+//    {
+//        qDebug() << "tcp调用write函数";
+//        tcp->write(data);//返回数据给gui
+//    }
+
+    if (tcp_delete_later.contains(tcp))
+    {
+        Q_ASSERT(tcp_delete_later[tcp] == true);
+        if (tcp_delete_later[tcp] == true)
+        {
+            qDebug() << "tcp延迟删除，不调用write函数";
+            //tcp->write(data);tcp连接已经关闭，不需要调用write函数
+            tcp->disconnect();
+            tcp->disconnectFromHost();
+            tcp->deleteLater();
+        }
+        tcp_delete_later.remove(tcp);
+        qDebug() << "tcp_delete_later" << tcp_delete_later.size();
+
+    }
+    else
+    {
+         tcp->write(data);//tcp连接没有关闭，正常发送数据
+    }
+
 
     dev_suspend[dev_name]->busy_client = 0;
     dev_suspend[dev_name]->dev_name = "";
@@ -177,8 +209,10 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
 void MainWindow::host_closed(QTcpSocket *tcp)
 {
     qDebug() << "gui网络断开1" << tcp;
+     Q_ASSERT(tcp != nullptr);
+    tcp_delete_later[tcp] = false;
 
-    tcp->deleteLater();
+    //tcp->deleteLater();
 
 
     //1.如果gui tcp有挂起的，清除挂载(不管是被挂载在哪个dev_name下)
@@ -208,8 +242,36 @@ void MainWindow::host_closed(QTcpSocket *tcp)
                 }
             }
         }
+        if (tcp == itr.value()->busy_client)
+        {
+            qDebug() << "当前tcp正在等待返回，会调用write函数";
+            //delete_tcp << tcp;
+            //delete_tcp_later_flag  true;
+            tcp_delete_later[tcp] = true;
+        }
+
       }
-    qDebug() << "gui网络断开2" << tcp;
+
+    if (tcp_delete_later[tcp] == false)//没有地方会用到tcp了，直接删除
+    {
+        qDebug() << "没有地方会用到tcp了，直接删除";
+        tcp->disconnect();
+        tcp->disconnectFromHost();
+        tcp->deleteLater();
+        tcp_delete_later.remove(tcp);
+        qDebug() << "tcp_delete_later" << tcp_delete_later.size();
+    }
+
+    //这地方不能delete，因为如果tcp正在返回时，会调用MainWindow::data_handle中的write函数，导致出错
+    //所以这地方设置一个删除标志位，write时如果有这个删除标志位则不执行write函数，而是执行deleteLater函数
+    //如果当前不在执行这个tcp，则这个tcp不会被执行。可以直接删除
+
+
+        //tcp->disconnect();
+        //tcp->disconnectFromHost();
+        //tcp->deleteLater();
+
+    //qDebug() << "gui网络断开2" << tcp;
 }
 
 
