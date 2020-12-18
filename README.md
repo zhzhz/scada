@@ -1,13 +1,13 @@
 ﻿# scada-组态软件
 #### 1.文件说明
-Mitsubishi_server--模拟三菱设备
-Modbus--modbus驱动
-com_net--数据采集
-gui_net--图形界面
-modbus_server--模拟modbus设备
-tcp508neth--tcp-508n以太网驱动
-tcp508nserial--tcp-508n串口驱动
-tests--配置文件
+##### Mitsubishi_server--模拟三菱设备
+##### Modbus--modbus驱动
+##### com_net--数据采集
+##### gui_net--图形界面
+##### modbus_server--模拟modbus设备
+##### tcp508neth--tcp-508n以太网驱动
+##### tcp508nserial--tcp-508n串口驱动
+##### tests--配置文件
 
 #### 2.使用说明
 ##### 1.下载qt-opensource-windows-x86-5.12.10
