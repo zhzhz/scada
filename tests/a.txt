@@ -1,14 +1,20 @@
 {
 "device":[
 {"name": "modbus","id":1},
-{"name": "Mitsubishi","id":2}
+{"name": "Mitsubishi","id":2},
+{"name": "tcp508neth","id":1},
+{"name": "tcp508nserial","id":1}
 ],
 
 "led":[
 {"name":"led1", "device":"modbus","dev_id":1, "variable":10001},
 {"name":"led2", "device":"modbus","dev_id":1, "variable":10002},
 {"name":"led3", "device":"Mitsubishi", "dev_id":2,"variable":10003},
-{"name":"led4", "device":"modbus", "dev_id":1,"variable":10004}
+{"name":"led4", "device":"modbus", "dev_id":1,"variable":10004},
+{"name":"led5", "device":"tcp508neth", "dev_id":1,"variable":1},
+{"name":"led6", "device":"tcp508neth", "dev_id":1,"variable":2},
+{"name":"led7", "device":"tcp508nserial", "dev_id":1,"variable":3},
+{"name":"led8", "device":"tcp508nserial", "dev_id":1,"variable":4}
 ],
 
 "key":[
@@ -19,6 +25,10 @@
 {"name":"key5", "device":"modbus","dev_id":1, "variable":5},
 {"name":"key6", "device":"modbus","dev_id":1, "variable":6},
 {"name":"key7", "device":"modbus","dev_id":1, "variable":7},
-{"name":"key8", "device":"modbus","dev_id":1, "variable":8}
+{"name":"key8", "device":"modbus","dev_id":1, "variable":8},
+{"name":"key9", "device":"tcp508neth","dev_id":1, "variable":1},
+{"name":"key10", "device":"tcp508neth","dev_id":1, "variable":2},
+{"name":"key11", "device":"tcp508nserial","dev_id":1, "variable":3},
+{"name":"key12", "device":"tcp508nserial","dev_id":1, "variable":4}
 ]
 }
