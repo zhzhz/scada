@@ -7,7 +7,6 @@
 #include "QLibrary"
 #include "custom_data.h"
 #include <QMetaType>
-#include "csingleton.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
