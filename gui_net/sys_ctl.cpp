@@ -31,7 +31,7 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
         }
     }
 
-    data_save_bool = false;
+    read_write_flag = false;
     read_none = false;
 
 }
@@ -45,7 +45,7 @@ void Sys_ctl::start(void)
     QByteArray data;
     data[0] = 0;
 
-    if (data_save_bool == false)
+    if (read_write_flag == false)
     {
         if (leds.count() == 0 && keys.count() == 0)
         {
@@ -63,9 +63,11 @@ void Sys_ctl::start(void)
     }
     else {
         //有写指令，发送写指令
-        //data_save_bool = false;
+
         write_flag = true;
         qDebug() << "write plc data;----------------------------------";
+        data_save = data_saves.at(0);//取出全局最开始的那条指令
+        //data_saves.remove(0);//从全局去除最开始的那条指令
         dev_driver->write_data(&data_save);
     }
 }
@@ -74,11 +76,23 @@ void Sys_ctl::start(void)
 //如果有错误弹出窗口，关闭
 void Sys_ctl::data_come(QByteArray &data)
 {
-    //data_save_bool = false;
-    if (write_flag == true)
+
+    if (write_flag == true)//如果data_saves为空，则恢复
     {
+        data_saves.remove(0);//从全局去除最开始的那条指令
+
+        if (data_saves.size() == 0)
+        {
+            //没有要发送的写指令了
+            read_write_flag = false;
+        }
+        else
+        {
+            //还有要发送的写指令，read_write_flag保持写状态
+            read_write_flag = true;
+        }
+
         write_flag = false;
-        data_save_bool = false;
     }
 
     if (dlg)
@@ -89,7 +103,7 @@ void Sys_ctl::data_come(QByteArray &data)
     QMap<int, void *> leds = configFile->getDevice("led");
     QMap<int, void *> keys = configFile->getDevice("key");
 
-    if (data_save_bool == false)
+    if (read_write_flag == false)
     {
         if (i < leds.count())
         {
@@ -158,7 +172,7 @@ void Sys_ctl::data_come_error(QByteArray &data)
     if (write_flag == true)
     {
         write_flag = false;
-        //data_save_bool = false;
+        //read_write_flag保持不变，如果是读则还未为读，如果为写则还为写
     }
 
     start();//继续采集数据
@@ -189,29 +203,6 @@ void Sys_ctl::button_clicked(void)
     QPushButton *pushbutton=qobject_cast<QPushButton *>(sender());
     //找到指针对应的configure参数。
     //先找到指针对应的name，然后对应到configure
-//    QMap<int, void *> keys = gui->getDevice("key");
-//    QMap<int, void *> keys_conf = configFile->getDevice("key");
-//    QByteArray data;data[0] = 0;
-//    for (int i = 0; i < keys.count(); i++)
-//    {
-//        gui_info *info = (gui_info *)keys[i];
-//        //qDebug() << info->name << dev_driver->data_save.name["name"];
-//        if (info->ptr == pushbutton)
-//        {
-//            //此时的info->name为configue对应的name
-//            for (int j = 0; j < keys_conf.count(); j++)
-//            {
-//                key *conf = (key *)keys_conf[j];
-//                if (conf->name["name"] == info->name)
-//                {
-//                    write_data(keys_conf[j], "key", data);
-//                    //qDebug() << "key" << pushbutton;
-//                    break;
-//                }
-//            }
-//            break;
-//        }
-//    }
     QByteArray data;data[0] = 0;
 
     gui_info *info = gui->get_gui_info_byptr(pushbutton);//利用info的name部分
@@ -228,14 +219,14 @@ void Sys_ctl::button_clicked(void)
 }
 
 //把写数据缓存起来，在start中判断发送
+//修改这个函数，使支持多个写指令，否则后一条写指令会覆盖前一条指令
 void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
 {
-    //this->configFile = configFile;
-    data_save_bool = true;
+    data_exchange data_save;
+    read_write_flag = true;//判断读和写的总开关
+
     data_save.read_write = 1;
     data_save.write_data = data_write;
-
-    //led ll;
 
     if (data_type == "led")
     {
@@ -253,11 +244,44 @@ void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
         data_save.variable = key_data->variable;
     }
 
+    data_saves << data_save;//将当前发送指令保存到全局
+
     if (read_none == 1)
     {
         start();
     }
 }
+
+//void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
+//{
+//    //this->configFile = configFile;
+//    data_save_bool = true;
+//    data_save.read_write = 1;
+//    data_save.write_data = data_write;
+
+//    //led ll;
+
+//    if (data_type == "led")
+//    {
+//        led *led_data = (led *)data;
+//        data_save.name = led_data->name;
+//        data_save.device = led_data->device;
+//        data_save.dev_id = led_data->dev_id;
+//        data_save.variable = led_data->variable;
+//    }
+//    else if (data_type == "key") {
+//        key *key_data = (key *)data;
+//        data_save.name = key_data->name;
+//        data_save.device = key_data->device;
+//        data_save.dev_id = key_data->dev_id;
+//        data_save.variable = key_data->variable;
+//    }
+
+//    if (read_none == 1)
+//    {
+//        start();
+//    }
+//}
 
 //gui与com连接中断
 //1.弹出error报警框，关闭tcp连接
@@ -302,7 +326,7 @@ void Sys_ctl::TimerTimeout(void)
 
         i = j = 0;
         write_flag = false;
-        data_save_bool = false;
+        read_write_flag = false;
         read_none = false;
 
         start();

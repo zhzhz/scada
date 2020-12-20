@@ -1,7 +1,9 @@
 {
 "device":[
 {"name": "modbus","id":1},
-{"name": "Mitsubishi","id":2}
+{"name": "Mitsubishi","id":2},
+{"name": "tcp508neth","id":1},
+{"name": "tcp508nserial","id":1}
 ],
 
 "led":[
