@@ -35,8 +35,9 @@ private:
     ConfigFile *configFile;
     Gui *gui;
 
-    bool data_save_bool;
+    bool read_write_flag;
     data_exchange data_save;
+    QVector <data_exchange> data_saves;
     bool read_none;
 
     error_dialog *dlg;
