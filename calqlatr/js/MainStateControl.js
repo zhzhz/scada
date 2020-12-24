@@ -32,11 +32,21 @@ function deepCopy(old, newRrray)
 }
 
 var unImmutableInitState = {
-    x : 1,
-    y : 2
+//    item1 : {
+//        past:[],
+//        present:{x:1,y:2},
+//        future:[]
+//    },
+    item1:  {x:1,y:2},
+    item2 : {x:1,y:2}
 };
 
-const reducer = (state = unImmutableInitState, action) => {
+
+  function reducer1(state = unImmutableInitState.item1, action){
+    //var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+      console.log("reducer1" + JSON.stringify(state))
+    //var action = arguments[1];
+
     var tempState = null;
     switch (action.type) {
     case 'INCREMENT':
@@ -58,9 +68,37 @@ const reducer = (state = unImmutableInitState, action) => {
     }
 };
 
+  function reducer2(state = unImmutableInitState.item2, action) {
+    //var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+    //var action = arguments[1];
+
+    var tempState = null;
+    switch (action.type) {
+    case '@123':
+
+        console.log("init INCREMENT" + JSON.stringify(state));
+        tempState = deepCopy(state,{});
+        tempState.x = state.x + 10;
+
+        return tempState;
+
+    case '@456':
+        console.log("init DECREMENT" + JSON.stringify(state));
+
+        tempState = deepCopy(state,{});
+        tempState.x = state.x - 10;
+        return tempState;
+
+    default: return state;
+    }
+};
+
+
+
 var store;
 var state;
 function init(){
+
 
     var map1 = {a:1, b:2, c:3};
     delete map1.a;
@@ -75,7 +113,16 @@ function init(){
     //ReduxUndo.undoable(reducer);
     //ReduxUndo.undoable(reducer);
 
-    store = Redux.createStore(ReduxUndo.undoable(reducer, {filter:ReduxUndo.distinctState()}));
+    //store = Redux.createStore(ReduxUndo.undoable(reducer, {filter:ReduxUndo.distinctState()}));
+    var undoableTodos = ReduxUndo.undoable(reducer1, {filter:ReduxUndo.distinctState()})
+    var todoApp = Redux.combineReducers({
+//      menuFunSpaceFilter:MenuFunSpaceFilter.menuFunSpaceFilter,
+//      todos:HBuildSpaceTodos.undoableTodos,
+//      hTabViewFilter:HTabViewFilter.tabViewFilter
+        item1:undoableTodos,
+        item2:reducer2
+    })
+    store = Redux.createStore(todoApp);
 
     store.subscribe(updateUI);
     state = store.getState();
@@ -92,7 +139,8 @@ function updateUI() {
 
     state = store.getState();
     console.log(JSON.stringify(state) + "updateUI")
-    moveItem.x = state.present.x;
+    moveItem.x = state.item1.present.x;
+    //moveItem.x = state.item2.x;
     //console.log("updateUI：state" + state.index);
     //menuFunSpace_HomeTab_ItemBoard.shapeMode = store.getState().menuFunSpaceFilter.itemBoard.itemBoardSelectIndex
     var b= 3
@@ -112,6 +160,7 @@ function mainUndo(){
         store.dispatch({
                            //type:"@@redux-undo/UNDO"
                            type:"INCREMENT"
+                           //type:"@123"
                        })
     //}
 
@@ -125,6 +174,7 @@ function mainRedo(){
     //if(state.todos.future.length  > 0){
         store.dispatch({
                            type:"DECREMENT"
+                           //type:"@456"
                        })
     //}
 

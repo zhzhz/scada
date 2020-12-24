@@ -196,9 +196,13 @@ function undoable(reducer) {
       if (state === undefined) {
         history = config.history = createHistory.apply(undefined, [reducer(state, { type: '@@redux-undo/CREATE_HISTORY' }), config.ignoreInitialState].concat(slices));
         //debug.log('do not initialize on probe actions');
-      } else  {
-          history = config.history = createHistory(state);
-          //debug.log('initialHistory initialized: initialState is not a history', config.history);
+      } else if ((0, isHistory)(state)) {
+        var temp = { _latestUnfiltered: state.present };
+        history = config.history = config.ignoreInitialState ? state : state.concat(temp);
+        //debug.log('initialHistory initialized: initialState is a history', config.history);
+      } else {
+        history = config.history = createHistory(state);
+        debug.log('initialHistory initialized: initialState is not a history', config.history);
       }
     }
 
@@ -215,7 +219,6 @@ function undoable(reducer) {
         res = undo(history);
         //debug.log('perform undo');
         //debug.end(res);
-          console.log("undo works");
         return skipReducer(res);
 
       case config.redoType:
