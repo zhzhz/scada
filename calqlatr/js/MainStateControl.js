@@ -12,87 +12,8 @@ Qt.include("redux.js")
 Qt.include("printObj.js");
 
 //Qt.include("immutable.js");
-//深拷贝
-function deepCopy(old, newRrray)
-{
-    var c = newRrray || {};
-    for (var i in old)
-    {
-        if (typeof old[i] === 'object')
-        {
-            c[i] = (old[i].constructor === Array) ? [] : {};
-            deepCopy(old[i], c[i]);
-        }
-        else
-        {
-            c[i] = old[i];
-        }
-    }
-    return c;
-}
-
-var unImmutableInitState = {
-//    item1 : {
-//        past:[],
-//        present:{x:1,y:2},
-//        future:[]
-//    },
-    item1:  {x:1,y:2},
-    item2 : {x:1,y:2}
-};
-
-
-  function reducer1(state = unImmutableInitState.item1, action){
-    //var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      console.log("reducer1" + JSON.stringify(state))
-    //var action = arguments[1];
-
-    var tempState = null;
-    switch (action.type) {
-    case 'INCREMENT':
-
-        console.log("init INCREMENT" + JSON.stringify(state));
-        tempState = deepCopy(state,{});
-        tempState.x = state.x + 10;
-
-        return tempState;
-
-    case 'DECREMENT':
-        console.log("init DECREMENT" + JSON.stringify(state));
-
-        tempState = deepCopy(state,{});
-        tempState.x = state.x - 10;
-        return tempState;
-
-    default: return state;
-    }
-};
-
-  function reducer2(state = unImmutableInitState.item2, action) {
-    //var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-    //var action = arguments[1];
-
-    var tempState = null;
-    switch (action.type) {
-    case '@123':
-
-        console.log("init INCREMENT" + JSON.stringify(state));
-        tempState = deepCopy(state,{});
-        tempState.x = state.x + 10;
-
-        return tempState;
-
-    case '@456':
-        console.log("init DECREMENT" + JSON.stringify(state));
-
-        tempState = deepCopy(state,{});
-        tempState.x = state.x - 10;
-        return tempState;
-
-    default: return state;
-    }
-};
-
+Qt.include("reducers/reduce1.js");
+Qt.include("reducers/reduce2.js");
 
 
 var store;
@@ -149,7 +70,7 @@ function updateUI() {
  //console.log(formatJson(JSON.stringify(state)) )
     //console.log("render end!")
     //state需要先转换为字符串，再调用formatJson 进行格式化转换输出
-    console.log(state.x + "main state")
+    //console.log(state.x + "main state")
 }
 
 

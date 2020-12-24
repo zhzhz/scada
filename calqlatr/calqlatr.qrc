@@ -14,5 +14,9 @@
         <file>js/redoUndo/helpers.js</file>
         <file>js/redoUndo/reduxUndo.js</file>
         <file>js/ObjectAssign.js</file>
+        <file>js/reducers/reduce1.js</file>
+        <file>js/reducers/reduce2.js</file>
+        <file>js/state.js</file>
+        <file>js/deepCopy.js</file>
     </qresource>
 </RCC>
