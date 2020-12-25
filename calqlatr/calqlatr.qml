@@ -89,7 +89,7 @@ Item {
                 //鼠标按下时，记录鼠标初始位置
                 lastX = mouseX
                 lastY = mouseY
-                mainStateControl.mousePressed();
+                //mainStateControl.mousePressed();
             }
             onReleased:{
                 //console.log("鼠标弹起");
