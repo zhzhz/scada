@@ -9,6 +9,24 @@ function reducer1(state = unImmutableInitState.item1, action){
 
   var tempState = null;
   switch (action.type) {
+//  case '@mousePressed':
+//      console.log("鼠标按下记录此时的坐标");
+//      tempState = deepCopy(state,{});
+//      return tempState;
+
+  case '@mousePositionChanged':
+      console.log("鼠标移动，改变坐标");
+      tempState = deepCopy(state,{});
+      tempState.x += action.x;
+      tempState.y += action.y;
+
+      return tempState;
+
+  case '@mouseReleased':
+      //console.log("鼠标按下记录此时的坐标");
+      tempState = deepCopy(state,{});
+      return tempState;
+
   case 'INCREMENT':
 
       console.log("init INCREMENT" + JSON.stringify(state));

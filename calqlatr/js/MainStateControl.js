@@ -61,6 +61,7 @@ function updateUI() {
     state = store.getState();
     console.log(JSON.stringify(state) + "updateUI")
     moveItem.x = state.item1.present.x;
+    moveItem.y = state.item1.present.y;
     //moveItem.x = state.item2.x;
     //console.log("updateUI：state" + state.index);
     //menuFunSpace_HomeTab_ItemBoard.shapeMode = store.getState().menuFunSpaceFilter.itemBoard.itemBoardSelectIndex
@@ -110,5 +111,26 @@ function undo(){
 function redo(){
     store.dispatch({
                        type:"@@redux-undo/REDO"
+                   })
+}
+
+function mousePressed(){
+    store.dispatch({
+                       type:"@mousePressed"
+                   })
+}
+
+function mousePositionChanged(x, y){
+    store.dispatch({
+                       type:"@mousePositionChanged",
+                       x:x,
+                       y:y
+                   })
+}
+
+function mouseReleased()
+{
+    store.dispatch({
+                       type:"@mouseReleased"
                    })
 }

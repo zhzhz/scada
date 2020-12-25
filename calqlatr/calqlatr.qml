@@ -89,12 +89,19 @@ Item {
                 //鼠标按下时，记录鼠标初始位置
                 lastX = mouseX
                 lastY = mouseY
+                mainStateControl.mousePressed();
+            }
+            onReleased:{
+                //console.log("鼠标弹起");
+                mainStateControl.mouseReleased();
             }
             onPositionChanged: {
                 if (pressed) {
                     //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
-                    moveItem.x += mouseX - lastX
-                    moveItem.y += mouseY - lastY
+                    //moveItem.x += mouseX - lastX
+                    //moveItem.y += mouseY - lastY
+
+                    mainStateControl.mousePositionChanged(mouseX - lastX, mouseY - lastY)
                 }
             }
         }
