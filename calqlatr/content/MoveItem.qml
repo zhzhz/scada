@@ -50,55 +50,57 @@
 
 import QtQuick 2.0
 
-Item {
-    id: button
-    property alias text: textItem.text
-    property color color: "#eceeea"
-
-    property bool operator: false
-    property bool dimmable: false
-    property bool dimmed: false
-
-    width: 30
-    height: 50
-
+Rectangle {
+    property alias text: btnText.text
+    property var id
+    //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
+    x: 100
+    y: 100
+    width: 100
+    height: 100
     Text {
-        id: textItem
-        font.pixelSize: 48
-        wrapMode: Text.WordWrap
-        lineHeight: 0.75
-        color: (dimmable && dimmed) ? Qt.darker(button.color) : button.color
-        Behavior on color { ColorAnimation { duration: 120; easing.type: Easing.OutElastic} }
-        states: [
-            State {
-                name: "pressed"
-                when: mouse.pressed && !dimmed
-                PropertyChanges {
-                    target: textItem
-                    color: Qt.lighter(button.color)
-                }
-            }
-        ]
+        id: btnText
+        anchors.centerIn: parent
+        //text: qsTr("x加")
     }
 
+    color: "lightblue"
     MouseArea {
-        id: mouse
         anchors.fill: parent
-        anchors.margins: -5
-        onClicked: {
-            if (operator)
-                window.operatorPressed(parent.text)
-            else
-                window.digitPressed(parent.text)
+        property real lastX: 0
+        property real lastY: 0
+        onPressed: {
+            //鼠标按下时，记录鼠标初始位置
+            lastX = mouseX
+            lastY = mouseY
+            //mainStateControl.mousePressed();
+            console.log("鼠标按下");
+        }
+        onReleased:{
+            console.log("鼠标弹起");
+            mainStateControl.mouseReleased();
+        }
+        onPositionChanged: {
+            if (pressed) {
+                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
+                //moveItem.x += mouseX - lastX
+                //moveItem.y += mouseY - lastY
+
+                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
+            }
         }
     }
 
-    function updateDimmed() {
-        dimmed = window.isButtonDisabled(button.text)
+    function render()
+    {
+        var state = mainStateControl.store.getState();
+        x = state.item1.present[id].x;
+        y = state.item1.present[id].y;
     }
 
-    Component.onCompleted: {
-        numPad.buttonPressed.connect(updateDimmed)
-        updateDimmed()
+    Component.onCompleted:{
+        //console.log("moveitem id " + id);
+        mainStateControl.store.subscribe(render);
+        render();
     }
 }

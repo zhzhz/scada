@@ -17,8 +17,8 @@ function reducer1(state = unImmutableInitState.item1, action){
   case '@mousePositionChanged':
       console.log("鼠标移动，改变坐标");
       tempState = deepCopy(state,{});
-      tempState.x += action.x;
-      tempState.y += action.y;
+      tempState[action.id].x += action.x;
+      tempState[action.id].y += action.y;
 
       return tempState;
 
