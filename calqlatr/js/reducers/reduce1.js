@@ -30,18 +30,28 @@ function reducer1(state = unImmutableInitState.item1, action){
   case 'INCREMENT':
 
       console.log("init INCREMENT" + JSON.stringify(state));
-      tempState = deepCopy(state,{});
-      tempState.x = state.x + 10;
+      if (root.activeItem !== -1)
+      {
+          tempState = deepCopy(state,{});
+          tempState[root.activeItem].x = state[root.activeItem].x + 10;
 
-      return tempState;
+          return tempState;
+      }
+      break;
 
   case 'DECREMENT':
       console.log("init DECREMENT" + JSON.stringify(state));
+      if (root.activeItem !== -1)
+      {
+          tempState = deepCopy(state,{});
+          tempState[root.activeItem].x = state[root.activeItem].x - 10;
 
-      tempState = deepCopy(state,{});
-      tempState.x = state.x - 10;
-      return tempState;
+          return tempState;
+      }
+      break;
 
   default: return state;
   }
-};
+
+  return state;
+}

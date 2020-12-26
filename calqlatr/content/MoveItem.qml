@@ -74,6 +74,7 @@ Rectangle {
             lastX = mouseX
             lastY = mouseY
             //mainStateControl.mousePressed();
+            root.activeItem = id;
             console.log("鼠标按下");
         }
         onReleased:{
@@ -94,8 +95,10 @@ Rectangle {
     function render()
     {
         var state = mainStateControl.store.getState();
+        console.log("render()被调用了1")
         x = state.item1.present[id].x;
         y = state.item1.present[id].y;
+        console.log("render()被调用了2")
     }
 
     Component.onCompleted:{

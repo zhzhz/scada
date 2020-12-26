@@ -11,6 +11,8 @@ Rectangle {
 
     property var mainStateControl : MainStateControl
 
+    property var activeItem : -1
+
     Rectangle {
         id:rootCanvas
         x:0
@@ -34,7 +36,7 @@ Rectangle {
         //创建方块
         function createItem() {
             x_init += 120;
-            console.log("创建方块1");
+            console.log("创建方块" + itemID);
 
             //新建state的初始状态,要在创建moveiem之前创建
             var state = mainStateControl.store.getState();
@@ -43,7 +45,7 @@ Rectangle {
             var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "x":x_init, "id":itemID});
 
             itemID++;
-            console.log("创建方块2" + JSON.stringify(mainStateControl.store.getState()));
+            console.log("创建方块" + JSON.stringify(mainStateControl.store.getState()));
         }
     }
 
@@ -164,7 +166,7 @@ Rectangle {
     Component.onCompleted:{
         mainStateControl.init();
         console.log("mainStateControl store is created!")
-        mainStateControl.updateUI();
+        //mainStateControl.updateUI();
 
         if (mainComponent == null)
             mainComponent = Qt.createComponent('qrc:/content/MoveItem.qml');
