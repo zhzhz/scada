@@ -10,8 +10,8 @@ Rectangle {
     property var mainComponent: null
 
     property var mainStateControl : MainStateControl
-
-    property var activeItem : -1
+    property var activeItemId: -1
+    property var activeItem:null//当前选中的对象，当前选中对象的id
 
     Rectangle {
         id:rootCanvas
@@ -25,10 +25,14 @@ Rectangle {
         property var x_init:0
         property var itemID:0
 
+        function deleteItems(object) {
+            object.destroy()
+        }
+
         MouseArea {
             anchors.fill: parent
             onPressed: {
-                mainStateControl.mainUndo()
+                //mainStateControl.mainUndo()
                 //console.log("向后")
             }
         }
@@ -46,6 +50,7 @@ Rectangle {
 
             itemID++;
             console.log("创建方块" + JSON.stringify(mainStateControl.store.getState()));
+            obj.deleteThis.connect(rootCanvas.deleteItems);
         }
     }
 
@@ -157,6 +162,30 @@ Rectangle {
                // mainStateControl.redo()
                 rootCanvas.createItem();
 
+            }
+        }
+    }
+
+    Rectangle {
+        x: 620
+        width: 100
+        height: 100
+
+        color: "lightblue"
+
+        Text {
+            //id: btnText
+            anchors.centerIn: parent
+            text: qsTr("删除方块")
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onPressed: {
+                if (activeItem !== null)
+                {
+                    activeItem.deleteThis(activeItem);
+                }
             }
         }
     }

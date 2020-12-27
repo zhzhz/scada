@@ -23,17 +23,17 @@ function reducer1(state = unImmutableInitState.item1, action){
       return tempState;
 
   case '@mouseReleased':
-      //console.log("鼠标按下记录此时的坐标");
+      console.log("鼠标按下记录此时的坐标");
       tempState = deepCopy(state,{});
       return tempState;
 
   case 'INCREMENT':
 
       console.log("init INCREMENT" + JSON.stringify(state));
-      if (root.activeItem !== -1)
+      if (root.activeItemId !== -1)
       {
           tempState = deepCopy(state,{});
-          tempState[root.activeItem].x = state[root.activeItem].x + 10;
+          tempState[root.activeItemId].x = state[root.activeItemId].x + 10;
 
           return tempState;
       }
@@ -44,7 +44,7 @@ function reducer1(state = unImmutableInitState.item1, action){
       if (root.activeItem !== -1)
       {
           tempState = deepCopy(state,{});
-          tempState[root.activeItem].x = state[root.activeItem].x - 10;
+          tempState[root.activeItemId].x = state[root.activeItemId].x - 10;
 
           return tempState;
       }
