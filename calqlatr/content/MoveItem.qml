@@ -125,11 +125,11 @@ Rectangle {
     {
         var state = mainStateControl.store.getState();
         console.log("render()被调用了1");
-        if (state.item1.present[id] !== undefined)
-        {
+        //if (state.item1.present[id] !== undefined)
+        //{
             x = state.item1.present[id].x;
             y = state.item1.present[id].y;
-        }
+        //}
         console.log("render()被调用了2")
     }
 
@@ -140,8 +140,8 @@ Rectangle {
     }
 
     Component.onDestruction:{
-        console.log("删除item，调用deleteRender（）");
-        deleteRender();
+        console.log("删除item，没调用deleteRender（）");
+        //deleteRender();
     }
 
 

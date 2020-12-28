@@ -275,6 +275,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
         return function unsubscribe() {
           if (!isSubscribed) {
+              console.log("unsubscribe直接返回了")
             return;
           }
 
@@ -283,6 +284,7 @@ return /******/ (function(modules) { // webpackBootstrap
           ensureCanMutateNextListeners();
           var index = nextListeners.indexOf(listener);
           nextListeners.splice(index, 1);
+          console.log("unsubscribe成功了" + index);
         };
       }
 
@@ -333,7 +335,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
         var listeners = currentListeners = nextListeners;
         for (var i = 0; i < listeners.length; i++) {
-          listeners[i]();
+            if (nextListeners[i] === currentListeners[i])
+                listeners[i]();
         }
 
         return action;

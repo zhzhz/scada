@@ -86,7 +86,7 @@ function updateUI() {
             //for(var k = 0; k < items_length; k++)
             //   console.log(rootCanvas.items[k]);
 
-            //rootCanvas.objs[i].deleteRender();
+            rootCanvas.items[i].deleteRender();
             rootCanvas.items[i].deleteThis(rootCanvas.items[i]);
             //rootCanvas.items.pop(rootCanvas.items[i]);//从objs记录中弹出删除的item
             rootCanvas.items[i] = null;
