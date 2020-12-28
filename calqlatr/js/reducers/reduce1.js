@@ -16,7 +16,7 @@ function reducer1(state = unImmutableInitState.item1, action){
 
   case '@mousePositionChanged':
       console.log("鼠标移动，改变坐标");
-      tempState = deepCopy(state,{});
+      tempState = deepCopy(state,[]);
       tempState[action.id].x += action.x;
       tempState[action.id].y += action.y;
 
@@ -24,7 +24,25 @@ function reducer1(state = unImmutableInitState.item1, action){
 
   case '@mouseReleased':
       console.log("鼠标按下记录此时的坐标");
-      tempState = deepCopy(state,{});
+      tempState = deepCopy(state,[]);
+      return tempState;
+
+  case '@createItem':
+      console.log("创建新对象" + action.id + ' ' + action.x + " " + action.y);
+//      state[action.id] = {};
+//      state[action.id].x = action.x;
+//      state[action.id].y = action.y;
+
+      tempState = deepCopy(state,[]);
+      tempState[action.id] = {};
+      tempState[action.id].x = action.x;
+      tempState[action.id].y = action.y;
+      console.log( JSON.stringify(tempState));
+      return tempState;
+
+  case '@deleteItem' :
+      tempState = deepCopy(state,[]);
+      tempState[action.index] = undefined;
       return tempState;
 
   case 'INCREMENT':

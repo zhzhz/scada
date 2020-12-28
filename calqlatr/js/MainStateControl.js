@@ -56,20 +56,52 @@ function init(){
 
 
 //更新画布外界面
+//state改变最先调用这，负责删除和创建item
 function updateUI() {
 
     state = store.getState();
-    console.log(JSON.stringify(state) + "updateUI")
+    console.log(JSON.stringify(state) + "最先调用的updateUI")
     //moveItem.x = state.item1.present.x;
     //moveItem.y = state.item1.present.y;
+    //比较objs和state的长度，遍历大的
 
-    var b= 3
-    var c = 2
-    var a = {ss1:b }
- //console.log(formatJson(JSON.stringify(state)) )
-    //console.log("render end!")
-    //state需要先转换为字符串，再调用formatJson 进行格式化转换输出
-    //console.log(state.x + "main state")
+//    var items_length = 0;//item的长度为包含item个数的长度
+//    for (var k = 0; k < rootCanvas.items.length; k++)
+//    {
+//        if (rootCanvas.items[k] !== null)
+//            items_length++;
+//    }
+
+    var items_length = rootCanvas.items.length;
+    var state_length = state.item1.present.length;
+    //console.log("length1" + length1 + ' ' + length2);
+
+    //如果state小于objs，则删除objs
+    for (var i = 0; i < items_length; i++)
+    {
+        console.log("state.item1.present[i] " + i);
+        if (state.item1.present[i] === undefined && rootCanvas.items[i] !== null)
+        {
+            console.log("删除items" + state_length + ' ' + items_length);
+            //for(var k = 0; k < items_length; k++)
+            //   console.log(rootCanvas.items[k]);
+
+            //rootCanvas.objs[i].deleteRender();
+            rootCanvas.items[i].deleteThis(rootCanvas.items[i]);
+            //rootCanvas.items.pop(rootCanvas.items[i]);//从objs记录中弹出删除的item
+            rootCanvas.items[i] = null;
+        }
+
+        if (state.item1.present[i] !== undefined && rootCanvas.items[i] === null)
+        {
+            console.log("创建item");
+            rootCanvas.createItemAgain(i);
+        }
+        //activeItem.deleteThis(activeItem)
+    }
+
+
+
 }
 
 
@@ -132,4 +164,24 @@ function mouseReleased()
     store.dispatch({
                        type:"@mouseReleased"
                    })
+}
+
+function deleteItem(deleteItem)
+{
+    //找到item对应的state id
+    var index;
+    for (var i = 0; i < rootCanvas.items.length; i++)
+    {
+        if (rootCanvas.items[i] === deleteItem)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    store.dispatch({
+                       type:"@deleteItem",
+                       index:index
+                   })
+
 }

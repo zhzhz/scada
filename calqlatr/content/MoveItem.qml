@@ -53,11 +53,13 @@ import QtQuick 2.0
 Rectangle {
     property alias text: btnText.text
     property var id
+    property var deleteRender
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
     y: 100
     width: 100
     height: 100
+
 
     signal deleteThis(var obj)
 
@@ -122,15 +124,25 @@ Rectangle {
     function render()
     {
         var state = mainStateControl.store.getState();
-        console.log("render()被调用了1")
-        x = state.item1.present[id].x;
-        y = state.item1.present[id].y;
+        console.log("render()被调用了1");
+        if (state.item1.present[id] !== undefined)
+        {
+            x = state.item1.present[id].x;
+            y = state.item1.present[id].y;
+        }
         console.log("render()被调用了2")
     }
 
     Component.onCompleted:{
 
-        mainStateControl.store.subscribe(render);
+        deleteRender = mainStateControl.store.subscribe(render);
         render();
     }
+
+    Component.onDestruction:{
+        console.log("删除item，调用deleteRender（）");
+        deleteRender();
+    }
+
+
 }

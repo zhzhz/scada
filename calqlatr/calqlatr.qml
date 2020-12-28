@@ -24,9 +24,12 @@ Rectangle {
         color: "transparent"
         property var x_init:0
         property var itemID:0
+        property var items:[]//创建的obj都放在这
+        property var count:0
 
         function deleteItems(object) {
-            object.destroy()
+            console.log("删除对象" + object);
+            object.destroy();
         }
 
         MouseArea {
@@ -37,20 +40,66 @@ Rectangle {
             }
         }
 
+        //创建新item，不增加state，因为state已经从撤销数据中获得了
+        //使用原来的id号码
+        function createItemAgain(itemID)
+        {
+            //x_init += 120;
+            // 获取state数据，用state数据初始化新item。
+            var state = mainStateControl.store.getState();
+            var x_again = state.item1.present[itemID].x;
+            var y_again = state.item1.present[itemID].y;
+
+            console.log("创建已有的方块" + itemID);
+            var obj = mainComponent.createObject(rootCanvas,{"text":x_again, "x":x_again,"y": y_again, "id":itemID});
+            items[itemID] = obj;
+            obj.deleteThis.connect(rootCanvas.deleteItems);
+            //console.log("obj.length" + objs.length);
+            //itemID++;
+        }
+
         //创建方块
         function createItem() {
             x_init += 120;
             console.log("创建方块" + itemID);
 
             //新建state的初始状态,要在创建moveiem之前创建
-            var state = mainStateControl.store.getState();
-            state.item1.present[itemID] = {x:x_init, y:0};
+            //var state = mainStateControl.store.getState();
+            //state.item1.present[itemID] = {x:x_init, y:0};
+            ////////////////////////////////////////////////////////
+
 
             var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "x":x_init, "id":itemID});
+            //items[items.length] = obj;
+            items[itemID] = obj;
 
-            itemID++;
-            console.log("创建方块" + JSON.stringify(mainStateControl.store.getState()));
+            //修改为action修改state
+            //创建方块时不能记录此时的state
+            mainStateControl.store.dispatch({
+                               type:"@createItem",
+                               id:itemID,
+                               x:x_init,
+                               y:0
+                           })
+
+//            if (count == 0)
+//            {
+//                count++;
+//            }
+//            else
+//            {
+//                mainStateControl.store.dispatch({
+//                                   type:"@mouseReleased"
+//                               })
+//            }
+
+
+
+            //console.log("创建方块" + JSON.stringify(mainStateControl.store.getState()));
             obj.deleteThis.connect(rootCanvas.deleteItems);
+            //console.log("obj.length" + objs.length);
+            itemID++;
+
         }
     }
 
@@ -184,7 +233,18 @@ Rectangle {
             onPressed: {
                 if (activeItem !== null)
                 {
-                    activeItem.deleteThis(activeItem);
+                    //修改state，自动触发删除items
+//                    for (var i = 0; i < rootCanvas.items.length; i++)
+//                    {
+//                        if (rootCanvas.items[i] === activeItem)
+//                        {
+//                            rootCanvas.items[i] = null;
+//                            break;
+//                        }
+//                    }
+//                    activeItem.deleteThis(activeItem);
+                    mainStateControl.deleteItem(activeItem);
+                    activeItem = null;
                 }
             }
         }
@@ -195,7 +255,7 @@ Rectangle {
     Component.onCompleted:{
         mainStateControl.init();
         console.log("mainStateControl store is created!")
-        //mainStateControl.updateUI();
+        //mainStateControl.updateUI();//负责管理删除的item
 
         if (mainComponent == null)
             mainComponent = Qt.createComponent('qrc:/content/MoveItem.qml');
