@@ -283,6 +283,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
           ensureCanMutateNextListeners();
           var index = nextListeners.indexOf(listener);
+          //nextListeners.splice(index, 1, undefined);
           nextListeners.splice(index, 1);
           console.log("unsubscribe成功了" + index);
         };
@@ -335,8 +336,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
         var listeners = currentListeners = nextListeners;
         for (var i = 0; i < listeners.length; i++) {
-            if (nextListeners[i] === currentListeners[i])
+            //console.log("nextListeners[i]" + nextListeners[i] + ' ' + "currentListeners[i]" + currentListeners[i]);
+            //console.log("nextListeners" + nextListeners + "currentListeners" + currentListeners);
+            //if (nextListeners[i] === currentListeners[i])
+            //如果两个数组中都有，则执行
+            if (nextListeners.indexOf(listeners[i]) !== -1)
+            {
                 listeners[i]();
+            }
         }
 
         return action;
