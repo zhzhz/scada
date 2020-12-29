@@ -55,6 +55,8 @@
 #include "outputfile.h"
 #include "inputfile.h"
 #include "QQmlContext"
+#include "p_root.h"
+#include "QQuickItem"
 
 int main(int argc, char *argv[])
 {
@@ -75,6 +77,10 @@ int main(int argc, char *argv[])
         //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
     view.rootContext()->setContextProperty("inputFile", inputFile.data());
 
+    QScopedPointer<P_ROOT> pRoot(new P_ROOT);
+        //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
+    view.rootContext()->setContextProperty("pRoot", pRoot.data());
+
 
     view.connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
     view.setSource(QUrl("qrc:/calqlatr.qml"));
@@ -82,6 +88,18 @@ int main(int argc, char *argv[])
         return -1;
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
+
+
+    //不可行，只能按照上面的方法
+//    P_ROOT root;
+
+//    QObject *pRoot = view.rootObject();
+
+//    QObject *pButton = pRoot->findChild<QObject *>("0");
+//    if( pButton )
+//    {
+//           QObject::connect(pButton,SIGNAL(clicked()),&root,SLOT(test()));
+//    }
 
     return app.exec();
 }

@@ -3,7 +3,8 @@ TEMPLATE = app
 QT += qml quick
 SOURCES += main.cpp \
     inputfile.cpp \
-    outputfile.cpp
+    outputfile.cpp \
+    p_root.cpp
 
 RESOURCES += calqlatr.qrc
 
@@ -16,4 +17,5 @@ OTHER_FILES =
 
 HEADERS += \
     inputfile.h \
-    outputfile.h
+    outputfile.h \
+    p_root.h

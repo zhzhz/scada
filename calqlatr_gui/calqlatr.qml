@@ -67,7 +67,7 @@ Rectangle {
                        })
 
 
-        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID});
+        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemID});
         //items[items.length] = obj;
         items[itemID] = obj;
 
@@ -93,10 +93,19 @@ Rectangle {
         var configFile = inputFile.readfile("a.txt", "../tests");
         //console.log(jsonFile);
         var config = JSON.parse(configFile);
-        for (var i = 0; i < config.key.length; i++)
+
+        for(let key  in config)
         {
-            createItem(config.key[i].x, config.key[i].y);
+            //console.log(key + '---' + config[key])
+            if (key === "key")
+            {
+                for (var i = 0; i < config[key].length; i++)
+                {
+                    createItem(config[key][i].x, config[key][i].y);
+                }
+            }
         }
+
 
 
     }

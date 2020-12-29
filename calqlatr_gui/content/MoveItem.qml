@@ -62,6 +62,8 @@ Rectangle {
 
 
     signal deleteThis(var obj)
+    //signal clicked(var obj)
+    signal clicked()
 
     Text {
         id: btnText
@@ -78,47 +80,50 @@ Rectangle {
         property real rectangleYOld: 0
 
         onPressed: {
-            //鼠标按下时，记录鼠标初始位置
-            lastX = mouseX
-            lastY = mouseY
+//            //鼠标按下时，记录鼠标初始位置
+//            lastX = mouseX
+//            lastY = mouseY
 
-            root.activeItemId = id;
-            root.activeItem = parent;
-            console.log("鼠标按下，记录方块位置");
-            var state = mainStateControl.store.getState();
-            rectangleXOld = state.item1.present[id].x;
-            rectangleYOld = state.item1.present[id].y;
+//            root.activeItemId = id;
+//            root.activeItem = parent;
+//            console.log("鼠标按下，记录方块位置");
+//            var state = mainStateControl.store.getState();
+//            rectangleXOld = state.item1.present[id].x;
+//            rectangleYOld = state.item1.present[id].y;
+            //clicked();
+            pRoot.test(parent.objectName);
+
         }
 
-        onReleased:{
-            //如果方块位置变化了，则调用这个函数，反之不调用
-            var state = mainStateControl.store.getState();
-            var x = state.item1.present[id].x;
-            var y = state.item1.present[id].y;
+//        onReleased:{
+//            //如果方块位置变化了，则调用这个函数，反之不调用
+//            var state = mainStateControl.store.getState();
+//            var x = state.item1.present[id].x;
+//            var y = state.item1.present[id].y;
 
-            if (rectangleXOld === x && rectangleYOld === y)
-            {
-                //鼠标位置没变化，不在redux-undo中记录
-            }
-            else
-            {
+//            if (rectangleXOld === x && rectangleYOld === y)
+//            {
+//                //鼠标位置没变化，不在redux-undo中记录
+//            }
+//            else
+//            {
 
-                mainStateControl.mouseReleased();
-            }
-        }
+//                mainStateControl.mouseReleased();
+//            }
+//        }
 
-        onPositionChanged: {
-            if (pressed) {
-                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
-                //moveItem.x += mouseX - lastX
-                //moveItem.y += mouseY - lastY
-                console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
-                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
-                //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
-                //mouseXTrue = mouseX;
-                //mouseYTrue = mouseY;
-            }
-        }
+//        onPositionChanged: {
+//            if (pressed) {
+//                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
+//                //moveItem.x += mouseX - lastX
+//                //moveItem.y += mouseY - lastY
+//                console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
+//                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
+//                //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
+//                //mouseXTrue = mouseX;
+//                //mouseYTrue = mouseY;
+//            }
+//        }
     }
 
     function render()
