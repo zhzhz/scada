@@ -52,6 +52,8 @@
 #include <QQmlEngine>
 #include <QQmlFileSelector>
 #include <QQuickView>
+#include "outputfile.h"
+#include "QQmlContext"
 
 int main(int argc, char *argv[])
 {
@@ -67,5 +69,11 @@ int main(int argc, char *argv[])
         return -1;
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
+
+    //OutputFile outputFile;
+    //outputFile.exportToFile(QString("hello world"), QString("a.txt"), QString("../tests"));
+    QScopedPointer<OutputFile> outputFile(new OutputFile);
+        //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
+    view.rootContext()->setContextProperty("outputFile", outputFile.data());
     return app.exec();
 }

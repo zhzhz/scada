@@ -17,7 +17,7 @@ Qt.include("reducers/reduce2.js");
 
 
 var store;
-var state;
+//var state;
 function init(){
 
 
@@ -46,7 +46,7 @@ function init(){
     store = Redux.createStore(todoApp);
 
     store.subscribe(updateUI);
-    state = store.getState();
+    var state = store.getState();
     console.log("init" + JSON.stringify(state));
     //console.log("init" + state.past[0].x);
     //    var copyState = Object.assign({},state)
@@ -59,7 +59,7 @@ function init(){
 //state改变最先调用这，负责删除和创建item
 function updateUI() {
 
-    state = store.getState();
+    var state = store.getState();
     console.log(JSON.stringify(state) + "最先调用的updateUI")
     //moveItem.x = state.item1.present.x;
     //moveItem.y = state.item1.present.y;
@@ -107,7 +107,7 @@ function updateUI() {
 
 function mainUndo(){
     console.log("加")
-    state = store.getState();
+    var state = store.getState();
     //if(state.todos.past.length  > 0){
         store.dispatch({
                            //type:"@@redux-undo/UNDO"
@@ -122,7 +122,7 @@ function mainRedo(){
 
     console.log("减")
 
-    state = store.getState();
+    var state = store.getState();
     //if(state.todos.future.length  > 0){
         store.dispatch({
                            type:"DECREMENT"
@@ -184,4 +184,50 @@ function deleteItem(deleteItem)
                        index:index
                    })
 
+}
+
+//遍历当前state文件,采集x，y。生成json文件
+
+function createJson()
+{
+    //采集设备采用默认硬编码的
+    var jsonFile = {};
+
+    jsonFile.device = [];
+    jsonFile.device[0] = {};
+    jsonFile.device[0].name = "tcp508neth";
+    jsonFile.device[0].id = 1;
+    //console.log(JSON.stringify(jsonFile));
+
+    //下面生成key
+    jsonFile.key = [];
+
+    var state = store.getState();
+    var state_length = state.item1.present.length;
+    var j = 0;
+    for (var i = 0; i < state_length; i++)
+    {
+        if (state.item1.present[i] !== undefined)
+        {
+            jsonFile.key[j] = {};
+            jsonFile.key[j].name = "key" + (j + 1);
+
+            jsonFile.key[j].device = "tcp508nserial";
+
+            jsonFile.key[j].dev_id = 1;
+
+            jsonFile.key[j].variable = j + 1;
+
+            //下面输出方块的x和y
+            //jsonFile.key[j].x = state.item1.present[i].x;
+            //jsonFile.key[j].y = state.item1.present[i].y;
+
+            j++;
+        }
+    }
+
+    //console.log(JSON.stringify(jsonFile));
+    //调用写文件函数，输出配置文件
+
+    outputFile.exportToFile(JSON.stringify(jsonFile), "a.txt", "../tests");
 }

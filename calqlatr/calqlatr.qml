@@ -240,6 +240,30 @@ Rectangle {
         }
     }
 
+    Rectangle {
+        x: 740
+        width: 100
+        height: 100
+
+        color: "lightblue"
+
+        Text {
+            //id: btnText
+            anchors.centerIn: parent
+            text: qsTr("生成json文件")
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onPressed: {
+                //mainStateControl.mainRedo()
+               // mainStateControl.redo()
+                mainStateControl.createJson();
+
+            }
+        }
+    }
+
 
 
     Component.onCompleted:{
