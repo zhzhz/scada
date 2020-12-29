@@ -54,6 +54,7 @@ Rectangle {
     property alias text: btnText.text
     property var id
     property var deleteRender
+    property var itemName
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
     y: 100
@@ -91,7 +92,8 @@ Rectangle {
 //            rectangleXOld = state.item1.present[id].x;
 //            rectangleYOld = state.item1.present[id].y;
             //clicked();
-            pRoot.test(parent.objectName);
+            //pRoot.test(parent.objectName);
+            pRoot.buttonClicked(parent.itemName);
 
         }
 

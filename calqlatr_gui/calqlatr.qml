@@ -49,7 +49,7 @@ Rectangle {
     }
 
     //创建方块
-    function createItem(x_init, y_init) {
+    function createItem(x_init, y_init, itemName) {
         //x_init += 120;
         console.log("创建方块" + itemID);
 
@@ -67,7 +67,7 @@ Rectangle {
                        })
 
 
-        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemID});
+        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemID, "itemName":itemName});
         //items[items.length] = obj;
         items[itemID] = obj;
 
@@ -101,7 +101,7 @@ Rectangle {
             {
                 for (var i = 0; i < config[key].length; i++)
                 {
-                    createItem(config[key][i].x, config[key][i].y);
+                    createItem(config[key][i].x, config[key][i].y, config[key][i].name);
                 }
             }
         }

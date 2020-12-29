@@ -89,6 +89,11 @@ int main(int argc, char *argv[])
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
 
+    //c++调用qml
+    //QQuickItem* root = view.rootObject();
+    //QObject* button = root->findChild<QObject*>("0");
+    //button->setProperty("width", 500);
+
 
     //不可行，只能按照上面的方法
 //    P_ROOT root;
