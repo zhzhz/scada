@@ -46,7 +46,7 @@ function init(){
     store = Redux.createStore(todoApp);
 
     store.subscribe(updateUI);
-    var state = store.getState();
+    //var state = store.getState();
     console.log("init" + JSON.stringify(state));
     //console.log("init" + state.past[0].x);
     //    var copyState = Object.assign({},state)
@@ -59,46 +59,30 @@ function init(){
 //state改变最先调用这，负责删除和创建item
 function updateUI() {
 
-    var state = store.getState();
-    console.log(JSON.stringify(state) + "最先调用的updateUI")
-    //moveItem.x = state.item1.present.x;
-    //moveItem.y = state.item1.present.y;
-    //比较objs和state的长度，遍历大的
+//    var state = store.getState();
+//    console.log(JSON.stringify(state) + "最先调用的updateUI")
 
-//    var items_length = 0;//item的长度为包含item个数的长度
-//    for (var k = 0; k < rootCanvas.items.length; k++)
+//    var items_length = rootCanvas.items.length;
+//    var state_length = state.item1.present.length;
+
+//    //如果state小于objs，则删除objs
+//    for (var i = 0; i < items_length; i++)
 //    {
-//        if (rootCanvas.items[k] !== null)
-//            items_length++;
+//        console.log("state.item1.present[i] " + i);
+//        if (state.item1.present[i] === undefined && rootCanvas.items[i] !== null)
+//        {
+//            console.log("删除items" + state_length + ' ' + items_length);
+//            rootCanvas.items[i].deleteRender();
+//            rootCanvas.items[i].deleteThis(rootCanvas.items[i]);
+//            rootCanvas.items[i] = null;
+//        }
+
+//        if (state.item1.present[i] !== undefined && rootCanvas.items[i] === null)
+//        {
+//            console.log("创建item");
+//            rootCanvas.createItemAgain(i);
+//        }
 //    }
-
-    var items_length = rootCanvas.items.length;
-    var state_length = state.item1.present.length;
-    //console.log("length1" + length1 + ' ' + length2);
-
-    //如果state小于objs，则删除objs
-    for (var i = 0; i < items_length; i++)
-    {
-        console.log("state.item1.present[i] " + i);
-        if (state.item1.present[i] === undefined && rootCanvas.items[i] !== null)
-        {
-            console.log("删除items" + state_length + ' ' + items_length);
-            //for(var k = 0; k < items_length; k++)
-            //   console.log(rootCanvas.items[k]);
-
-            rootCanvas.items[i].deleteRender();
-            rootCanvas.items[i].deleteThis(rootCanvas.items[i]);
-            //rootCanvas.items.pop(rootCanvas.items[i]);//从objs记录中弹出删除的item
-            rootCanvas.items[i] = null;
-        }
-
-        if (state.item1.present[i] !== undefined && rootCanvas.items[i] === null)
-        {
-            console.log("创建item");
-            rootCanvas.createItemAgain(i);
-        }
-        //activeItem.deleteThis(activeItem)
-    }
 
 
 
@@ -218,11 +202,9 @@ function createJson()
 
             jsonFile.key[j].variable = j + 1;
 
-            //jsonFile.key[j].itemID =
-
             //下面输出方块的x和y
-            jsonFile.key[j].x = state.item1.present[i].x;
-            jsonFile.key[j].y = state.item1.present[i].y;
+            //jsonFile.key[j].x = state.item1.present[i].x;
+            //jsonFile.key[j].y = state.item1.present[i].y;
 
             j++;
         }
