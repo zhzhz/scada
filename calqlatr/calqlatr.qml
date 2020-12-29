@@ -67,12 +67,6 @@ Rectangle {
             //var state = mainStateControl.store.getState();
             //state.item1.present[itemID] = {x:x_init, y:0};
             ////////////////////////////////////////////////////////
-
-
-            var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "x":x_init, "id":itemID});
-            //items[items.length] = obj;
-            items[itemID] = obj;
-
             //修改为action修改state
             //创建方块时不能记录此时的state
             mainStateControl.store.dispatch({
@@ -82,16 +76,12 @@ Rectangle {
                                y:0
                            })
 
-//            if (count == 0)
-//            {
-//                count++;
-//            }
-//            else
-//            {
-//                mainStateControl.store.dispatch({
-//                                   type:"@mouseReleased"
-//                               })
-//            }
+
+            var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID});
+            //items[items.length] = obj;
+            items[itemID] = obj;
+
+
 
 
 
