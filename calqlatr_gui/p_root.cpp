@@ -6,7 +6,6 @@ P_ROOT::P_ROOT(QObject *parent) : QObject(parent)
 {
     //gui已经由qml接管了，这里只需实现通讯部分
     //现在只考虑按钮
-    //gui = new Gui(&configFile, this);
 
     configFile.read_config_file("../tests/a.txt");
     sys_ctl = new Sys_ctl(&dev_driver, this);

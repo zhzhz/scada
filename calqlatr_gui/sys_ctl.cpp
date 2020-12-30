@@ -314,6 +314,7 @@ qDebug() << "Sys_ctl::networkerror";
 //每500ms执行一次，如果成功则关闭定时器，防止再进来
 void Sys_ctl::TimerTimeout(void)
 {
+    qDebug() << "Sys_ctl::TimerTimeout不断重连server";
     if (dev_driver->connect_net() == true)
     {
         //qDebug() << "网络返回true1";
