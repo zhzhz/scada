@@ -5,12 +5,13 @@
 #include "sys_ctl.h"
 #include "configfile.h"
 class TestButton;
+class QQuickItem;
 
 class P_ROOT : public QObject
 {
     Q_OBJECT
 public:
-    explicit P_ROOT(TestButton *tb, QObject *parent = nullptr);
+    explicit P_ROOT(TestButton *tb, QQuickItem *qmlItem,QObject *parent = nullptr);
     ~P_ROOT();
 
 Q_INVOKABLE void buttonClicked(QString);

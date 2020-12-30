@@ -96,7 +96,9 @@ int main(int argc, char *argv[])
     view.show();
 
     //P_ROOT *root = new P_ROOT(tb);
-    P_ROOT root(tb);
+    QQuickItem *p = view.rootObject();
+    //QObject *pButton = p->findChild<QObject *>("testButton");
+    P_ROOT root(tb, p);
 
     return app.exec();
 }

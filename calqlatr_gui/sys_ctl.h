@@ -10,12 +10,13 @@
 //#include "error_dialog.h"
 #include "QTimer"
 #include "controller.h"
+class QQuickItem;
 
 class Sys_ctl : public QObject
 {
     Q_OBJECT
 public:
-    explicit Sys_ctl(QObject *parent = nullptr);
+    explicit Sys_ctl(QQuickItem *qmlItem, QObject *parent = nullptr);
     ~Sys_ctl();
 
     void setConfigureFile(ConfigFile *configFile);
@@ -51,7 +52,7 @@ private:
     bool write_flag;
     //QTimer *m_timer;
 
-
+    QQuickItem *qmlItem;
 
     Controller *thread;
 };

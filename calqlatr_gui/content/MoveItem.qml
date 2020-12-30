@@ -93,7 +93,7 @@ Rectangle {
 //            rectangleYOld = state.item1.present[id].y;
             //clicked();
             //pRoot.test(parent.objectName);
-            pRoot.buttonClicked(parent.itemName);
+            pRoot.buttonClicked(parent.objectName);
 
         }
 

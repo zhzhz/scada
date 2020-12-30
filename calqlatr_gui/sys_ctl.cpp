@@ -1,11 +1,12 @@
 #include "sys_ctl.h"
 #include "qdebug.h"
+#include "QQuickItem"
 
-Sys_ctl::Sys_ctl(QObject *parent) : QObject(parent)
+Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
 {
     //dlg = 0;
     //dlg_neterror = 0;
-
+    this->qmlItem = qmlItem;
     thread = new Controller(this, "init");//新建唯一一个新线程，用来采集数据
     i = j = 0;
     write_flag = false;
@@ -127,6 +128,11 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 //            QPushButton *r = (QPushButton *)info->ptr;
 //            r->setText(QString::number(data.at(0)));
 //        }
+        //QObject *pButton = qmlItem->findChild<QObject *>(data_save.name);
+        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
+        //qDebug() << "-----------------------------------" << data_save.name << item;
+        item->setProperty("text", data.at(0));
+
     }
     else {
 //        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);

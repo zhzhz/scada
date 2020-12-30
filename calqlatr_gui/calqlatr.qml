@@ -67,7 +67,7 @@ Rectangle {
                        })
 
 
-        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemID, "itemName":itemName});
+        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemName});
         //items[items.length] = obj;
         items[itemID] = obj;
 
