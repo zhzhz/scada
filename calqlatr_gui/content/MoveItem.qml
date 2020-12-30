@@ -63,6 +63,8 @@ Rectangle {
     height: 100
 
 
+
+
     signal deleteThis(var obj)
     //signal clicked(var obj)
     signal clicked()
@@ -70,6 +72,8 @@ Rectangle {
     Text {
         id: btnText
         anchors.centerIn: parent
+
+
         //text: qsTr("x加")
     }
 
@@ -147,10 +151,15 @@ Rectangle {
         render();
     }
 
+    onFontSizeChanged:{
+        console.log("字体大小改变了" + fontSize);
+    }
+
     Component.onDestruction:{
         console.log("删除item，没调用deleteRender（）");
         //deleteRender();
-    }
+        //fontSizeChanged.connect(testChange)
 
+    }
 
 }
