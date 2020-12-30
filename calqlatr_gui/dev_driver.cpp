@@ -6,7 +6,8 @@
 //如果连接出错则显示报错，并不断重连直到连接上，关闭报错窗口。
 Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 {
-
+    client = 0;
+    connect_ok = false;
 }
 
 bool Dev_driver::connect_net(void)
@@ -17,8 +18,8 @@ bool Dev_driver::connect_net(void)
     connect(client, SIGNAL(data_come(QByteArray &)), this, SLOT(handle_data(QByteArray &)));//com发数据来了，处理之
     connect(client, SIGNAL(host_closed(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));//网络连接错误
     connect(client, SIGNAL(networkerror(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
-
-    return client->connect_line();
+    connect_ok = client->connect_line();
+    return connect_ok;
 }
 
 
@@ -115,11 +116,11 @@ void Dev_driver::handle_data(QByteArray &data)
     in >> id >> data_fil;//将数据留出到custom_data_rev，反序列化
     if (id == 1)
     {
-        emit data_rev(data_fil);
+        emit data_rev(data_fil, data_save);
     }
     else if (id == 2)
     {
-        emit data_rev_error(data_fil);
+        emit data_rev_error(data_fil, data_save);
     }
 }
 
@@ -136,4 +137,13 @@ void Dev_driver::networkerror(QTcpSocket *tcp)
     emit networkerror_signal(tcp);
 }
 
+//用来建立连接
+void Dev_driver::get_Device(QString dev_name)
+{
+    this->dev_name = dev_name;
+    if (client == 0)
+    {
+        connect_net();
+    }
+}
 

@@ -31,6 +31,7 @@ typedef struct data_exchange
     int variable;
     QByteArray write_data;
 }data_exchange;
+Q_DECLARE_METATYPE(data_exchange)
 
 
 
@@ -49,14 +50,19 @@ public:
     void write_read_data(void *data, QString data_type);
     void write_data(void *);
 
+    void get_Device(QString dev_name);
+
     data_exchange data_save;
     bool wait_for_first_connect;
     Client *client;
+
+    QString dev_name;
     //void test();
+    bool connect_ok;
 signals:
     //void data_rev(QByteArray &, int id);
-    void data_rev(QByteArray &);
-    void data_rev_error(QByteArray &);
+    void data_rev(QByteArray &, data_exchange);
+    void data_rev_error(QByteArray &, data_exchange);
     void host_closed_signal(QTcpSocket *);
     void networkerror_signal(QTcpSocket *);
 

@@ -1,18 +1,24 @@
 #include "p_root.h"
 #include "qdebug.h"
+#include "testbutton.h"
 
 
-P_ROOT::P_ROOT(QObject *parent) : QObject(parent)
+P_ROOT::P_ROOT(TestButton *tb, QObject *parent) : QObject(parent)
 {
     //gui已经由qml接管了，这里只需实现通讯部分
     //现在只考虑按钮
+    this->tb = tb;
+    connect(tb, SIGNAL(buttonclicked(QString)), this, SLOT(buttonClicked(QString)));
+
+    qRegisterMetaType<data_exchange>();
+    qRegisterMetaType<QByteArray>("QByteArray&");
 
     configFile.read_config_file("../tests/a.txt");
-    sys_ctl = new Sys_ctl(&dev_driver, this);
+    sys_ctl = new Sys_ctl(this);
     connect(this, SIGNAL(buttonClickedSignal(QString)), sys_ctl, SLOT(button_clicked(QString)));
     sys_ctl->setConfigureFile(&configFile);
 
-    sys_ctl->start();
+    //sys_ctl->start();
 }
 
 void P_ROOT::buttonClicked(QString id)

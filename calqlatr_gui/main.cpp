@@ -57,6 +57,7 @@
 #include "QQmlContext"
 #include "p_root.h"
 #include "QQuickItem"
+#include "testbutton.h"
 
 int main(int argc, char *argv[])
 {
@@ -77,9 +78,14 @@ int main(int argc, char *argv[])
         //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
     view.rootContext()->setContextProperty("inputFile", inputFile.data());
 
-    QScopedPointer<P_ROOT> pRoot(new P_ROOT);
-        //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
-    view.rootContext()->setContextProperty("pRoot", pRoot.data());
+//    QScopedPointer<P_ROOT> pRoot(new P_ROOT);
+//        //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
+//    view.rootContext()->setContextProperty("pRoot", pRoot.data());
+    //插入一个简单的对象，看看会不会退出
+    TestButton *tb = new TestButton;
+    QScopedPointer<TestButton> testButton(tb);
+    //        //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
+    view.rootContext()->setContextProperty("pRoot", testButton.data());
 
 
     view.connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
@@ -89,22 +95,7 @@ int main(int argc, char *argv[])
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
 
-    //c++调用qml
-    //QQuickItem* root = view.rootObject();
-    //QObject* button = root->findChild<QObject*>("0");
-    //button->setProperty("width", 500);
-
-
-    //不可行，只能按照上面的方法
-//    P_ROOT root;
-
-//    QObject *pRoot = view.rootObject();
-
-//    QObject *pButton = pRoot->findChild<QObject *>("0");
-//    if( pButton )
-//    {
-//           QObject::connect(pButton,SIGNAL(clicked()),&root,SLOT(test()));
-//    }
+    P_ROOT *root = new P_ROOT(tb);
 
     return app.exec();
 }

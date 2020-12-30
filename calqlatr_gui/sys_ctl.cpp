@@ -1,35 +1,37 @@
 #include "sys_ctl.h"
 #include "qdebug.h"
 
-Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
+Sys_ctl::Sys_ctl(QObject *parent) : QObject(parent)
 {
     //dlg = 0;
     //dlg_neterror = 0;
-    m_timer = 0;
+    thread = new Controller(this, "init");//新建唯一一个新线程，用来采集数据
+//    connect(thread, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
+//                      this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
+
+    //m_timer = 0;
     i = j = 0;
 
-    networkerror_f = false;
-    host_closed_f = false;
+
 
     write_flag = false;
 
-    this->dev_driver = dev_driver;
-    connect(dev_driver, SIGNAL(data_rev(QByteArray &)), this, SLOT(data_come(QByteArray &)));
-    connect(dev_driver, SIGNAL(data_rev_error(QByteArray &)), this, SLOT(data_come_error(QByteArray &)));
+    //this->dev_driver = dev_driver;
 
-    //连接了下面这两项，才可以使用slot
-    connect(dev_driver, SIGNAL(host_closed_signal(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));
-    connect(dev_driver, SIGNAL(networkerror_signal(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
+
+
 
     //在ip=服务器ip上连接失败会触发ConnectionRefusedError
     //在别的ip的机子上不会触发任何error，此时需要手动触发error处理函数
-    if (dev_driver->connect_net() == false)
-    {
-        if (networkerror_f == false)
-        {
-            host_closed(0);
-        }
-    }
+    ////////////////////////////////////////////////////////////////////////
+    //一会处理错误部分！！！！！！！！！！！！！
+//    if (dev_driver->connect_net() == false)
+//    {
+//        if (networkerror_f == false)
+//        {
+//            host_closed(0);
+//        }
+//    }
 
     read_write_flag = false;
     read_none = false;
@@ -37,6 +39,7 @@ Sys_ctl::Sys_ctl(Dev_driver *dev_driver, QObject *parent) : QObject(parent)
 }
 
 //没事依次发送读指令，有写指令发送写指令
+//修改发送为线程发送方式
 void Sys_ctl::start(void)
 {
     QMap<int, void *> leds = configFile->getDevice("led");
@@ -52,10 +55,15 @@ void Sys_ctl::start(void)
             read_none = 1;
         }
         if (i < leds.count())
-            dev_driver->write_read_data(leds[i], "led");
+        {
+            //dev_driver->write_read_data(leds[i], "led");
+            thread->get_data(leds[i], "led");
+        }
+
         else if (j < keys.count())
         {
-            dev_driver->write_read_data(keys[j], "key");//led为空时，发送这条指令。
+            //dev_driver->write_read_data(keys[j], "key");//led为空时，发送这条指令。
+            thread->get_data(keys[j], "key");
         }
 
 
@@ -67,14 +75,15 @@ void Sys_ctl::start(void)
         write_flag = true;
         qDebug() << "write plc data;----------------------------------";
         data_save = data_saves.at(0);//取出全局最开始的那条指令
-        //data_saves.remove(0);//从全局去除最开始的那条指令
-        dev_driver->write_data(&data_save);
+        thread->get_data(data_save);
+        //dev_driver->write_data(&data_save);
+
     }
 }
 
 //接收返回数据,根据name更新对应的系统参数led,key，并继续采集数据
 //如果有错误弹出窗口，关闭
-void Sys_ctl::data_come(QByteArray &data)
+void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 {
 
     if (write_flag == true)//如果data_saves为空，则恢复
@@ -122,7 +131,7 @@ void Sys_ctl::data_come(QByteArray &data)
     //qDebug() << "Sys_ctl::data_come" << dev_driver->data_save.name["name"] << data;
     //qDebug() << "Sys_ctl::data_come";
     //看看数据是不是led数据，根据led数据设置gui显示
-    if (dev_driver->data_save.read_write == 0)
+    if (data_save.read_write == 0)
     {
         //gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
 
@@ -163,7 +172,7 @@ void Sys_ctl::data_come(QByteArray &data)
 //com没有从设备处取得数据，而是从超时处返回，此时data为空
 //1.显示通讯出错对话框
 //2.发送失败的通讯指令，直到通讯成功才发下一条指令
-void Sys_ctl::data_come_error(QByteArray &data)
+void Sys_ctl::data_come_error(QByteArray &data, data_exchange data_save)
 {
 //qDebug() << "超时data_come_error";
 //    if (dlg == 0)
@@ -281,59 +290,14 @@ void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
 //    }
 //}
 
-//gui与com连接中断
-//1.弹出error报警框，关闭tcp连接
-//2.不断重连服务器，连接上后复位发送（相当于重连新的tcp连接）
-void Sys_ctl::host_closed(QTcpSocket *tcp)
+void Sys_ctl::connect_resume()
 {
-    host_closed_f = true;
-    qDebug() << "Sys_ctl::host_closed";
-    dev_driver->client->deleteLater();
+    i = j = 0;
+    write_flag = false;
+    read_write_flag = false;
+    read_none = false;
 
-//    if (dlg_neterror == 0)
-//            dlg_neterror = new error_dialog();
-
-    m_timer = new QTimer;
-    m_timer->setSingleShot(false);
-      //启动或重启定时器, 并设置定时器时间：毫秒
-    m_timer->start(500);
-      //定时器触发信号槽
-    connect(m_timer, SIGNAL(timeout()), this, SLOT(TimerTimeout()));
+    start();
 }
 
-void Sys_ctl::networkerror(QTcpSocket *tcp)
-{
-qDebug() << "Sys_ctl::networkerror";
-    networkerror_f = true;
-    if (host_closed_f == false)//说明最开始连接时网络断开
-    {
-        host_closed(tcp);
-    }
-}
 
-//每500ms执行一次，如果成功则关闭定时器，防止再进来
-void Sys_ctl::TimerTimeout(void)
-{
-    qDebug() << "Sys_ctl::TimerTimeout不断重连server";
-    if (dev_driver->connect_net() == true)
-    {
-        //qDebug() << "网络返回true1";
-        //delete dlg_neterror;//关闭错误窗口
-        //dlg_neterror = 0;
-
-        delete m_timer;//关闭定时器
-
-        i = j = 0;
-        write_flag = false;
-        read_write_flag = false;
-        read_none = false;
-
-        start();
-
-    }
-    else
-    {
-        //连接无效,关闭连接
-        delete dev_driver->client;
-    }
-}

@@ -11,7 +11,10 @@ SOURCES += main.cpp \
     qt_tcp_client.cpp \
     custom_data.cpp \
     cJSON.c \
-    client.cpp
+    client.cpp \
+    controller.cpp \
+    testbutton.cpp \
+    worker.cpp
 
 RESOURCES += calqlatr.qrc
 
@@ -32,4 +35,7 @@ HEADERS += \
     qt_tcp_client.h \
     custom_data.h \
     cJSON.h \
-    client.h
+    client.h \
+    controller.h \
+    testbutton.h \
+    worker.h

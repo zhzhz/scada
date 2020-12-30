@@ -9,13 +9,14 @@
 //#include "qpushbutton.h"
 //#include "error_dialog.h"
 #include "QTimer"
+#include "controller.h"
 
 class Sys_ctl : public QObject
 {
     Q_OBJECT
 public:
-    explicit Sys_ctl(Dev_driver *dev_driver,QObject *parent = nullptr);
-    void start(void);
+    explicit Sys_ctl(QObject *parent = nullptr);
+
     void setConfigureFile(ConfigFile *configFile);
     //void setGui(Gui *gui);
 
@@ -24,17 +25,16 @@ public:
 signals:
 public slots:
     void button_clicked(QString);
+    void start(void);
 
 private slots:
-    void data_come(QByteArray &data);
-    void data_come_error(QByteArray &data);
+    void data_come(QByteArray &data, data_exchange);
+    void data_come_error(QByteArray &data, data_exchange);
+    void connect_resume();
 
-    void host_closed(QTcpSocket *tcp);
-    void networkerror(QTcpSocket *);
 
-    void TimerTimeout(void);
 private:
-    Dev_driver *dev_driver;
+    //Dev_driver *dev_driver;
     ConfigFile *configFile;
     //Gui *gui;
 
@@ -48,10 +48,11 @@ private:
     int i, j;
 
     bool write_flag;
-    QTimer *m_timer;
+    //QTimer *m_timer;
 
-    bool host_closed_f;
-    bool networkerror_f;
+
+
+    Controller *thread;
 };
 
 #endif // SYS_CTL_H
