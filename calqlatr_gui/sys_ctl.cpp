@@ -5,37 +5,19 @@ Sys_ctl::Sys_ctl(QObject *parent) : QObject(parent)
 {
     //dlg = 0;
     //dlg_neterror = 0;
+
     thread = new Controller(this, "init");//新建唯一一个新线程，用来采集数据
-//    connect(thread, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
-//                      this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
-
-    //m_timer = 0;
     i = j = 0;
-
-
-
     write_flag = false;
-
-    //this->dev_driver = dev_driver;
-
-
-
-
-    //在ip=服务器ip上连接失败会触发ConnectionRefusedError
-    //在别的ip的机子上不会触发任何error，此时需要手动触发error处理函数
-    ////////////////////////////////////////////////////////////////////////
-    //一会处理错误部分！！！！！！！！！！！！！
-//    if (dev_driver->connect_net() == false)
-//    {
-//        if (networkerror_f == false)
-//        {
-//            host_closed(0);
-//        }
-//    }
-
     read_write_flag = false;
     read_none = false;
 
+}
+
+Sys_ctl::~Sys_ctl()
+{
+    qDebug() << "Sys_ctl::~Sys_ctl()";
+    delete thread;
 }
 
 //没事依次发送读指令，有写指令发送写指令

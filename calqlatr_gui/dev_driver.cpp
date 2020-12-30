@@ -10,6 +10,16 @@ Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
     connect_ok = false;
 }
 
+Dev_driver::~Dev_driver()
+{
+    qDebug() << "Dev_driver::~Dev_driver()" << client;
+    if (client != 0)
+    {
+        delete client;
+        client = 0;
+    }
+}
+
 bool Dev_driver::connect_net(void)
 {
     Qt_tcp_client *client = new Qt_tcp_client();//连接8686 com端口，用来发送数据

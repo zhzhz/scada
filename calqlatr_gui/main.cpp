@@ -95,7 +95,8 @@ int main(int argc, char *argv[])
     view.setResizeMode(QQuickView::SizeRootObjectToView);
     view.show();
 
-    P_ROOT *root = new P_ROOT(tb);
+    //P_ROOT *root = new P_ROOT(tb);
+    P_ROOT root(tb);
 
     return app.exec();
 }

@@ -21,6 +21,11 @@ P_ROOT::P_ROOT(TestButton *tb, QObject *parent) : QObject(parent)
     //sys_ctl->start();
 }
 
+P_ROOT::~P_ROOT()
+{
+    delete sys_ctl;
+}
+
 void P_ROOT::buttonClicked(QString id)
 {
     qDebug() << "鼠标按下" << id;

@@ -11,6 +11,7 @@ class P_ROOT : public QObject
     Q_OBJECT
 public:
     explicit P_ROOT(TestButton *tb, QObject *parent = nullptr);
+    ~P_ROOT();
 
 Q_INVOKABLE void buttonClicked(QString);
 

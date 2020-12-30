@@ -16,6 +16,7 @@ class Sys_ctl : public QObject
     Q_OBJECT
 public:
     explicit Sys_ctl(QObject *parent = nullptr);
+    ~Sys_ctl();
 
     void setConfigureFile(ConfigFile *configFile);
     //void setGui(Gui *gui);

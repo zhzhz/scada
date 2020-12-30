@@ -40,6 +40,7 @@ class Dev_driver : public QObject
     Q_OBJECT
 public:
     explicit Dev_driver(QObject *parent = nullptr);
+    ~Dev_driver();
 
     bool connect_net(void);
     //void setClient(Client *client);
