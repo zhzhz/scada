@@ -55,6 +55,7 @@ Rectangle {
     property var id
     property var deleteRender
     property var itemName
+    property alias fontSize:btnText.font.pixelSize
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
     y: 100

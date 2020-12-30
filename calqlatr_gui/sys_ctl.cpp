@@ -151,6 +151,9 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 //                r->setFont(font);
 //            }
 //        }
+        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
+        //qDebug() << "-----------------------------------" << data_save.name << item;
+        item->setProperty("fontSize", 20);
     }
 
 
