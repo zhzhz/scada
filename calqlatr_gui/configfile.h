@@ -4,6 +4,7 @@
 #include <QObject>
 #include "cJSON.h"
 #include "qmap.h"
+#include "qvariant.h"
 
 typedef struct device
 {

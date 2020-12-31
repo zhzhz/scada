@@ -92,8 +92,8 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 //        delete dlg;
 //        dlg = 0;
 //    }
-    QMap<int, void *> leds = configFile->getDevice("led");
-    QMap<int, void *> keys = configFile->getDevice("key");
+    QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
+    QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
 
     if (read_write_flag == false)
     {
@@ -209,7 +209,7 @@ void Sys_ctl::button_clicked(QString button_name)
     //gui_info *info = gui->get_gui_info_byptr(pushbutton);//利用info的name部分
     //根据name找到包含name的led项或者key项
     //void *gui_info = configFile->get_gui_info_byname(info->name);
-    void *gui_info = configFile->get_gui_info_byname(button_name);
+    QMap<QString, QVariant> gui_info = configFile->get_gui_info_byname(button_name);
 
 
     write_data(gui_info, "key", data);
@@ -218,7 +218,7 @@ void Sys_ctl::button_clicked(QString button_name)
 
 //把写数据缓存起来，在start中判断发送
 //修改这个函数，使支持多个写指令，否则后一条写指令会覆盖前一条指令
-void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
+void Sys_ctl::write_data(QMap<QString, QVariant>data, QString data_type,QByteArray data_write)
 {
     data_exchange data_save;
     read_write_flag = true;//判断读和写的总开关
@@ -226,21 +226,26 @@ void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
     data_save.read_write = 1;
     data_save.write_data = data_write;
 
-    if (data_type == "led")
-    {
-        led *led_data = (led *)data;
-        data_save.name = led_data->name;
-        data_save.device = led_data->device;
-        data_save.dev_id = led_data->dev_id;
-        data_save.variable = led_data->variable;
-    }
-    else if (data_type == "key") {
-        key *key_data = (key *)data;
-        data_save.name = key_data->name;
-        data_save.device = key_data->device;
-        data_save.dev_id = key_data->dev_id;
-        data_save.variable = key_data->variable;
-    }
+    data_save.name = data["name"].toString();
+    data_save.device = data["device"].toString();
+    data_save.dev_id = data["dev_id"].toInt();
+    data_save.variable = data["variable"].toInt();
+
+//    if (data_type == "led")
+//    {
+//        led *led_data = (led *)data;
+//        data_save.name = led_data->name;
+//        data_save.device = led_data->device;
+//        data_save.dev_id = led_data->dev_id;
+//        data_save.variable = led_data->variable;
+//    }
+//    else if (data_type == "key") {
+//        key *key_data = (key *)data;
+//        data_save.name = key_data->name;
+//        data_save.device = key_data->device;
+//        data_save.dev_id = key_data->dev_id;
+//        data_save.variable = key_data->variable;
+//    }
 
     data_saves << data_save;//将当前发送指令保存到全局
 

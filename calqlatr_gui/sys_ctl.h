@@ -22,7 +22,7 @@ public:
     void setConfigureFile(ConfigFile *configFile);
     //void setGui(Gui *gui);
 
-    void write_data(void *data, QString data_type,QByteArray data_write);
+    void write_data(QMap<QString, QVariant> data, QString data_type, QByteArray data_write);
 
 signals:
 public slots:

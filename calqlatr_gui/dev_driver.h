@@ -48,7 +48,7 @@ public:
     QMap<QString, dev_info> devinfo;//设备总信息
 
     void write_write_data(void *data, QString data_type, QByteArray data_write);
-    void write_read_data(void *data, QString data_type);
+    void write_read_data(QMap<QString, QVariant> data, QString data_type);
     void write_data(void *);
 
     void get_Device(QString dev_name);

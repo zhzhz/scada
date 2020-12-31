@@ -17,7 +17,7 @@ public:
     Dev_driver dev_driver;
 public slots:
      // doWork定义了线程要执行的操作
-    void doWork(void *, QString);
+    void doWork(QMap<QString, QVariant>, QString);
     void doWork(data_exchange);
 
 

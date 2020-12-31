@@ -12,7 +12,7 @@ Dev_driver::Dev_driver(QObject *parent) : QObject(parent)
 
 Dev_driver::~Dev_driver()
 {
-    qDebug() << "Dev_driver::~Dev_driver()" << client;
+    qDebug() << "Dev_driver::~Dev_driver()" ;
     if (client != 0)
     {
         delete client;
@@ -57,28 +57,32 @@ void Dev_driver::write_write_data(void *data, QString data_type,QByteArray data_
 }
 
 //将读入的数据转换为data_exchange通讯协议格式
-void Dev_driver::write_read_data(void *data, QString data_type)
+void Dev_driver::write_read_data(QMap<QString, QVariant>data, QString data_type)
 {
     data_exchange read_data;
     read_data.read_write = 0;
     //qDebug() << "Dev_driver::write_read_data";
     //led ll;
 
-    if (data_type == "led")
-    {
-        led *led_data = (led *)data;
-        read_data.name = led_data->name;
-        read_data.device = led_data->device;
-        read_data.dev_id = led_data->dev_id;
-        read_data.variable = led_data->variable;
-    }
-    else if (data_type == "key") {
-        key *key_data = (key *)data;
-        read_data.name = key_data->name;
-        read_data.device = key_data->device;
-        read_data.dev_id = key_data->dev_id;
-        read_data.variable = key_data->variable;
-    }
+//    if (data_type == "led")
+//    {
+//        read_data.name = data["name"].toString();
+//        read_data.device = data["device"].toString();
+//        read_data.dev_id = data["dev_id"].toInt();
+//        read_data.variable = data["variable"].toInt();
+//    }
+//    else if (data_type == "key") {
+//        key *key_data = (key *)data;
+//        read_data.name = key_data->name;
+//        read_data.device = key_data->device;
+//        read_data.dev_id = key_data->dev_id;
+//        read_data.variable = key_data->variable;
+//    }
+    read_data.name = data["name"].toString();
+    read_data.device = data["device"].toString();
+    read_data.dev_id = data["dev_id"].toInt();
+    read_data.variable = data["variable"].toInt();
+
     write_data(&read_data);
 }
 

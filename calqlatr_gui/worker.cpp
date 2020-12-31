@@ -25,7 +25,7 @@ Worker::~Worker()
 
 //发送查询指令，接收返回数据
 //计时，如果超时没有返回数据，则返回出错，即id = 2;
-void Worker::doWork(void *data, QString type)
+void Worker::doWork(QMap<QString, QVariant> data, QString type)
 {
     //建立设备连接，因为在出错处理data_come_error中删除了连接。
     //如果建立过，则直接返回建立好的连接，避免再次连接。

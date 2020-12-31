@@ -8,7 +8,7 @@ Controller::Controller(Sys_ctl *sys_ctl, QString device_name, QObject *parent) :
     worker->moveToThread(&workerThread);
     //数据发送给采集线程
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
-    connect(this, SIGNAL(operate(void *, QString)), worker, SLOT(doWork(void *, QString)));
+    connect(this, SIGNAL(operate(QMap<QString, QVariant>, QString)), worker, SLOT(doWork(QMap<QString, QVariant>, QString)));
     connect(this, SIGNAL(operate(data_exchange)), worker, SLOT(doWork(data_exchange)));
 
 
@@ -45,7 +45,7 @@ Controller::~Controller()
 }
 
 //发送采集数据
-void Controller::get_data(void *data, QString data_type)
+void Controller::get_data(QMap<QString, QVariant> data, QString data_type)
 {
     qDebug() << "2.gui发送读请求给Controller::get_data";
     emit operate(data, data_type);

@@ -17,7 +17,7 @@ public:
 
     //Worker *worker;
 
-    void get_data(void *data, QString data_type);
+    void get_data(QMap<QString, QVariant> data, QString data_type);
     void get_data(data_exchange data);
 
 public slots:
@@ -32,7 +32,7 @@ public slots:
 signals:
     // 发送信号触发线程
     //void operate(data_exchange, QTcpSocket *);
-    void operate(void *, QString);
+    void operate(QMap<QString, QVariant>, QString);
     void operate(data_exchange);
 
     void init(QString);
