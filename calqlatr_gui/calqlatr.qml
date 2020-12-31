@@ -93,7 +93,7 @@ Rectangle {
         var configFile = inputFile.readfile("a.txt", "../tests");
         //console.log(jsonFile);
         var config = JSON.parse(configFile);
-
+        pRoot.testVar(config);
         for(let key  in config)
         {
             //console.log(key + '---' + config[key])
