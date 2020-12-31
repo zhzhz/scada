@@ -25,8 +25,8 @@ Sys_ctl::~Sys_ctl()
 //修改发送为线程发送方式
 void Sys_ctl::start(void)
 {
-    QMap<int, void *> leds = configFile->getDevice("led");
-    QMap<int, void *> keys = configFile->getDevice("key");
+    QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
+    QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
 
     QByteArray data;
     data[0] = 0;

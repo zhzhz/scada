@@ -30,19 +30,19 @@ class ConfigFile : public QObject
     Q_OBJECT
 public:
     explicit ConfigFile(QObject *parent = nullptr);
-    void read_config_file(char *config_file);
-    QMap<QString, QMap<int, void *>> device_map;//从json得到的数据
 
-    QMap<int, void *> getDevice(QString str);
-    void *get_gui_info_byname(QString name);
+    //QMap<QString, QMap<int, void *>> device_map;//从json得到的数据
+    QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map;
+
+    QMap<int, QMap<QString, QVariant>> getDevice(QString str);
+    QMap<QString, QVariant> get_gui_info_byname(QString name);
+
+    void setConfig(QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map);
 signals:
 
 public slots:
 
 private:
-    void dofile2(char *filename);
-    void doit2(char *text);
-    void printJson(cJSON * root);
 };
 
 #endif // CONFIGFILE_H

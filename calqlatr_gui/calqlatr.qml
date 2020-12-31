@@ -14,6 +14,7 @@ Rectangle {
     property var count:0
     property var mainComponent: null
     property var mainStateControl : MainStateControl
+    property var config
     //property var activeItemId: -1
     //property var activeItem:null//当前选中的对象，当前选中对象的id
 
@@ -82,6 +83,14 @@ Rectangle {
 
     }
 
+//    function walkOjb(Obj)
+//    {
+//        for(let key in Obj)
+//        {
+
+//        }
+//    }
+
     Component.onCompleted:{
         mainStateControl.init();
         console.log("mainStateControl store is created!")
@@ -93,14 +102,24 @@ Rectangle {
         var configFile = inputFile.readfile("a.txt", "../tests");
         //console.log(jsonFile);
         var config = JSON.parse(configFile);
-        pRoot.testVar(config);
-        for(let key  in config)
+        //pRoot.testVar(config);
+        for(let key in config)
         {
             //console.log(key + '---' + config[key])
+            if (key === "device")
+            {
+                for (var j = 0; j < config[key].length; j++)
+                {
+                    pRoot.setConfigure(key, j, config[key][j]);//传递给pRoot的是对象
+                }
+            }
+
             if (key === "key")
             {
+                //创建gui
                 for (var i = 0; i < config[key].length; i++)
                 {
+                    pRoot.setConfigure(key, i, config[key][i]);
                     createItem(config[key][i].x, config[key][i].y, config[key][i].name);
                 }
             }

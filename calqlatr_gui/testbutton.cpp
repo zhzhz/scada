@@ -6,7 +6,6 @@
 
 TestButton::TestButton(QObject *parent) : QObject(parent)
 {
-
 }
 
 void TestButton::buttonClicked(QString str)
@@ -40,7 +39,7 @@ void TestButton::testVar(QVariant json)
     {
         qDebug() << "可以转换为QJSValue";
         QJSValue obj = json.value<QJSValue>();
-        walkObj(obj);
+        //walkObj(obj);
 //        QJSValueIterator it(config);
 //        while (it.hasNext()) {
 //            it.next();
@@ -61,4 +60,40 @@ void TestButton::testVar(QVariant json)
 //            obj = obj.prototype();
 //        }
     }
+}
+
+//实现js环境中解析对象结构，给c++设置系统配置
+void TestButton::setConfigure(QString name,int index, QVariant config)
+{
+    static QMap<int, QMap<QString, QVariant>> map;
+    QMap<QString, QVariant> p;
+
+    //sendType *st;
+    //QMap<QString, QMap<int, void *>> device_map;
+
+    QJSValue obj = config.value<QJSValue>();
+
+    QJSValueIterator it(obj);
+    while (it.hasNext()) {
+        it.next();
+
+        if (it.value().isNumber())
+        {
+            p[it.name()] = it.value().toInt();
+        }
+        else if (it.value().isString())
+        {
+            p[it.name()] = it.value().toString();
+        }
+    }
+
+    if (name != name_init)
+    {
+        map.clear();
+        name_init = name;
+    }
+
+    map.insert(index, p);
+    device_map[name]  = map;
+
 }

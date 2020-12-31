@@ -14,7 +14,8 @@ P_ROOT::P_ROOT(TestButton *tb, QQuickItem *qmlItem, QObject *parent) : QObject(p
     qRegisterMetaType<data_exchange>();
     qRegisterMetaType<QByteArray>("QByteArray&");
 
-    configFile.read_config_file("../tests/a.txt");
+    configFile.setConfig(tb->device_map);
+    //configFile.read_config_file("../tests/a.txt");
     sys_ctl = new Sys_ctl(qmlItem, this);
     connect(this, SIGNAL(buttonClickedSignal(QString)), sys_ctl, SLOT(button_clicked(QString)));
     sys_ctl->setConfigureFile(&configFile);

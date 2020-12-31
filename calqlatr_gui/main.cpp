@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
     //P_ROOT *root = new P_ROOT(tb);
     QQuickItem *p = view.rootObject();
     //QObject *pButton = p->findChild<QObject *>("testButton");
-    P_ROOT root(tb, p);
+    P_ROOT root(tb, p);//p用来给c++修改qml中的gui部分
 
     return app.exec();
 }
