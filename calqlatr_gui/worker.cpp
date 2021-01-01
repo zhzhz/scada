@@ -94,6 +94,7 @@ void Worker::host_closed(QTcpSocket *tcp)
 
 //    if (dlg_neterror == 0)
 //            dlg_neterror = new error_dialog();
+    emit com_error();
 
     m_timer = new QTimer;
     m_timer->setSingleShot(false);
@@ -122,6 +123,7 @@ void Worker::TimerTimeout(void)
         //qDebug() << "网络返回true1";
         //delete dlg_neterror;//关闭错误窗口
         //dlg_neterror = 0;
+        emit com_error_ok();
 
         delete m_timer;//关闭定时器
 

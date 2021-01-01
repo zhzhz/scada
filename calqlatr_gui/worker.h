@@ -32,6 +32,9 @@ signals:
     void connect_resume();
     void connect_ok();
 
+    void com_error();
+    void com_error_ok();
+
 private slots:
 
     void data_come(QByteArray &, data_exchange);

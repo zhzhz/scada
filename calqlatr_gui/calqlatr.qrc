@@ -16,5 +16,6 @@
         <file>js/reducers/reduce2.js</file>
         <file>js/state.js</file>
         <file>js/deepCopy.js</file>
+        <file>content/ErrorItem.qml</file>
     </qresource>
 </RCC>

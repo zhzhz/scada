@@ -18,6 +18,9 @@ Controller::Controller(Sys_ctl *sys_ctl, QString device_name, QObject *parent) :
 
     connect(worker, SIGNAL(connect_resume()), sys_ctl, SLOT(connect_resume()));
 
+    //错误处理部分
+    connect(worker, SIGNAL(com_error()), sys_ctl, SLOT(com_error()));
+    connect(worker, SIGNAL(com_error_ok()), sys_ctl, SLOT(com_error_ok()));
 
 
     //启动线程

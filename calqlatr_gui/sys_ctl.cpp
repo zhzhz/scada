@@ -92,6 +92,10 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 //        delete dlg;
 //        dlg = 0;
 //    }
+    QQuickItem* item = qmlItem->findChild<QQuickItem*>("plcError");
+    //qDebug() << "-----------------------------------" << data_save.name << item;
+    item->setProperty("visible", false);
+
     QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
     QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
 
@@ -168,6 +172,11 @@ void Sys_ctl::data_come_error(QByteArray &data, data_exchange data_save)
 //qDebug() << "超时data_come_error";
 //    if (dlg == 0)
 //        dlg = new error_dialog();
+    //显示通讯出错对话框，调用qml函数实现
+
+    QQuickItem* item = qmlItem->findChild<QQuickItem*>("plcError");
+    //qDebug() << "-----------------------------------" << data_save.name << item;
+    item->setProperty("visible", true);
 
     if (write_flag == true)
     {
@@ -296,6 +305,20 @@ void Sys_ctl::connect_resume()
     data_saves.clear();
 
     start();
+}
+
+void Sys_ctl::com_error()
+{
+    QQuickItem* item = qmlItem->findChild<QQuickItem*>("comError");
+    //qDebug() << "-----------------------------------" << data_save.name << item;
+    item->setProperty("visible", true);
+}
+
+void Sys_ctl::com_error_ok()
+{
+    QQuickItem* item = qmlItem->findChild<QQuickItem*>("comError");
+    //qDebug() << "-----------------------------------" << data_save.name << item;
+    item->setProperty("visible", false);
 }
 
 

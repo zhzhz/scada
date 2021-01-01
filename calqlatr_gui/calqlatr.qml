@@ -13,10 +13,12 @@ Rectangle {
     property var items:[]//创建的obj都放在这
     property var count:0
     property var mainComponent: null
+    property var errorComponent: null
     property var mainStateControl : MainStateControl
     property var config
     //property var activeItemId: -1
     //property var activeItem:null//当前选中的对象，当前选中对象的id
+
 
     function deleteItems(object) {
         console.log("删除对象" + object);
@@ -81,6 +83,8 @@ Rectangle {
         //console.log("obj.length" + objs.length);
         itemID++;
 
+
+
     }
 
 //    function walkOjb(Obj)
@@ -97,6 +101,9 @@ Rectangle {
 
         if (mainComponent == null)
             mainComponent = Qt.createComponent('qrc:/content/MoveItem.qml');
+
+        if (errorComponent == null)
+            errorComponent = Qt.createComponent('qrc:/content/ErrorItem.qml');
 
         //根据解析的json字符串创建state
         var configFile = inputFile.readfile("a.txt", "../tests");
@@ -125,7 +132,8 @@ Rectangle {
             }
         }
 
-
-
+        //创建一个plc连接错误窗口
+        errorComponent.createObject(rootCanvas,{"visible":false ,"text":"plc连接出错",  "objectName":"plcError"});
+        errorComponent.createObject(rootCanvas,{"x": 200, "y":200, "visible":false ,"text":"com连接出错",  "objectName":"comError"});
     }
 }

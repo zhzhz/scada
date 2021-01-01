@@ -52,9 +52,6 @@ import QtQuick 2.0
 
 Rectangle {
     property alias text: btnText.text
-    property var id
-    property var deleteRender
-    //property var itemName
     property alias fontSize:btnText.font.pixelSize
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
@@ -62,18 +59,9 @@ Rectangle {
     width: 100
     height: 100
 
-
-
-
-    signal deleteThis(var obj)
-    //signal clicked(var obj)
-    signal clicked()
-
     Text {
         id: btnText
         anchors.centerIn: parent
-
-
         //text: qsTr("x加")
     }
 
@@ -84,71 +72,12 @@ Rectangle {
         property real lastY: 0
         property real rectangleXOld: 0
         property real rectangleYOld: 0
-
-        onPressed: {
-//            //鼠标按下时，记录鼠标初始位置
-//            lastX = mouseX
-//            lastY = mouseY
-
-//            root.activeItemId = id;
-//            root.activeItem = parent;
-//            console.log("鼠标按下，记录方块位置");
-//            var state = mainStateControl.store.getState();
-//            rectangleXOld = state.item1.present[id].x;
-//            rectangleYOld = state.item1.present[id].y;
-            //clicked();
-            //pRoot.test(parent.objectName);
-            pRoot.buttonClicked(parent.objectName);
-
-        }
-
-//        onReleased:{
-//            //如果方块位置变化了，则调用这个函数，反之不调用
-//            var state = mainStateControl.store.getState();
-//            var x = state.item1.present[id].x;
-//            var y = state.item1.present[id].y;
-
-//            if (rectangleXOld === x && rectangleYOld === y)
-//            {
-//                //鼠标位置没变化，不在redux-undo中记录
-//            }
-//            else
-//            {
-
-//                mainStateControl.mouseReleased();
-//            }
-//        }
-
-//        onPositionChanged: {
-//            if (pressed) {
-//                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
-//                //moveItem.x += mouseX - lastX
-//                //moveItem.y += mouseY - lastY
-//                console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
-//                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
-//                //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
-//                //mouseXTrue = mouseX;
-//                //mouseYTrue = mouseY;
-//            }
-//        }
-    }
-
-    function render()
-    {
-        var state = mainStateControl.store.getState();
-        console.log("render()被调用了1");
-        //if (state.item1.present[id] !== undefined)
-        //{
-            x = state.item1.present[id].x;
-            y = state.item1.present[id].y;
-        //}
-        console.log("render()被调用了2")
     }
 
     Component.onCompleted:{
 
-        deleteRender = mainStateControl.store.subscribe(render);
-        render();
+        //deleteRender = mainStateControl.store.subscribe(render);
+        //render();
     }
 
     onFontSizeChanged:{

@@ -34,7 +34,8 @@ private slots:
     void data_come_error(QByteArray &data, data_exchange);
     void connect_resume();
 
-
+    void com_error();
+    void com_error_ok();
 private:
     //Dev_driver *dev_driver;
     ConfigFile *configFile;

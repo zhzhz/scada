@@ -24,7 +24,7 @@ Qt_tcp_client::~Qt_tcp_client()
 bool Qt_tcp_client::connect_line(void)
 {
     socket->connectToHost(IP, port);
-    if(!socket->waitForConnected(5000))
+    if(!socket->waitForConnected(1000))
     {
         qDebug() << "Connection failed!" << port;
         return false;
