@@ -286,12 +286,14 @@ void Sys_ctl::write_data(QMap<QString, QVariant>data, QString data_type,QByteArr
 //    }
 //}
 
+//从连接错误中恢复，注意要删除一些写指令
 void Sys_ctl::connect_resume()
 {
     i = j = 0;
     write_flag = false;
     read_write_flag = false;
     read_none = false;
+    data_saves.clear();
 
     start();
 }
