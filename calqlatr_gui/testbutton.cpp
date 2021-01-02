@@ -95,5 +95,5 @@ void TestButton::setConfigure(QString name,int index, QVariant config)
 
     map.insert(index, p);
     device_map[name]  = map;
-
+    qDebug() << device_map;
 }

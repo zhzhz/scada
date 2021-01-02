@@ -8,10 +8,14 @@ Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
     //dlg_neterror = 0;
     this->qmlItem = qmlItem;
     thread = new Controller(this, "init");//新建唯一一个新线程，用来采集数据
+    //i = j = 0;
+
+    readList << "led" << "key";//读led和key的数值
     i = j = 0;
+
     write_flag = false;
     read_write_flag = false;
-    read_none = false;
+    read_none = true;
 
 }
 
@@ -25,31 +29,61 @@ Sys_ctl::~Sys_ctl()
 //修改发送为线程发送方式
 void Sys_ctl::start(void)
 {
-    QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
-    QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
+    qDebug() << "Sys_ctl::start" << read_write_flag;
+    //QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
+    //QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
+    QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map = configFile->device_map;
 
+    //qDebug() << "device_map" << device_map;
     QByteArray data;
     data[0] = 0;
 
     if (read_write_flag == false)
     {
-        if (leds.count() == 0 && keys.count() == 0)
+again:
+        if (i < readList.size())
         {
-            read_none = 1;
+            //qDebug() << "readList.at(i)" << readList.at(i);
+            if (device_map.contains(readList.at(i)))
+            {
+                //qDebug() << "device_map.contains" << readList.at(i);
+                //bug ,device_map包括led，在哪？
+                read_none = false;
+
+                QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
+                if (j < leds.size())
+                {
+                    //qDebug() << "thread->get_data()";
+                    thread->get_data(leds[j], readList.at(i));
+                    //j++;
+                }
+                else
+                {
+                    //i++;//如果当前读项已经读完，转移到下一个读项
+                    //j = 0;
+                    //i++;
+                }
+            }
+            else
+            {
+                //qDebug() << "i++" << i;
+                i++;//如果没有读的一项，转移到下一个读项,保证有读项时，立即执行读项
+                goto again;
+            }
         }
-        if (i < leds.count())
+        else
         {
-            //dev_driver->write_read_data(leds[i], "led");
-            thread->get_data(leds[i], "led");
+            //找到结尾也没有要执行的指令，如果指令不是空则重新寻找，如果为空则放弃寻找
+            if (read_none == false)
+            {
+                i = j = 0;
+                goto again;
+            }
+            else
+            {
+                i = j = 0;
+            }
         }
-
-        else if (j < keys.count())
-        {
-            //dev_driver->write_read_data(keys[j], "key");//led为空时，发送这条指令。
-            thread->get_data(keys[j], "key");
-        }
-
-
 
     }
     else {
@@ -68,6 +102,45 @@ void Sys_ctl::start(void)
 //如果有错误弹出窗口，关闭
 void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 {
+    //qDebug() << "Sys_ctl::data_come";
+
+
+    QQuickItem* item = qmlItem->findChild<QQuickItem*>("plcError");
+    //qDebug() << "-----------------------------------" << data_save.name << item;
+    item->setProperty("visible", false);
+
+    //QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
+    //QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
+    QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map = configFile->device_map;
+
+    if (read_write_flag == false)
+    {
+        QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
+        if (j < leds.size() - 1)
+        {
+
+            j++;
+            //qDebug() << "-----------------------------j" << j;
+        }
+        else
+        {
+            //i++;//如果当前读项已经读完，转移到下一个读项
+            j = 0;
+            if (i < readList.size() - 1)
+            {
+
+                i++;
+                //qDebug() << "-----------------------------i" << i;
+            }
+            else
+            {
+                i = 0;
+                //qDebug() << "-----------------------------i==0";
+            }
+        }
+
+
+    }
 
     if (write_flag == true)//如果data_saves为空，则恢复
     {
@@ -87,74 +160,17 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
         write_flag = false;
     }
 
-//    if (dlg)
-//    {
-//        delete dlg;
-//        dlg = 0;
-//    }
-    QQuickItem* item = qmlItem->findChild<QQuickItem*>("plcError");
-    //qDebug() << "-----------------------------------" << data_save.name << item;
-    item->setProperty("visible", false);
 
-    QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
-    QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
 
-    if (read_write_flag == false)
-    {
-        if (i < leds.count())
-        {
-            i++;
-        }
-        else if (j < keys.count() - 1)
-        {
-            j++;
-        }
-        else
-        {
-            i = j = 0;
-        }
-    }
-
-    //qDebug() << "Sys_ctl::data_come" << dev_driver->data_save.name["name"] << data;
-    //qDebug() << "Sys_ctl::data_come";
     //看看数据是不是led数据，根据led数据设置gui显示
     if (data_save.read_write == 0)
     {
-        //gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
-
-//        if (info->type == "led")
-//        {
-//            QRadioButton *r = (QRadioButton *)info->ptr;
-//            r->setText(QString::number(data.at(0)));
-//        }
-//        else if(info->type == "key")
-//        {
-//            QPushButton *r = (QPushButton *)info->ptr;
-//            r->setText(QString::number(data.at(0)));
-//        }
-        //QObject *pButton = qmlItem->findChild<QObject *>(data_save.name);
         QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
         //qDebug() << "-----------------------------------" << data_save.name << item;
         item->setProperty("text", data.at(0));
 
     }
     else {
-//        gui_info *info = gui->get_gui_info_byname(dev_driver->data_save.name);
-//        if (info->type == "led")
-//        {
-//            //QRadioButton *r = (QRadioButton *)info->ptr;
-//            //r->setText(QString::number(data.at(0)));
-//        }
-//        else if(info->type == "key")
-//        {
-//            if (data.at(0) == 1)//测试返回值
-//            {
-//                QPushButton *r = (QPushButton *)info->ptr;
-//                QFont font;
-//                font.setFamily("微软雅黑");
-//                r->setFont(font);
-//            }
-//        }
         QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
         //qDebug() << "-----------------------------------" << data_save.name << item;
         item->setProperty("fontSize", 20);
@@ -219,6 +235,7 @@ void Sys_ctl::button_clicked(QString button_name)
     //根据name找到包含name的led项或者key项
     //void *gui_info = configFile->get_gui_info_byname(info->name);
     QMap<QString, QVariant> gui_info = configFile->get_gui_info_byname(button_name);
+    //bug在这个地方调用了qmap的[]方法，所以生成了一个包含led的空数组
 
 
     write_data(gui_info, "key", data);
@@ -301,7 +318,7 @@ void Sys_ctl::connect_resume()
     i = j = 0;
     write_flag = false;
     read_write_flag = false;
-    read_none = false;
+    read_none = true;
     data_saves.clear();
 
     start();

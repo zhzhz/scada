@@ -49,6 +49,7 @@ private:
     //error_dialog *dlg;
     //error_dialog *dlg_neterror;
     int i, j;
+    QStringList readList;
 
     bool write_flag;
     //QTimer *m_timer;
