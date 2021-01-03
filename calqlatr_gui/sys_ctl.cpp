@@ -54,6 +54,8 @@ again:
                 if (j < leds.size())
                 {
                     //qDebug() << "thread->get_data()";
+                    //qDebug() << "---------------------1 " << leds[j] << readList.at(i);
+                    //qDebug() << "------------------------------回来3";
                     thread->get_data(leds[j], readList.at(i));
                     //j++;
                 }
@@ -160,7 +162,7 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
         write_flag = false;
     }
 
-
+    //qDebug() << "------------------------------回来1";
 
     //看看数据是不是led数据，根据led数据设置gui显示
     if (data_save.read_write == 0)
@@ -176,7 +178,7 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
         item->setProperty("fontSize", 20);
     }
 
-
+    //qDebug() << "------------------------------回来2";
     start();//继续采集数据
 }
 

@@ -267,7 +267,7 @@ function createJson()
             var config = jsonFile[objName][countId[objName]];
 
             config.name = objName + objNameId;
-            config.device = "tcp508nserial";
+            config.device = "tcp508neth";
             config.dev_id = 1;
             config.variable =  countId[objName] + 1;
 

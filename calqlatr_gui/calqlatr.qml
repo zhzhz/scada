@@ -13,6 +13,7 @@ Rectangle {
     property var items:[]//创建的obj都放在这
     property var count:0
     property var mainComponent: null
+    property var digitComponent: null
     property var errorComponent: null
     property var mainStateControl : MainStateControl
     property var config
@@ -52,7 +53,7 @@ Rectangle {
     }
 
     //创建方块
-    function createItem(x_init, y_init, itemName) {
+    function createItem(Component, x_init, y_init, itemName) {
         //x_init += 120;
         console.log("创建方块" + itemID);
 
@@ -70,7 +71,7 @@ Rectangle {
                        })
 
 
-        var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemName});
+        var obj = Component.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemName});
         //items[items.length] = obj;
         items[itemID] = obj;
 
@@ -102,6 +103,9 @@ Rectangle {
         if (mainComponent == null)
             mainComponent = Qt.createComponent('qrc:/content/MoveItem.qml');
 
+        if (digitComponent == null)
+            digitComponent = Qt.createComponent('qrc:/content/DigitItem.qml');
+
         if (errorComponent == null)
             errorComponent = Qt.createComponent('qrc:/content/ErrorItem.qml');
 
@@ -127,7 +131,18 @@ Rectangle {
                 for (var i = 0; i < config[key].length; i++)
                 {
                     pRoot.setConfigure(key, i, config[key][i]);
-                    createItem(config[key][i].x, config[key][i].y, config[key][i].name);
+                    createItem(mainComponent, config[key][i].x, config[key][i].y, config[key][i].name);
+                }
+            }
+
+            if (key === "led")
+            {
+                //创建gui
+                for (var k = 0; k < config[key].length; k++)
+                {
+                    pRoot.setConfigure(key, k, config[key][k]);
+                    console.log("config[key][k].name " << config[key][k].name);
+                    createItem(digitComponent, config[key][k].x, config[key][k].y, config[key][k].name);
                 }
             }
         }

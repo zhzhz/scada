@@ -113,6 +113,7 @@ void Dev_driver::write_data(void *data)
     QDataStream * stream = new QDataStream(&data_send, QIODevice::WriteOnly);
     (*stream) << ID << custom_data;//将custom_data序列化写入QByteArray
 
+    //qDebug() << "--------------------发出2";
     client->write_data(data_send);//调用网络发送数据
     //qDebug() << "序列化网络写出";
     delete stream;
