@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>content/MoveItem.qml</file>
+        <file>content/calculator.js</file>
+        <file>calqlatr.qml</file>
+        <file>content/images/paper-edge-left.png</file>
+        <file>content/images/paper-edge-right.png</file>
+        <file>content/images/paper-grip.png</file>
+        <file>js/redux.js</file>
+        <file>js/MainStateControl.js</file>
+        <file>js/printObj.js</file>
+        <file>js/redoUndo/helpers.js</file>
+        <file>js/redoUndo/reduxUndo.js</file>
+        <file>js/ObjectAssign.js</file>
+        <file>js/reducers/reduce1.js</file>
+        <file>js/reducers/reduce2.js</file>
+        <file>js/state.js</file>
+        <file>js/deepCopy.js</file>
+        <file>content/DigitItem.qml</file>
+    </qresource>
+</RCC>
