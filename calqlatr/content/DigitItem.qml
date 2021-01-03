@@ -59,8 +59,8 @@ Rectangle {
     y: 100
     width: 100
     height: 100
-    //id: key
-    property var objectName:"key"
+    //id:led
+    property var objectName:"led"
     property var nameId
 
 

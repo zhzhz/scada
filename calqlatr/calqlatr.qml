@@ -8,9 +8,11 @@ Rectangle {
     height: 1024
     color: "yellow"
     property var mainComponent: null
+    property var digitComponent: null
+    property var type:(new Map())
 
     property var mainStateControl : MainStateControl
-    property var activeItemId: -1
+    //property var activeItemId: -1
     property var activeItem:null//当前选中的对象，当前选中对象的id
 
     Rectangle {
@@ -25,6 +27,7 @@ Rectangle {
         property var x_init:0
         property var itemID:0
         property var items:[]//创建的obj都放在这
+        property var deleteNowItems:[]
         property var count:0
 
         function deleteItems(object) {
@@ -42,7 +45,7 @@ Rectangle {
 
         //创建新item，不增加state，因为state已经从撤销数据中获得了
         //使用原来的id号码
-        function createItemAgain(itemID)
+        function createItemAgain(Component, itemID, itemNum)
         {
             //x_init += 120;
             // 获取state数据，用state数据初始化新item。
@@ -51,7 +54,9 @@ Rectangle {
             var y_again = state.item1.present[itemID].y;
 
             console.log("创建已有的方块" + itemID);
-            var obj = mainComponent.createObject(rootCanvas,{"text":x_again, "x":x_again,"y": y_again, "id":itemID});
+            var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID, "x":x_again, "y": y_again});
+            obj.nameId = itemNum;
+
             items[itemID] = obj;
             obj.deleteThis.connect(rootCanvas.deleteItems);
             //console.log("obj.length" + objs.length);
@@ -59,9 +64,9 @@ Rectangle {
         }
 
         //创建方块
-        function createItem() {
+        function createItem(Component, itemNum) {
             x_init += 120;
-            console.log("创建方块" + itemID);
+            console.log("创建方块" + itemNum);
 
             //新建state的初始状态,要在创建moveiem之前创建
             //var state = mainStateControl.store.getState();
@@ -77,7 +82,11 @@ Rectangle {
                            })
 
 
-            var obj = mainComponent.createObject(rootCanvas,{"text":x_init, "id":itemID});
+            var obj = Component.createObject(rootCanvas,{"text":x_init, id: itemID});
+            obj.nameId = itemNum;
+
+            parent.type.set(obj.objectName, Component);//记录当前Component的类型
+
             //items[items.length] = obj;
             items[itemID] = obj;
 
@@ -185,13 +194,13 @@ Rectangle {
         x: 500
         width: 100
         height: 100
-
         color: "lightblue"
+        property var i:1
 
         Text {
             //id: btnText
             anchors.centerIn: parent
-            text: qsTr("增加方块")
+            text: qsTr("增加按钮")
         }
 
         MouseArea {
@@ -199,8 +208,8 @@ Rectangle {
             onPressed: {
                 //mainStateControl.mainRedo()
                // mainStateControl.redo()
-                rootCanvas.createItem();
-
+                rootCanvas.createItem(mainComponent,  parent.i);
+                parent.i++;
             }
         }
     }
@@ -264,6 +273,28 @@ Rectangle {
         }
     }
 
+    Rectangle {
+        x: 860
+        width: 100
+        height: 100
+        property var i:1
+        color: "lightblue"
+
+        Text {
+            //id: btnText
+            anchors.centerIn: parent
+            text: qsTr("增加数字方块")
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onPressed: {
+                rootCanvas.createItem(digitComponent,  parent.i);
+                parent.i++;
+            }
+        }
+    }
+
 
 
     Component.onCompleted:{
@@ -273,6 +304,10 @@ Rectangle {
 
         if (mainComponent == null)
             mainComponent = Qt.createComponent('qrc:/content/MoveItem.qml');
+        //console.log("记录mainComponent" + mainComponent);
+
+        if (digitComponent == null)
+            digitComponent = Qt.createComponent('qrc:/content/DigitItem.qml');
 
         //console.log("mainComponent" + mainComponent);
 

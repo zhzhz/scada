@@ -83,8 +83,12 @@ function updateUI() {
         if (state.item1.present[i] === undefined && rootCanvas.items[i] !== null)
         {
             console.log("删除items" + state_length + ' ' + items_length);
-            //for(var k = 0; k < items_length; k++)
-            //   console.log(rootCanvas.items[k]);
+
+            //删除item还要记录item的信息以便重建
+            //记录item的类型，是led还是key还是其他，记录item的Num号码
+            rootCanvas.deleteNowItems[i] = {};
+            rootCanvas.deleteNowItems[i].objectName = rootCanvas.items[i].objectName;
+            rootCanvas.deleteNowItems[i].nameId = rootCanvas.items[i].nameId;
 
             rootCanvas.items[i].deleteRender();
             rootCanvas.items[i].deleteThis(rootCanvas.items[i]);
@@ -95,7 +99,12 @@ function updateUI() {
         if (state.item1.present[i] !== undefined && rootCanvas.items[i] === null)
         {
             console.log("创建item");
-            rootCanvas.createItemAgain(i);
+            //rootCanvas.createItemAgain(i);
+            //根据记录的类型
+            //rootCanvas.createItemAgain(Component, i, nameId);
+            var obj = rootCanvas.deleteNowItems[i];
+            rootCanvas.createItemAgain(root.type.get(obj.objectName), i, obj.nameId);
+
         }
         //activeItem.deleteThis(activeItem)
     }
@@ -200,36 +209,75 @@ function createJson()
     //console.log(JSON.stringify(jsonFile));
 
     //下面生成key
-    jsonFile.key = [];
+//    jsonFile.key = [];
 
-    var state = store.getState();
-    var state_length = state.item1.present.length;
-    var j = 0;
-    for (var i = 0; i < state_length; i++)
-    {
-        if (state.item1.present[i] !== undefined)
-        {
-            jsonFile.key[j] = {};
-            jsonFile.key[j].name = "key" + (j + 1);
+//    var state = store.getState();
+//    var state_length = state.item1.present.length;
+//    var j = 0;
+//    for (var i = 0; i < state_length; i++)
+//    {
+//        if (state.item1.present[i] !== undefined)//state中间有可能是空的
+//        {
+//            jsonFile.key[j] = {};
+//            jsonFile.key[j].name = "key" + (j + 1);
 
-            jsonFile.key[j].device = "tcp508nserial";
+//            jsonFile.key[j].device = "tcp508nserial";
 
-            jsonFile.key[j].dev_id = 1;
+//            jsonFile.key[j].dev_id = 1;
 
-            jsonFile.key[j].variable = j + 1;
+//            jsonFile.key[j].variable = j + 1;
 
-            //jsonFile.key[j].itemID =
+//            //jsonFile.key[j].itemID =
 
-            //下面输出方块的x和y
-            jsonFile.key[j].x = state.item1.present[i].x;
-            jsonFile.key[j].y = state.item1.present[i].y;
+//            //下面输出方块的x和y
+//            jsonFile.key[j].x = state.item1.present[i].x;
+//            jsonFile.key[j].y = state.item1.present[i].y;
 
-            j++;
-        }
-    }
+//            j++;
+//        }
+//    }
 
     //console.log(JSON.stringify(jsonFile));
     //调用写文件函数，输出配置文件
+
+    ////////////////////////////////////////////////////////////////////////////
+    //根据state生成配置
+    var state = store.getState();
+    var state_length = state.item1.present.length;
+    //var j = 0;
+    //var init = 0;
+    var countId = {};
+
+    for (var i = 0; i < state_length; i++)
+    {
+        var objs = state.item1.present[i];
+        if (objs !== undefined)
+        {
+            //遍历state中的元素，目前有led有key，生成json字符串
+            //state中目前有x，y值，还有的值在rootCanvas.items[i]中
+            var objName = rootCanvas.items[i].objectName;
+            var objNameId = rootCanvas.items[i].nameId;
+            if (jsonFile[objName] === undefined)
+            {
+                jsonFile[objName] = [];//jsonFile.key = [];jsonFile.led = []
+                countId[objName] = 0;
+                //init++;
+            }
+            jsonFile[objName][countId[objName]] = {};
+            var config = jsonFile[objName][countId[objName]];
+
+            config.name = objName + objNameId;
+            config.device = "tcp508nserial";
+            config.dev_id = 1;
+            config.variable =  countId[objName] + 1;
+
+            config.x = state.item1.present[i].x;
+            config.y = state.item1.present[i].y;
+
+            //j++;
+            countId[objName]++;
+        }
+    }
 
     outputFile.exportToFile(JSON.stringify(jsonFile), "a.txt", "../tests");
 }
