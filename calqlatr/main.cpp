@@ -63,6 +63,12 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQuickView view;
+    //使用别人的控件
+    //view.engine()->addImportPath("file:///D:/qt_prj/TaoQuick-master/src/TaoQuick/imports");
+    //view.rootContext()->setContextProperty("taoQuickImagePath", "file:///D:/qt_prj/TaoQuick-master/src/TaoQuick/imports/TaoQuick/Images/");
+    //view.engine()->addImportPath("file:///D:/qt_prj/TaoQuick-master/src/TaoQuick/imports");
+    //view.rootContext()->setContextProperty("taoQuickImagePath", "file:///D:/qt_prj/TaoQuick-master/src/TaoQuick/imports/TaoQuick/Images/");
+
     view.connect(view.engine(), &QQmlEngine::quit, &app, &QCoreApplication::quit);
     view.setSource(QUrl("qrc:/calqlatr.qml"));
     if (view.status() == QQuickView::Error)
@@ -75,5 +81,7 @@ int main(int argc, char *argv[])
     QScopedPointer<OutputFile> outputFile(new OutputFile);
         //voronoi.data()指向智能指针中的类对象，如果voronoi是一个普通指针，则voronoi.data()改为voronoi即可
     view.rootContext()->setContextProperty("outputFile", outputFile.data());
+
+
     return app.exec();
 }

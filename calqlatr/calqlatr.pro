@@ -15,3 +15,5 @@ OTHER_FILES =
 
 HEADERS += \
     outputfile.h
+
+#include(content/TaoQuick/TaoQuick.pri)

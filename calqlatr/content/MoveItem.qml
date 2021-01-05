@@ -49,11 +49,13 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import "dragItem"//导入拖拉框目录
 
 Rectangle {
     property alias text: btnText.text
     property var id
     property var deleteRender
+    //property alias containsMouse: mouseArea.containsMouse
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
     y: 100
@@ -73,6 +75,16 @@ Rectangle {
     }
 
     color: "lightblue"
+
+    //在要显示拖拉框的item中引入导入CusTemplateDragBorder控件
+    CusTemplateDragBorder {
+        id_num:parent.id
+        width: parent.width + borderMargin * 2
+        height: parent.height + borderMargin * 2
+        anchors.centerIn: parent
+        visible: true
+    }
+
     MouseArea {
         anchors.fill: parent
         property real lastX: 0
@@ -128,11 +140,14 @@ Rectangle {
     {
         var state = mainStateControl.store.getState();
         console.log("render()被调用了1");
-        //if (state.item1.present[id] !== undefined)
-        //{
-            x = state.item1.present[id].x;
-            y = state.item1.present[id].y;
-        //}
+
+        x = state.item1.present[id].x;
+        y = state.item1.present[id].y;
+        //mouseResized增加宽和高，则创建时的state就要有width和height
+        width = state.item1.present[id].width;
+        height = state.item1.present[id].height;
+
+
         console.log("render()被调用了2")
     }
 

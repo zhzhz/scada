@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.5
 import "js/MainStateControl.js" as MainStateControl
+import "content/dragItem"
 
 Rectangle {
     id:root
@@ -14,6 +15,11 @@ Rectangle {
     property var mainStateControl : MainStateControl
     //property var activeItemId: -1
     property var activeItem:null//当前选中的对象，当前选中对象的id
+
+    //配置放在这初始化
+    CusConfig{
+        id:cusConfig
+    }
 
     Rectangle {
         id:rootCanvas
@@ -68,17 +74,14 @@ Rectangle {
             x_init += 120;
             console.log("创建方块" + itemNum);
 
-            //新建state的初始状态,要在创建moveiem之前创建
-            //var state = mainStateControl.store.getState();
-            //state.item1.present[itemID] = {x:x_init, y:0};
-            ////////////////////////////////////////////////////////
-            //修改为action修改state
-            //创建方块时不能记录此时的state
+            //增加width和height为方块的初始值
             mainStateControl.store.dispatch({
                                type:"@createItem",
                                id:itemID,
                                x:x_init,
-                               y:0
+                               y:0,
+                               width:100,
+                               height:100
                            })
 
 

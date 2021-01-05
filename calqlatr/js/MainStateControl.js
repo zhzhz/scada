@@ -281,3 +281,14 @@ function createJson()
 
     outputFile.exportToFile(JSON.stringify(jsonFile), "a.txt", "../tests");
 }
+
+function mouseResized(id, x, y, width, height){
+    store.dispatch({
+                       type:"@mouseResized",
+                       id:id,
+                       x:x,
+                       y:y,
+                       width:width,
+                       height:height
+                   })
+}

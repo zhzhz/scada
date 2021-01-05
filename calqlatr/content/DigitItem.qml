@@ -49,6 +49,7 @@
 ****************************************************************************/
 
 import QtQuick 2.0
+import "dragItem"//导入拖拉框目录
 
 Rectangle {
     property alias text: btnText.text
@@ -70,6 +71,14 @@ Rectangle {
         id: btnText
         anchors.centerIn: parent
         //text: qsTr("x加")
+    }
+
+    CusTemplateDragBorder {
+        id_num:parent.id
+        width: parent.width + borderMargin * 2
+        height: parent.height + borderMargin * 2
+        anchors.centerIn: parent
+        visible: true
     }
 
     color: "lightblue"
@@ -128,11 +137,14 @@ Rectangle {
     {
         var state = mainStateControl.store.getState();
         console.log("render()被调用了1");
-        //if (state.item1.present[id] !== undefined)
-        //{
-            x = state.item1.present[id].x;
-            y = state.item1.present[id].y;
-        //}
+
+        x = state.item1.present[id].x;
+        y = state.item1.present[id].y;
+
+        //mouseResized增加宽和高，则创建时的state就要有width和height
+        width = state.item1.present[id].width;
+        height = state.item1.present[id].height;
+
         console.log("render()被调用了2")
     }
 
