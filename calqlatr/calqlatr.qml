@@ -57,10 +57,15 @@ Rectangle {
             // 获取state数据，用state数据初始化新item。
             var state = mainStateControl.store.getState();
             var x_again = state.item1.present[itemID].x;
-            var y_again = state.item1.present[itemID].y;
+//            var y_again = state.item1.present[itemID].y;
+//            var width = state.item1.present[itemID].width;
+//            var height = state.item1.present[itemID].height;
+//            var rotation = state.item1.present[itemID].rotation;
 
             console.log("创建已有的方块" + itemID);
-            var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID, "x":x_again, "y": y_again});
+            //var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID, "x":x_again, "y": y_again,
+            //                                      "width": width, "height": height, "rotation": rotation});
+            var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID});
             obj.nameId = itemNum;
 
             items[itemID] = obj;
@@ -81,7 +86,8 @@ Rectangle {
                                x:x_init,
                                y:0,
                                width:100,
-                               height:100
+                               height:100,
+                               rotation:0
                            })
 
 

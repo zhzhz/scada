@@ -39,6 +39,13 @@ function reducer1(state = unImmutableInitState.item1, action){
 
       return tempState;
 
+  case '@mouseRotation':
+      console.log("鼠标旋转");
+      tempState = deepCopy(state,[]);
+      tempState[action.id].rotation = action.rotation;
+
+      return tempState;
+
 
   case '@mouseReleased':
       console.log("鼠标按下记录此时的坐标");
@@ -57,6 +64,8 @@ function reducer1(state = unImmutableInitState.item1, action){
       tempState[action.id].y = action.y;
       tempState[action.id].width = action.width;
       tempState[action.id].height = action.height;
+      tempState[action.id].rotation = action.rotation;
+
       console.log( JSON.stringify(tempState));
       return tempState;
 

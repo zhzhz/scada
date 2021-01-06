@@ -76,7 +76,9 @@ Rectangle {
 
     color: "lightblue"
 
+
     //在要显示拖拉框的item中引入导入CusTemplateDragBorder控件
+    //这个控件要放在MouseArea之后，不然会被MouseArea覆盖
     CusTemplateDragBorder {
         id_num:parent.id
         width: parent.width + borderMargin * 2
@@ -85,56 +87,6 @@ Rectangle {
         visible: true
     }
 
-    MouseArea {
-        anchors.fill: parent
-        property real lastX: 0
-        property real lastY: 0
-        property real rectangleXOld: 0
-        property real rectangleYOld: 0
-
-        onPressed: {
-            //鼠标按下时，记录鼠标初始位置
-            lastX = mouseX
-            lastY = mouseY
-
-            //root.activeItemId = id;
-            root.activeItem = parent;
-            console.log("鼠标按下，记录方块位置");
-            var state = mainStateControl.store.getState();
-            rectangleXOld = state.item1.present[id].x;
-            rectangleYOld = state.item1.present[id].y;
-        }
-
-        onReleased:{
-            //如果方块位置变化了，则调用这个函数，反之不调用
-            var state = mainStateControl.store.getState();
-            var x = state.item1.present[id].x;
-            var y = state.item1.present[id].y;
-
-            if (rectangleXOld === x && rectangleYOld === y)
-            {
-                //鼠标位置没变化，不在redux-undo中记录
-            }
-            else
-            {
-
-                mainStateControl.mouseReleased();
-            }
-        }
-
-        onPositionChanged: {
-            if (pressed) {
-                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
-                //moveItem.x += mouseX - lastX
-                //moveItem.y += mouseY - lastY
-                console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
-                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
-                //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
-                //mouseXTrue = mouseX;
-                //mouseYTrue = mouseY;
-            }
-        }
-    }
 
     function render()
     {
@@ -146,6 +98,7 @@ Rectangle {
         //mouseResized增加宽和高，则创建时的state就要有width和height
         width = state.item1.present[id].width;
         height = state.item1.present[id].height;
+        rotation = state.item1.present[id].rotation;
 
 
         console.log("render()被调用了2")

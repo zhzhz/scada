@@ -292,3 +292,12 @@ function mouseResized(id, x, y, width, height){
                        height:height
                    })
 }
+
+function mouseRotation(id, rotation)
+{
+    store.dispatch({
+                       type:"@mouseRotation",
+                       id:id,
+                       rotation:rotation
+                   })
+}

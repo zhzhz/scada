@@ -299,7 +299,7 @@ function distinctState() {
       //console.log("filter is working! and the actiontype is  " + action.type);
     //return currentState !== previousState;
     //if( action.type !== '@bulidSpace_positionChangeOnCreateItem' && action.type !=="@bulidSpace_createItem" && action.type !== "@bulidSpace_ItemResize" &&  action.type !== "@bulidSpace_ItemRotation")
-    if (action.type !== '@mousePositionChanged' && action.type !== '@mouseResized'/*&& action.type !== '@createItem'*/)
+    if (action.type !== '@mousePositionChanged' && action.type !== '@mouseResized' && action.type !== '@mouseRotation'/*&& action.type !== '@createItem'*/)
       {
                 return true
             }

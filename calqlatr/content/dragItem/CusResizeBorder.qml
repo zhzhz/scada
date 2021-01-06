@@ -18,16 +18,16 @@ Item {
             //不要简化这个判断条件，化简之后不容易看懂. Qml引擎会自动简化
             if (control.x + xOffset < control.x + control.width)
                 //control.x += xOffset;
-                mainStateControl.mouseResized(id, xOffset, null, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, xOffset, null, null, null);
             if (control.y + yOffset < control.y + control.height)
                 //control.y += yOffset;
-                mainStateControl.mouseResized(id, null, yOffset, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, yOffset, null, null);
             if (control.width - xOffset > 0)
                 //control.width-= xOffset;
-                mainStateControl.mouseResized(id, null, null, -xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, -xOffset, null);
             if (control.height -yOffset > 0)
                 //control.height -= yOffset;
-                mainStateControl.mouseResized(id, null, null, null, -yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, -yOffset);
         }
     }
     //右上角拖拽
@@ -41,13 +41,13 @@ Item {
             //向左拖动时，xOffset为负数
             if (control.width + xOffset > 0)
                 //control.width += xOffset;
-                mainStateControl.mouseResized(id, null, null, xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, xOffset, null);
             if (control.height - yOffset > 0)
                 //control.height -= yOffset;
-                mainStateControl.mouseResized(id, null, null, null, -yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, -yOffset);
             if (control.y + yOffset < control.y + control.height)
                 //control.y += yOffset;
-                mainStateControl.mouseResized(id, null, yOffset, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, yOffset, null, null);
         }
     }
     //左下角拖拽
@@ -60,13 +60,13 @@ Item {
         onPosChange: {
             if (control.x + xOffset < control.x + control.width)
                 //control.x += xOffset;
-                mainStateControl.mouseResized(id, xOffset, null, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, xOffset, null, null, null);
             if (control.width - xOffset > 0)
                 //control.width-= xOffset;
-                mainStateControl.mouseResized(id, null, null, -xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, -xOffset, null);
             if (control.height + yOffset > 0)
                 //control.height += yOffset;
-                mainStateControl.mouseResized(id, null, null, null, yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, yOffset);
         }
     }
     //右下角拖拽
@@ -80,10 +80,10 @@ Item {
         onPosChange: {
             if (control.width + xOffset > 0)
                 //control.width += xOffset;
-                mainStateControl.mouseResized(id, null, null, xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, xOffset, null);
             if (control.height + yOffset > 0)
                 //control.height += yOffset;
-                mainStateControl.mouseResized(id, null, null, null, yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, yOffset);
         }
     }
     //上边拖拽
@@ -95,10 +95,10 @@ Item {
         onPosChange: {
             if (control.y + yOffset < control.y + control.height)
                // control.y += yOffset;
-                mainStateControl.mouseResized(id, null, yOffset, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, yOffset, null, null);
             if (control.height - yOffset > 0)
                 //control.height -= yOffset;
-                mainStateControl.mouseResized(id, null, null, null, -yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, -yOffset);
         }
     }
 
@@ -112,10 +112,10 @@ Item {
         onPosChange: {
             if (control.x + xOffset < control.x + control.width)
                 //control.x += xOffset;
-                mainStateControl.mouseResized(id, xOffset, null, null, null);
+                mainStateControl.mouseResized(cusBorder.id_num, xOffset, null, null, null);
             if (control.width - xOffset > 0)
                 //control.width-= xOffset;
-                mainStateControl.mouseResized(id, null, null, -xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, -xOffset, null);
         }
     }
     //右边拖拽
@@ -129,7 +129,7 @@ Item {
         onPosChange: {
             if (control.width + xOffset > 0)
                 //control.width += xOffset;
-                mainStateControl.mouseResized(id, null, null, xOffset, null);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, xOffset, null);
         }
     }
     //下边拖拽
@@ -142,7 +142,7 @@ Item {
         onPosChange: {
             if (control.height + yOffset > 0)
                 //control.height += yOffset;
-                mainStateControl.mouseResized(id, null, null, null, yOffset);
+                mainStateControl.mouseResized(cusBorder.id_num, null, null, null, yOffset);
         }
     }
 }

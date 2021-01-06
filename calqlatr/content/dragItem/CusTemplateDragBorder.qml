@@ -172,6 +172,7 @@ CusResizeBorder {
             height: parent.height * 2
             hoverEnabled: true
             property int lastX: 0
+            property real rotationOld: 0
             onContainsMouseChanged: {
                 if (containsMouse) {
                     cursorShape = Qt.BlankCursor
@@ -188,9 +189,39 @@ CusResizeBorder {
                 if (pressed) {
                     var t = controller.rotation + (mouseX - lastX) / 5
                     t = t % 360
-                    controller.rotation = t
+                    //controller.rotation = t
+                    mainStateControl.mouseRotation(id_num, t);
                 }
             }
+            onPressed: {
+                //鼠标按下时，记录鼠标初始位置
+                //lastX = mouseX
+                //lastY = mouseY
+
+                //root.activeItemId = id;
+                //root.activeItem = parent.parent;
+                console.log("鼠标旋转");
+                var state = mainStateControl.store.getState();
+                rotationOld = state.item1.present[id_num].rotation;
+            }
+
+            onReleased:{
+                //如果方块位置变化了，则调用这个函数，反之不调用
+                var state = mainStateControl.store.getState();
+                var rotation = state.item1.present[id_num].rotation;
+
+                if (rotationOld === rotation)
+                {
+                    //鼠标位置没变化，不在redux-undo中记录
+                }
+                else
+                {
+
+                    mainStateControl.mouseReleased();
+                }
+            }
+
+
         }
         BasicTooltip {
             id: toolTip
@@ -200,14 +231,62 @@ CusResizeBorder {
             text: parseInt(controller.rotation) + "°"
         }
     }
-    MouseArea {
+    MouseArea {//这个地方只需要判断x和y是否改变，手型拖动
         id: dragItem
         anchors.fill: parent
         anchors.margins: borderMargin * 2
         cursorShape: Qt.PointingHandCursor
-        drag.target: controller
+        property real lastX: 0
+        property real lastY: 0
+        property real rectangleXOld: 0
+        property real rectangleYOld: 0
+        onPressed: {
+            //鼠标按下时，记录鼠标初始位置
+            lastX = mouseX
+            lastY = mouseY
+
+            //root.activeItemId = id;
+            root.activeItem = parent.parent;
+            console.log("鼠标按下，记录方块位置");
+            var state = mainStateControl.store.getState();
+            rectangleXOld = state.item1.present[id_num].x;
+            rectangleYOld = state.item1.present[id_num].y;
+        }
+
+        onReleased:{
+            //如果方块位置变化了，则调用这个函数，反之不调用
+            var state = mainStateControl.store.getState();
+            var x = state.item1.present[id_num].x;
+            var y = state.item1.present[id_num].y;
+
+            if (rectangleXOld === x && rectangleYOld === y)
+            {
+                //鼠标位置没变化，不在redux-undo中记录
+            }
+            else
+            {
+
+                mainStateControl.mouseReleased();
+            }
+        }
+
+        onPositionChanged: {
+            if (pressed) {
+                //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
+                //moveItem.x += mouseX - lastX
+                //moveItem.y += mouseY - lastY
+                console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
+                mainStateControl.mousePositionChanged(id_num,mouseX - lastX, mouseY - lastY)
+                //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
+                //mouseXTrue = mouseX;
+                //mouseYTrue = mouseY;
+            }
+        }
+        //drag.target: controller
         onClicked: {
             cusBorder.clicked(x, y)
+            //console.log("cusBorder.clicked(x, y)")
+
         }
         onDoubleClicked: {
             cusBorder.doubleClicked(x, y)

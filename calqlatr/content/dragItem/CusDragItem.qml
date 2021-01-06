@@ -18,7 +18,7 @@ Item {
     readonly property int posRightTop: Qt.SizeBDiagCursor
     readonly property int posRight: Qt.SizeHorCursor
     readonly property int posRightBottom: Qt.SizeFDiagCursor
-    MouseArea {
+    MouseArea {//这个地方需要同时判断x,y,width,height是否改变
         id: mouseArea
         anchors.fill: parent//这个是谁？
         hoverEnabled: true
