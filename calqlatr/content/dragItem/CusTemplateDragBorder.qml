@@ -13,7 +13,7 @@ CusResizeBorder {
     readonly property int borderMargin: 6
     readonly property int rotateHandleDistance: 25
     //property var currentBlock
-    property var controller
+    property var controller:{rotation:0}
     property alias dragEnabled: dragItem.enabled
     property bool rotationEnabled: true
 
