@@ -14,7 +14,7 @@ Rectangle {
 
     property var mainStateControl : MainStateControl
     //property var activeItemId: -1
-    property var activeItem:null//当前选中的对象，当前选中对象的id
+    property var activeItem:null//当前选中的对象，当前选中对象的id，是个指针
 
     //配置放在这初始化
     CusConfig{
@@ -35,19 +35,48 @@ Rectangle {
         property var items:[]//创建的obj都放在这
         property var deleteNowItems:[]
         property var count:0
+        property var maxZ:-1
+
+        function getMaxZ()
+        {
+            for(var i = 0; i < rootCanvas.items.length; i++)
+            {
+                console.log("items[i].findItemById(cusTemplateDragBorder).z" + items[i].findItemById("cusTemplateDragBorder").z)
+                if (items[i].findItemById("cusTemplateDragBorder").z > maxZ)
+                {
+                    maxZ = items[i].findItemById("cusTemplateDragBorder").z;
+                }
+            }
+            //console.log(JSON.stringify(items[0].children))
+//            var grandChidlItems = items[0].children;
+//            //console.log("grandChidlItems.count" + grandChidlItems.length);
+//            for (var i = 0; i < items[0].children.length; i++)
+//            {
+//                //console.log(grandChidlItems[i].itemAt(i))
+//                //if(root.children[i].type==="cusTemplateDragBorder"){
+//                         //balabala
+//                        //console.log(root.children[i]);
+//                         //}
+//                //console.log(root.children[i].type);
+//            }
+            //console.log(findItemById('cusTemplateDragBorder'));
+
+
+            return maxZ;
+        }
 
         function deleteItems(object) {
             console.log("删除对象" + object);
             object.destroy();
         }
 
-        MouseArea {
-            anchors.fill: parent
-            onPressed: {
-                //mainStateControl.mainUndo()
-                //console.log("向后")
-            }
-        }
+//        MouseArea {
+//            anchors.fill: parent
+//            onPressed: {
+//                //mainStateControl.mainUndo()
+//                //console.log("向后")
+//            }
+//        }
 
         //创建新item，不增加state，因为state已经从撤销数据中获得了
         //使用原来的id号码
@@ -65,7 +94,7 @@ Rectangle {
             console.log("创建已有的方块" + itemID);
             //var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID, "x":x_again, "y": y_again,
             //                                      "width": width, "height": height, "rotation": rotation});
-            var obj = Component.createObject(rootCanvas,{"text":x_again, "id": itemID});
+            var obj = Component.createObject(rootCanvas,{"text":x_again, "id_num": itemID});
             obj.nameId = itemNum;
 
             items[itemID] = obj;
@@ -91,7 +120,7 @@ Rectangle {
                            })
 
 
-            var obj = Component.createObject(rootCanvas,{"text":x_init, id: itemID});
+            var obj = Component.createObject(rootCanvas,{"text":x_init, id_num: itemID});
             obj.nameId = itemNum;
 
             parent.type.set(obj.objectName, Component);//记录当前Component的类型
@@ -109,8 +138,20 @@ Rectangle {
             itemID++;
 
         }
+
+        CusTemplateDragBorder {
+            id:cusTemplateDragBorder
+            //id_num:0//用来获得state数据，旋转，拉伸用
+//            width: key.width + borderMargin * 2
+//            height: key.height + borderMargin * 2
+//            anchors.centerIn: key//覆盖在key上面
+            z:1
+            visible: false
+        }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    //root下的方块
     Rectangle {
         width: 100
         height: 100

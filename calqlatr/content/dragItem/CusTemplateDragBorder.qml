@@ -12,18 +12,22 @@ CusResizeBorder {
     property int id_num:0
     readonly property int borderMargin: 6
     readonly property int rotateHandleDistance: 25
-    property var controller: parent
+    //property var currentBlock
+    property var controller
     property alias dragEnabled: dragItem.enabled
     property bool rotationEnabled: true
 
     property color rotateHandleColor: "lightgreen"
     property color color: cusConfig.themeColor
     property color borderColor: cusConfig.controlBorderColor
+
     signal clicked(real x, real y)
     signal doubleClicked(real x, real y)
+    //property var type
 
     //最外围的大方框，中间透明，边框有颜色
     Rectangle {
+
         border.color: cusConfig.controlBorderColor
         border.width: 1
         color: "transparent"
@@ -45,6 +49,7 @@ CusResizeBorder {
     }
     //top上面中间
     Rectangle {
+        z:parent.z
         border.color: cusConfig.controlBorderColor
         border.width: 1
         color: cusConfig.backgroundColor//透明色
@@ -152,7 +157,7 @@ CusResizeBorder {
         radius: width / 2
         visible: rotationEnabled
         anchors {
-            top: parent.top
+            top: parent.top//需要设置为当前方块
             horizontalCenter: parent.horizontalCenter
             topMargin: -rotateHandleDistance
         }
@@ -190,7 +195,10 @@ CusResizeBorder {
                     var t = controller.rotation + (mouseX - lastX) / 5
                     t = t % 360
                     //controller.rotation = t
+                    console.log("--------------------------------更改rotation");
                     mainStateControl.mouseRotation(id_num, t);
+                    //手动增加拖拉框布局代码
+                    //cusTemplateDragBorder.anchors.centerIn = controller
                 }
             }
             onPressed: {
@@ -246,7 +254,7 @@ CusResizeBorder {
             lastY = mouseY
 
             //root.activeItemId = id;
-            root.activeItem = parent.parent;
+            root.activeItem = parent.parent;//记录当前控件id
             console.log("鼠标按下，记录方块位置");
             var state = mainStateControl.store.getState();
             rectangleXOld = state.item1.present[id_num].x;

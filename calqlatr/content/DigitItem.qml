@@ -53,7 +53,7 @@ import "dragItem"//导入拖拉框目录
 
 Rectangle {
     property alias text: btnText.text
-    property var id
+    property var id_num
     property var deleteRender
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
@@ -74,14 +74,71 @@ Rectangle {
     }
 
     CusTemplateDragBorder {
-        id_num:parent.id
+        id_num:parent.id_num
         width: parent.width + borderMargin * 2
         height: parent.height + borderMargin * 2
         anchors.centerIn: parent
-        visible: true
+        visible: false
     }
 
     color: "lightblue"
+    MouseArea {
+            anchors.fill: parent
+            property real lastX: 0
+            property real lastY: 0
+            property real rectangleXOld: 0
+            property real rectangleYOld: 0
+
+            onPressed: {
+                //鼠标按下时，记录鼠标初始位置
+                lastX = mouseX
+                lastY = mouseY
+
+                //root.activeItemId = id;
+                root.activeItem = parent;
+                console.log("鼠标按下，记录方块位置");
+                var state = mainStateControl.store.getState();
+                rectangleXOld = state.item1.present[id_num].x;
+                rectangleYOld = state.item1.present[id_num].y;
+            }
+
+            onReleased:{
+                //如果方块位置变化了，则调用这个函数，反之不调用
+                var state = mainStateControl.store.getState();
+                var x = state.item1.present[id_num].x;
+                var y = state.item1.present[id_num].y;
+
+                if (rectangleXOld === x && rectangleYOld === y)
+                {
+                    //鼠标位置没变化，不在redux-undo中记录
+                }
+                else
+                {
+
+                    mainStateControl.mouseReleased();
+                }
+
+                //在这里设备拖拉框的属性
+                cusTemplateDragBorder.id_num = id_num//用来获得state数据，旋转，拉伸用
+                //cusTemplateDragBorder.parent = parent;//不能设置parent为当前方块，不然就会显示在其他方块下面，被遮挡
+                cusTemplateDragBorder.anchors.centerIn = parent;
+                cusTemplateDragBorder.width = Qt.binding(function(){return parent.width + cusTemplateDragBorder.borderMargin * 2;});
+                cusTemplateDragBorder.height = Qt.binding(function(){return parent.height + cusTemplateDragBorder.borderMargin * 2;});
+                cusTemplateDragBorder.rotation = Qt.binding(function(){return parent.rotation;});
+                cusTemplateDragBorder.visible = true;
+                cusTemplateDragBorder.controller =  parent;
+
+                cursorShape = Qt.PointingHandCursor;
+            }
+
+            onPositionChanged: {
+                if (pressed) {
+                    //鼠标按住的前提下，坐标改变时，计算偏移量，应用到目标item的坐标上即可
+                    console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
+                    mainStateControl.mousePositionChanged(id_num,mouseX - lastX, mouseY - lastY)
+                }
+            }
+        }
 
 
     function render()
@@ -89,13 +146,13 @@ Rectangle {
         var state = mainStateControl.store.getState();
         console.log("render()被调用了1");
 
-        x = state.item1.present[id].x;
-        y = state.item1.present[id].y;
+        x = state.item1.present[id_num].x;
+        y = state.item1.present[id_num].y;
 
         //mouseResized增加宽和高，则创建时的state就要有width和height
-        width = state.item1.present[id].width;
-        height = state.item1.present[id].height;
-        rotation = state.item1.present[id].rotation;
+        width = state.item1.present[id_num].width;
+        height = state.item1.present[id_num].height;
+        rotation = state.item1.present[id_num].rotation;
 
         console.log("render()被调用了2")
     }
