@@ -36,24 +36,24 @@ Rectangle {
 
     //创建新item，不增加state，因为state已经从撤销数据中获得了
     //使用原来的id号码
-    function createItemAgain(itemID)
-    {
-        //x_init += 120;
-        // 获取state数据，用state数据初始化新item。
-        var state = mainStateControl.store.getState();
-        var x_again = state.item1.present[itemID].x;
-        var y_again = state.item1.present[itemID].y;
+//    function createItemAgain(itemID)
+//    {
+//        //x_init += 120;
+//        // 获取state数据，用state数据初始化新item。
+//        var state = mainStateControl.store.getState();
+//        var x_again = state.item1.present[itemID].x;
+//        var y_again = state.item1.present[itemID].y;
 
-        console.log("创建已有的方块" + itemID);
-        var obj = mainComponent.createObject(rootCanvas,{"text":x_again, "x":x_again,"y": y_again, "id":itemID});
-        items[itemID] = obj;
-        obj.deleteThis.connect(rootCanvas.deleteItems);
-        //console.log("obj.length" + objs.length);
-        //itemID++;
-    }
+//        console.log("创建已有的方块" + itemID);
+//        var obj = mainComponent.createObject(rootCanvas,{"text":x_again, "x":x_again,"y": y_again, "id":itemID});
+//        items[itemID] = obj;
+//        obj.deleteThis.connect(rootCanvas.deleteItems);
+//        //console.log("obj.length" + objs.length);
+//        //itemID++;
+//    }
 
     //创建方块
-    function createItem(Component, x_init, y_init, itemName) {
+    function createItem(Component, x_init, y_init, width_init, height_init, rotation_init, itemName) {
         //x_init += 120;
         console.log("创建方块" + itemID);
 
@@ -67,11 +67,14 @@ Rectangle {
                            type:"@createItem",
                            id:itemID,
                            x:x_init,
-                           y:y_init
+                           y:y_init,
+                           width:width_init,
+                           height:height_init,
+                           rotation:rotation_init
                        })
 
 
-        var obj = Component.createObject(rootCanvas,{"text":x_init, "id":itemID, "objectName":itemName});
+        var obj = Component.createObject(rootCanvas,{"text":x_init, "id_num":itemID, "objectName":itemName});
         //items[items.length] = obj;
         items[itemID] = obj;
 
@@ -131,7 +134,8 @@ Rectangle {
                 for (var i = 0; i < config[key].length; i++)
                 {
                     pRoot.setConfigure(key, i, config[key][i]);
-                    createItem(mainComponent, config[key][i].x, config[key][i].y, config[key][i].name);
+                    createItem(mainComponent, config[key][i].x, config[key][i].y,
+                               config[key][i].width, config[key][i].height, config[key][i].rotation, config[key][i].name);
                 }
             }
 
@@ -142,7 +146,9 @@ Rectangle {
                 {
                     pRoot.setConfigure(key, k, config[key][k]);
                     console.log("config[key][k].name " << config[key][k].name);
-                    createItem(digitComponent, config[key][k].x, config[key][k].y, config[key][k].name);
+                    //createItem(digitComponent, config[key][k].x, config[key][k].y, config[key][k].name);
+                    createItem(digitComponent, config[key][k].x, config[key][k].y,
+                               config[key][k].width, config[key][k].height, config[key][k].rotation, config[key][k].name);
                 }
             }
         }

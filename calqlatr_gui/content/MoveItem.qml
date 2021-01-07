@@ -52,7 +52,8 @@ import QtQuick 2.0
 
 Rectangle {
     property alias text: btnText.text
-    property var id
+    //property var id
+    property var id_num
     property var deleteRender
     //property var itemName
     property alias fontSize:btnText.font.pixelSize
@@ -139,8 +140,11 @@ Rectangle {
         console.log("render()被调用了1");
         //if (state.item1.present[id] !== undefined)
         //{
-            x = state.item1.present[id].x;
-            y = state.item1.present[id].y;
+            x = state.item1.present[id_num].x;
+            y = state.item1.present[id_num].y;
+            width = state.item1.present[id_num].width;
+            height = state.item1.present[id_num].height;
+            rotation = state.item1.present[id_num].rotation;
         //}
         console.log("render()被调用了2")
     }

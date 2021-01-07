@@ -52,7 +52,8 @@ import QtQuick 2.0
 
 Rectangle {
     property alias text: btnText.text
-    property var id
+    //property var id
+    property var id_num
     property var deleteRender
     //注意拖动目标不要使用锚布局或者Layout，而是使用相对坐标
     x: 100
@@ -82,32 +83,32 @@ Rectangle {
 
         onPressed: {
             //鼠标按下时，记录鼠标初始位置
-            lastX = mouseX
-            lastY = mouseY
+//            lastX = mouseX
+//            lastY = mouseY
 
-            //root.activeItemId = id;
-            root.activeItem = parent;
-            console.log("鼠标按下，记录方块位置");
-            var state = mainStateControl.store.getState();
-            rectangleXOld = state.item1.present[id].x;
-            rectangleYOld = state.item1.present[id].y;
+//            //root.activeItemId = id;
+//            root.activeItem = parent;
+//            console.log("鼠标按下，记录方块位置");
+//            var state = mainStateControl.store.getState();
+//            rectangleXOld = state.item1.present[id_num].x;
+//            rectangleYOld = state.item1.present[id_num].y;
         }
 
         onReleased:{
             //如果方块位置变化了，则调用这个函数，反之不调用
-            var state = mainStateControl.store.getState();
-            var x = state.item1.present[id].x;
-            var y = state.item1.present[id].y;
+//            var state = mainStateControl.store.getState();
+//            var x = state.item1.present[id_num].x;
+//            var y = state.item1.present[id_num].y;
 
-            if (rectangleXOld === x && rectangleYOld === y)
-            {
-                //鼠标位置没变化，不在redux-undo中记录
-            }
-            else
-            {
+//            if (rectangleXOld === x && rectangleYOld === y)
+//            {
+//                //鼠标位置没变化，不在redux-undo中记录
+//            }
+//            else
+//            {
 
-                mainStateControl.mouseReleased();
-            }
+//                mainStateControl.mouseReleased();
+//            }
         }
 
         onPositionChanged: {
@@ -116,7 +117,7 @@ Rectangle {
                 //moveItem.x += mouseX - lastX
                 //moveItem.y += mouseY - lastY
                 console.log("鼠标移动---------------" + lastX + ' ' + lastY+ ' ' + mouseX+ ' ' + mouseY);
-                mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
+                //mainStateControl.mousePositionChanged(id,mouseX - lastX, mouseY - lastY)
                 //mouseX在onReleased中等于lastX，所以在这记录下mouse的x，y
                 //mouseXTrue = mouseX;
                 //mouseYTrue = mouseY;
@@ -130,8 +131,11 @@ Rectangle {
         console.log("render()被调用了1");
         //if (state.item1.present[id] !== undefined)
         //{
-            x = state.item1.present[id].x;
-            y = state.item1.present[id].y;
+        x = state.item1.present[id_num].x;
+        y = state.item1.present[id_num].y;
+        width = state.item1.present[id_num].width;
+        height = state.item1.present[id_num].height;
+        rotation = state.item1.present[id_num].rotation;
         //}
         console.log("render()被调用了2")
     }
