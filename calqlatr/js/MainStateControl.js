@@ -273,6 +273,9 @@ function createJson()
 
             config.x = state.item1.present[i].x;
             config.y = state.item1.present[i].y;
+            config.width = state.item1.present[i].width;
+            config.height = state.item1.present[i].height;
+            config.rotation = state.item1.present[i].rotation;
 
             //j++;
             countId[objName]++;
