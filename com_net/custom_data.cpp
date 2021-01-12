@@ -12,7 +12,7 @@ QDataStream& operator>>(QDataStream& src, Custom_data& data)
     解决方法：因为没有添加头文件<QDataStream>
     */
     //src >> data.ID;
-    src >> data.l.read_write >> data.l.name >> data.l.device >> data.l.dev_id >> data.l.variable >> data.l.write_data;
+    src >> data.l.read_write >> data.l.device >> data.l.dev_id >> data.l.name_variable >> data.l.name_variable_old >> data.l.write_data;
     //src >> data.m_strName;
     return src;
 }
@@ -21,6 +21,6 @@ QDataStream& operator<<(QDataStream& out, Custom_data& data)
 {
     //out << data.m_nType << data.m_strName;
     //out << data.ID;
-    out << data.l.read_write << data.l.name << data.l.device << data.l.dev_id  << data.l.variable << data.l.write_data;
+    out << data.l.read_write << data.l.device << data.l.dev_id  << data.l.name_variable << data.l.name_variable_old << data.l.write_data;
     return out;
 }

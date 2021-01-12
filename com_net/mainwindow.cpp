@@ -7,6 +7,9 @@
 #include "QLibrary"
 #include "custom_data.h"
 #include <QMetaType>
+#include "customvectordata.h"
+
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -15,6 +18,8 @@ MainWindow::MainWindow(QWidget *parent) :
     qRegisterMetaType<data_exchange>();
     qRegisterMetaType<QByteArray>("QByteArray&");
     qRegisterMetaType<QMap<int, void *>>();
+    qRegisterMetaType<QMap<QString,QMap<int,QMap<QString,QVariant> > >>("QMap<QString,QMap<int,QMap<QString,QVariant> > >");
+    qRegisterMetaType<QVector<data_exchange>>();
 
     //delete_tcp_later_flag = false;
     //delete_tcp = 0;
@@ -80,7 +85,7 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
 
     int id;
     Custom_data custom_data_rev;
-    in >> id >> custom_data_rev;//将数据留出到custom_data_rev，反序列化
+    in >> id;//将数据留出到custom_data_rev，反序列化
 
 //    qDebug() << "custom" << guiSocket << id << custom_data_rev.l.read_write << custom_data_rev.l.name << custom_data_rev.l.device <<
 //                custom_data_rev.l.dev_id << custom_data_rev.l.variable << custom_data_rev.l.write_data;
@@ -89,6 +94,8 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
 
     if (id == 0)//0则调用如下函数
     {
+        in >> custom_data_rev;
+
         QString dev_name = custom_data_rev.l.device;
         //qDebug() << "dev_name" << dev_name;
         //判断gui数据是否挂起，如果不挂起，则发送采集线程采集数据，并置位当前设备busy标志位，如果挂起则挂起。
@@ -102,6 +109,9 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
 
             connect(p, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
                               this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
+
+            connect(p, SIGNAL(read_vec_signal(QString , QVector<data_exchange> , QTcpSocket *)),
+                              this, SLOT(read_vec(QString , QVector<data_exchange> , QTcpSocket *)));
         }
 
         //判断当前数据是执行还是挂起
@@ -130,12 +140,78 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
             //调用Controller的get_data函数来执行采集任务
             //清空缓存区数据，防止对下次造成干扰。
             guiSocket->readAll();
+            qDebug() << custom_data_rev.l.name_variable_old;
             dev2thread[dev_name]->get_data(custom_data_rev.l, guiSocket);
         }
         else
         {
             //挂起当前gui请求
             dev_suspend[dev_name]->tcp_clients << guiSocket;
+        }
+
+    }
+    else if (id == 3)//读device_map和readList
+    {
+        //qDebug() << "-------------------------------" << "id == 3";
+        QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map;
+        QStringList readList;
+        in >> device_map >> readList;
+        //qDebug() << device_map << readList;
+
+        //对每个设备，调用驱动的gen_read_vec函数
+        for (int i = 0; i < device_map["device"].count(); i++)
+        {
+            QString dev_name = device_map["device"][i]["name"].toString();
+            //qDebug() << "dev_name" << dev_name;
+            //判断gui数据是否挂起，如果不挂起，则发送采集线程采集数据，并置位当前设备busy标志位，如果挂起则挂起。
+            //挂起的标准是，当前设备标志位busy = 1，则挂起。
+            //gui都在主线程，采集线程多少根据采集设备来确定，一个设备，对应唯一一个采集线程
+            if (dev2thread[dev_name] == 0)
+            {
+                //Controller *p = new Controller(configFile.getDevice("device"));
+                Controller *p = new Controller(dev_name);
+                dev2thread[dev_name] = p;
+
+                connect(p, SIGNAL(data_come(QString , QTcpSocket *, QByteArray )),
+                                  this, SLOT(data_handle(QString , QTcpSocket *, QByteArray )));
+
+                connect(p, SIGNAL(read_vec_signal(QString , QVector<data_exchange> , QTcpSocket *)),
+                                  this, SLOT(read_vec(QString , QVector<data_exchange> , QTcpSocket *)));
+            }
+
+            //判断当前数据是执行还是挂起
+
+            if (dev_suspend[dev_name] == 0)//初始化挂起相关
+            {
+                suspand *suspand_ = new suspand;
+                suspand_->is_suspend = false;
+                suspand_->dev_name = dev_name;
+                dev_suspend[dev_name] = suspand_;
+            }
+            else
+            {
+                dev_suspend[dev_name]->dev_name = dev_name;
+            }
+
+            //如果is_suspend==0没有挂起，则执行；如果is_suspend==1，则挂起
+            if (dev_suspend[dev_name]->is_suspend == false)
+            {
+                //当前设备忙
+                //qDebug() << "在这设置is_suspend为true";
+                dev_suspend[dev_name]->is_suspend = true;
+                dev_suspend[dev_name]->busy_client = guiSocket;
+
+                //执行当前gui请求
+                //调用Controller的get_data函数来执行采集任务
+                //清空缓存区数据，防止对下次造成干扰。
+                guiSocket->readAll();
+                dev2thread[dev_name]->get_data(dev_name, device_map, readList, guiSocket);
+            }
+            else
+            {
+                //挂起当前gui请求
+                dev_suspend[dev_name]->tcp_clients << guiSocket;
+            }
         }
 
     }
@@ -201,6 +277,26 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
         dev_suspend[dev_name]->is_suspend = false;
     }
     //qDebug() << "MainWindow::data_handle2" << dev_name << tcp << data;
+}
+
+void MainWindow::read_vec(QString dev_name, QVector<data_exchange> data, QTcpSocket *tcp)
+{
+    qDebug() << "MainWindow::read_vec " << dev_name;
+//    for (int i = 0; i < data.count(); i++) {
+//        qDebug() <<"-------------------------------"<< data[i].name_variable << data[i].name_variable_old;
+//    }
+    //接收到驱动返回的data数据，返回给gui
+    QByteArray data_send;
+    int id = 4;
+    CustomVectorData d;
+    d.l = data;
+    QDataStream * stream = new QDataStream(&data_send, QIODevice::WriteOnly);
+    (*stream) << id << d;//将data序列化写入QByteArray
+    //(*stream) << data;
+    //qt_tcp.clientSockets->write(data_send);
+    //emit resultReady(dev_driver.data_save.device, tcp_save, data_send);//返回数据及相关变量
+    data_handle(dev_name, tcp, data_send);
+    delete stream;
 }
 
 //处理gui网络断开的资源回收问题

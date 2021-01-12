@@ -32,6 +32,7 @@ public slots:
 private slots:
     void data_come(QByteArray &data, data_exchange);
     void data_come_error(QByteArray &data, data_exchange);
+    void read_map(QVector<data_exchange>);
     void connect_resume();
 
     void com_error();
@@ -49,6 +50,7 @@ private:
     //error_dialog *dlg;
     //error_dialog *dlg_neterror;
     int i, j;
+    int state;
     QStringList readList;
 
     bool write_flag;
@@ -57,6 +59,9 @@ private:
     QQuickItem *qmlItem;
 
     Controller *thread;
+
+    QVector<data_exchange> read_data;
+    int get_read_data(QByteArray data, int bits, int index);
 };
 
 #endif // SYS_CTL_H

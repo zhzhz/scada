@@ -15,14 +15,18 @@ public:
     ~Worker();
 
     Dev_driver dev_driver;
+
 public slots:
      // doWork定义了线程要执行的操作
     void doWork(data_exchange l, QTcpSocket *tcp);
+    void doWork(QString dev_name, QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map,
+                        QStringList readList, QTcpSocket *tcp);
 
 
 // 线程完成工作时发送的信号
 signals:
     void resultReady(QString , QTcpSocket *, QByteArray );
+    void read_vec(QString, QVector<data_exchange>, QTcpSocket *);
 
 private slots:
 

@@ -37,6 +37,19 @@ void Worker::doWork(data_exchange l, QTcpSocket *tcp)
     connect(m_timer, SIGNAL(timeout()), this, SLOT(data_come_error()));
 }
 
+//直接得到驱动的信息，不需要采集设备信息
+void Worker::doWork(QString dev_name, QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map,
+                    QStringList readList, QTcpSocket *tcp)
+{
+    qDebug() << "Worker::doWork "<< dev_name << device_map << readList;
+    QVector<data_exchange> data = dev_driver.get_read_vec(dev_name, device_map, readList);
+//    for (int i = 0; i < data.count(); i++)
+//    {
+//        qDebug()<< "-------------------------------" << data.at(i).name_variable << data.at(i).name_variable_old;
+//    }
+    emit read_vec(dev_name, data, tcp);
+}
+
 //接收到设备返回的数据，返回数据给主线程
 //正常返回数据，关闭定时器，防止定时器返回数据
 //id == 1 ,正常数据； id==2 ，出错数据

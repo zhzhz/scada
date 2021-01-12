@@ -61,6 +61,7 @@ private slots:
     void handle_gui(QTcpSocket *);
     void data_handle(QString dev_name, QTcpSocket *tcp, QByteArray data);
     void host_closed(QTcpSocket *);
+    void read_vec(QString dev_name, QVector<data_exchange> data, QTcpSocket *tcp);
 
  private:
 

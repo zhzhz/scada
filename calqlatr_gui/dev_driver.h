@@ -21,15 +21,15 @@ typedef struct
 typedef struct data_exchange
 {
     int read_write;
-    QString name;
-    //QMap<QString, QString> name;
-    //QMap<QString, QString> device;
     QString device;
-    //QMap<QString, int> dev_id;
-    //QMap<QString, int> variable;
     int dev_id;
-    int variable;
+    QMap<QString, int> name_variable;
+    QMap<QString, int> name_variable_old;
     QByteArray write_data;
+
+
+    friend QDataStream& operator>>(QDataStream&, data_exchange&);
+    friend QDataStream& operator<<(QDataStream&, data_exchange&);
 }data_exchange;
 Q_DECLARE_METATYPE(data_exchange)
 
@@ -50,6 +50,7 @@ public:
     void write_write_data(void *data, QString data_type, QByteArray data_write);
     void write_read_data(QMap<QString, QVariant> data, QString data_type);
     void write_data(void *);
+    void write_data(QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map, QStringList readList);
 
     void get_Device(QString dev_name);
 
@@ -66,6 +67,7 @@ signals:
     void data_rev_error(QByteArray &, data_exchange);
     void host_closed_signal(QTcpSocket *);
     void networkerror_signal(QTcpSocket *);
+    void read_map(QVector<data_exchange>);
 
 public slots:
     //void TimerTimeout(void);

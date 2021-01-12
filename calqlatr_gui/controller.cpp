@@ -10,11 +10,15 @@ Controller::Controller(Sys_ctl *sys_ctl, QString device_name, QObject *parent) :
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, SIGNAL(operate(QMap<QString, QVariant>, QString)), worker, SLOT(doWork(QMap<QString, QVariant>, QString)));
     connect(this, SIGNAL(operate(data_exchange)), worker, SLOT(doWork(data_exchange)));
+    connect(this, SIGNAL(operate(QMap<QString, QMap<int, QMap<QString, QVariant>>>, QStringList)), worker,
+            SLOT(doWork(QMap<QString, QMap<int, QMap<QString, QVariant>>>, QStringList)));
 
 
     //采集线程返回数据，分为正确数据和错误数据，分别对应有dev数据和没dev数据
     connect(worker, SIGNAL(data_come_signal(QByteArray &, data_exchange)), sys_ctl, SLOT(data_come(QByteArray &, data_exchange)));
     connect(worker, SIGNAL(data_come_error_signal(QByteArray &, data_exchange)), sys_ctl, SLOT(data_come_error(QByteArray &, data_exchange)));
+    connect(worker, SIGNAL(read_map_signal(QVector<data_exchange>)), sys_ctl, SLOT(read_map(QVector<data_exchange>)));
+
 
     connect(worker, SIGNAL(connect_resume()), sys_ctl, SLOT(connect_resume()));
 
@@ -45,6 +49,12 @@ Controller::~Controller()
     //qDebug() << "Controller::~Controller()3";
     //delete  worker;
 
+}
+
+void Controller::get_data(QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map, QStringList readList)
+{
+    qDebug() << "2.gui发送读请求给Controller::get_data";
+    emit operate(device_map, readList);
 }
 
 //发送采集数据

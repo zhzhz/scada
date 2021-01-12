@@ -19,6 +19,7 @@ public slots:
      // doWork定义了线程要执行的操作
     void doWork(QMap<QString, QVariant>, QString);
     void doWork(data_exchange);
+    void doWork(QMap<QString, QMap<int, QMap<QString, QVariant>>>, QStringList);
 
 
 // 线程完成工作时发送的信号
@@ -26,6 +27,7 @@ signals:
     void resultReady(QString , QTcpSocket *, QByteArray );
     void data_come_signal(QByteArray &, data_exchange);
     void data_come_error_signal(QByteArray &, data_exchange);
+    void read_map_signal(QVector<data_exchange>);
 
     void host_closed_signal(QTcpSocket *);
     void networkerror_signal(QTcpSocket *);
@@ -39,6 +41,7 @@ private slots:
 
     void data_come(QByteArray &, data_exchange);
     void data_come_error(QByteArray &, data_exchange);
+    void read_map(QVector<data_exchange>);
 
     void init(QString device_name);
 

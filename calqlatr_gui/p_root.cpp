@@ -12,7 +12,10 @@ P_ROOT::P_ROOT(TestButton *tb, QQuickItem *qmlItem, QObject *parent) : QObject(p
     connect(tb, SIGNAL(buttonclicked(QString)), this, SLOT(buttonClicked(QString)));
 
     qRegisterMetaType<data_exchange>();
+    qRegisterMetaType<QVector<data_exchange>>();
     qRegisterMetaType<QByteArray>("QByteArray&");
+    qRegisterMetaType<QMap<QString,QMap<int,QMap<QString,QVariant> > >>("QMap<QString,QMap<int,QMap<QString,QVariant> > >");
+
 
     configFile.setConfig(tb->device_map);
     //configFile.read_config_file("../tests/a.txt");

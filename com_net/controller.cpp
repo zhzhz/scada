@@ -22,6 +22,12 @@ Controller::Controller(QString device_name, QObject *parent) : QObject(parent)
     //数据发送给采集线程
     connect(&workerThread, &QThread::finished, worker, &QObject::deleteLater);
     connect(this, SIGNAL(operate(data_exchange, QTcpSocket *)), worker, SLOT(doWork(data_exchange, QTcpSocket *)));
+    connect(this, SIGNAL(operate(QString ,QMap<QString, QMap<int, QMap<QString, QVariant>>> , QStringList , QTcpSocket *)), worker,
+            SLOT(doWork(QString ,QMap<QString, QMap<int, QMap<QString, QVariant>>> , QStringList , QTcpSocket *)));
+    //operate(dev_name, device_map, readList, tcp);
+    connect(worker, SIGNAL(read_vec(QString, QVector<data_exchange>, QTcpSocket *)), this,
+            SLOT(read_vec(QString, QVector<data_exchange>, QTcpSocket *)));
+
 
     //采集线程返回数据
     connect(worker, SIGNAL(resultReady(QString , QTcpSocket *, QByteArray )), this,
@@ -59,9 +65,23 @@ void Controller::get_data(data_exchange data, QTcpSocket *tcp)
     emit operate(data, tcp);
 }
 
+//采集驱动vector
+void Controller::get_data(QString dev_name, QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map,
+                          QStringList readList, QTcpSocket *tcp)
+{
+    qDebug() << "2.gui发送读请求给Controller::get_data";
+    //emit operate(data, tcp);
+    emit operate(dev_name, device_map, readList, tcp);
+}
+
 //接收设备数据并返回给主程序处理
 void Controller::handleResults(QString dev_name, QTcpSocket *tcp, QByteArray data)
 {
     emit data_come(dev_name, tcp, data);
     //qDebug() << "Controller::handleResults:" << dev_name << tcp << data;
+}
+
+void Controller::read_vec(QString dev_name, QVector<data_exchange> data, QTcpSocket *tcp)
+{
+    emit read_vec_signal(dev_name, data, tcp);
 }

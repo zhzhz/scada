@@ -25,6 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+    customvectordata.cpp \
+    dev_driver.cpp \
     controller.cpp \
     dev_factor.cpp \
         main.cpp \
@@ -34,12 +36,13 @@ SOURCES += \
     client.cpp \
     configfile.cpp \
     cJSON.c \
-    dev_driver.cpp \
     qt_tcp.cpp \
     custom_data.cpp \
     worker.cpp
 
 HEADERS += \
+    customvectordata.h \
+    dev_driver.h \
     controller.h \
     dev_factor.h \
         mainwindow.h \
@@ -48,7 +51,6 @@ HEADERS += \
     client.h \
     configfile.h \
     cJSON.h \
-    dev_driver.h \
     qt_tcp.h \
     custom_data.h \
     worker.h

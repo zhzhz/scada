@@ -16,7 +16,7 @@ Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
     write_flag = false;
     read_write_flag = false;
     read_none = true;
-
+    state = 0;
 }
 
 Sys_ctl::~Sys_ctl()
@@ -30,81 +30,41 @@ Sys_ctl::~Sys_ctl()
 void Sys_ctl::start(void)
 {
     qDebug() << "Sys_ctl::start" << read_write_flag;
-    //QMap<int, QMap<QString, QVariant> > leds = configFile->getDevice("led");
-    //QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
     QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map = configFile->device_map;
 
-    //qDebug() << "device_map" << device_map;
     QByteArray data;
     data[0] = 0;
 
-    if (read_write_flag == false)
+    if (state == 0)//状态0，无条件读取read_data
     {
-again:
-        if (i < readList.size())
-        {
-            //qDebug() << "readList.at(i)" << readList.at(i);
-            if (device_map.contains(readList.at(i)))
-            {
-                //qDebug() << "device_map.contains" << readList.at(i);
-                //bug ,device_map包括led，在哪？
-                read_none = false;
-
-                QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
-                if (j < leds.size())
-                {
-                    //qDebug() << "thread->get_data()";
-                    //qDebug() << "---------------------1 " << leds[j] << readList.at(i);
-                    //qDebug() << "------------------------------回来3";
-                    thread->get_data(leds[j], readList.at(i));
-                    //j++;
-                }
-                else
-                {
-                    //i++;//如果当前读项已经读完，转移到下一个读项
-                    //j = 0;
-                    //i++;
-                }
-            }
-            else
-            {
-                //qDebug() << "i++" << i;
-                i++;//如果没有读的一项，转移到下一个读项,保证有读项时，立即执行读项
-                goto again;
-            }
-        }
-        else
-        {
-            //找到结尾也没有要执行的指令，如果指令不是空则重新寻找，如果为空则放弃寻找
-            if (read_none == false)
-            {
-                i = j = 0;
-                goto again;
-            }
-            else
-            {
-                i = j = 0;
-            }
-        }
-
+        //1.发送device_map和readList给com，com调用tcp508neth的gen_read_vec返回read_vec
+        thread->get_data(device_map, readList);
+        state++;
     }
-    else {
-        //有写指令，发送写指令
+    else if (state == 1)
+    {
+        if (read_write_flag == false)//发送读指令
+        {
+            thread->get_data(read_data.at(i));
+        }
+        else {
+            //有写指令，发送写指令
 
-        write_flag = true;
-        qDebug() << "write plc data;----------------------------------";
-        data_save = data_saves.at(0);//取出全局最开始的那条指令
-        thread->get_data(data_save);
-        //dev_driver->write_data(&data_save);
-
+            write_flag = true;
+            qDebug() << "write plc data;----------------------------------";
+            data_save = data_saves.at(0);//取出全局最开始的那条指令
+            thread->get_data(data_save);
+            //dev_driver->write_data(&data_save);
+        }
     }
+
 }
 
 //接收返回数据,根据name更新对应的系统参数led,key，并继续采集数据
 //如果有错误弹出窗口，关闭
 void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 {
-    //qDebug() << "Sys_ctl::data_come";
+    qDebug() << "Sys_ctl::data_come";
 
 
     QQuickItem* item = qmlItem->findChild<QQuickItem*>("plcError");
@@ -117,30 +77,37 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 
     if (read_write_flag == false)
     {
-        QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
-        if (j < leds.size() - 1)
-        {
+//        QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
+//        if (j < leds.size() - 1)
+//        {
 
-            j++;
-            //qDebug() << "-----------------------------j" << j;
+//            j++;
+//            //qDebug() << "-----------------------------j" << j;
+//        }
+//        else
+//        {
+//            //i++;//如果当前读项已经读完，转移到下一个读项
+//            j = 0;
+//            if (i < readList.size() - 1)
+//            {
+
+//                i++;
+//                //qDebug() << "-----------------------------i" << i;
+//            }
+//            else
+//            {
+//                i = 0;
+//                //qDebug() << "-----------------------------i==0";
+//            }
+//        }
+        if (i < read_data.count() - 1)
+        {
+            i++;
         }
         else
         {
-            //i++;//如果当前读项已经读完，转移到下一个读项
-            j = 0;
-            if (i < readList.size() - 1)
-            {
-
-                i++;
-                //qDebug() << "-----------------------------i" << i;
-            }
-            else
-            {
-                i = 0;
-                //qDebug() << "-----------------------------i==0";
-            }
+            i = 0;
         }
-
 
     }
 
@@ -167,19 +134,48 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
     //看看数据是不是led数据，根据led数据设置gui显示
     if (data_save.read_write == 0)
     {
-        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
-        //qDebug() << "-----------------------------------" << data_save.name << item;
-        item->setProperty("text", data.at(0));
+        int *countp = (int *)data.data();
+        int bits = *countp;
+        data.remove(0, 4);
 
+        //循环读出name_variable数据
+        QMap<QString, int>::iterator iter = data_save.name_variable.begin();
+        while (iter != data_save.name_variable.end())
+        {
+            //qDebug() << "Iterator " << iter.key() << ":" << iter.value(); // 迭代器
+            QQuickItem* item = qmlItem->findChild<QQuickItem*>(iter.key());
+            int i = iter.value();
+            item->setProperty("text", get_read_data(data, bits, i));//如果bit是1，如此操作
+            iter++;
+        }
+
+        //qDebug() << "-----------------------------------" << data_save.name << item;
+
+        //qDebug() << "返回数据了："<< data_save.name_variable;
     }
     else {
-        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
-        //qDebug() << "-----------------------------------" << data_save.name << item;
-        item->setProperty("fontSize", 20);
+//        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
+//        //qDebug() << "-----------------------------------" << data_save.name << item;
+//        item->setProperty("fontSize", 20);
     }
 
     //qDebug() << "------------------------------回来2";
     start();//继续采集数据
+}
+
+//返回bits=1 = 16的数据
+int Sys_ctl::get_read_data(QByteArray data, int bits, int index)
+{
+    if (bits == 1)
+    {
+        qDebug() << data << "----------" << bits << "----------"<< index;
+        int i = bits << (index % 8);
+        return (i & data.at(index/8)) >> (index % 8);
+    }
+    else if (bits == 16)
+    {
+
+    }
 }
 
 //com没有从设备处取得数据，而是从超时处返回，此时data为空
@@ -204,6 +200,22 @@ void Sys_ctl::data_come_error(QByteArray &data, data_exchange data_save)
 
     start();//继续采集数据
 
+}
+
+//从com的驱动中读取map
+void Sys_ctl::read_map(QVector<data_exchange> data)
+{
+    qDebug() << "Sys_ctl::read_map ";
+    for (int i = 0; i < data.size(); i++)
+    {
+        qDebug() << "返回的数据data[i].name_variable " << i << " " << data[i].name_variable_old;
+    }
+    this->read_data = data;
+    if (data.count() != 0)
+    {
+        read_none = false;//不加这一句，写会主动调用start()，造成错误
+    }
+    start();//开始采集读数据
 }
 
 void Sys_ctl::setConfigureFile(ConfigFile *configFile)
@@ -254,10 +266,13 @@ void Sys_ctl::write_data(QMap<QString, QVariant>data, QString data_type,QByteArr
     data_save.read_write = 1;
     data_save.write_data = data_write;
 
-    data_save.name = data["name"].toString();
+    //data_save.name = data["name"].toString();
     data_save.device = data["device"].toString();
     data_save.dev_id = data["dev_id"].toInt();
-    data_save.variable = data["variable"].toInt();
+    //data_save.variable = data["variable"].toInt();
+    data_save.name_variable[data["name"].toString()] = data["variable"].toInt();
+    //让name_variable和name_variable_old一样就可以了
+    data_save.name_variable_old = data_save.name_variable;
 
 //    if (data_type == "led")
 //    {
@@ -322,7 +337,7 @@ void Sys_ctl::connect_resume()
     read_write_flag = false;
     read_none = true;
     data_saves.clear();
-
+    state = 0;
     start();
 }
 

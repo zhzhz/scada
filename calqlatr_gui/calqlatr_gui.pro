@@ -2,6 +2,7 @@ TEMPLATE = app
 
 QT += qml quick network
 SOURCES += main.cpp \
+    customvectordata.cpp \
     inputfile.cpp \
     outputfile.cpp \
     p_root.cpp \
@@ -26,6 +27,7 @@ OTHER_FILES =
 #TARGET = calqlatr
 
 HEADERS += \
+    customvectordata.h \
     inputfile.h \
     outputfile.h \
     p_root.h \

@@ -11,6 +11,9 @@ Worker::Worker(QObject* parent)
     connect(&dev_driver, SIGNAL(data_rev(QByteArray &, data_exchange)), this, SLOT(data_come(QByteArray &,data_exchange)));
     connect(&dev_driver, SIGNAL(data_rev_error(QByteArray &, data_exchange)), this, SLOT(data_come_error(QByteArray &, data_exchange)));
 
+    connect(&dev_driver, SIGNAL(read_map(QVector<data_exchange>)), this, SLOT(read_map(QVector<data_exchange>)));
+
+
     //连接了下面这两项，才可以使用slot
     connect(&dev_driver, SIGNAL(host_closed_signal(QTcpSocket *)), this, SLOT(host_closed(QTcpSocket *)));
     connect(&dev_driver, SIGNAL(networkerror_signal(QTcpSocket *)), this, SLOT(networkerror(QTcpSocket *)));
@@ -32,7 +35,7 @@ void Worker::doWork(QMap<QString, QVariant> data, QString type)
     //dev_driver.get_Device(dev_driver.dev_name);
     if (dev_driver.connect_ok)
     {
-        dev_driver.write_read_data(data, type);//本来是sysctl直接调用这个函数的
+        //dev_driver.write_read_data(data, type);//本来是sysctl直接调用这个函数的
     }
 
 
@@ -47,6 +50,15 @@ void Worker::doWork(data_exchange data_save)
     }
 }
 
+void Worker::doWork(QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map, QStringList readList)
+{
+    if (dev_driver.connect_ok)
+    {
+        //dev_driver.write_data(&data_save);
+        dev_driver.write_data(device_map, readList);
+    }
+}
+
 
 void Worker::data_come(QByteArray &data, data_exchange data_save)
 {
@@ -56,6 +68,11 @@ void Worker::data_come(QByteArray &data, data_exchange data_save)
 void Worker::data_come_error(QByteArray &data, data_exchange data_save)
 {
     emit data_come_error_signal(data, data_save);
+}
+
+void Worker::read_map(QVector<data_exchange> data)
+{
+    emit read_map_signal(data);
 }
 
 
