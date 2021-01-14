@@ -64,7 +64,7 @@ private slots:
     void read_vec(QString dev_name, QVector<data_exchange> data, QTcpSocket *tcp);
 
  private:
-
+    //int device_count;
 
 
 };

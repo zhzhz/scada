@@ -10,13 +10,15 @@ Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
     thread = new Controller(this, "init");//新建唯一一个新线程，用来采集数据
     //i = j = 0;
 
-    readList << "led" << "key";//读led和key的数值
+    //readList << "led" << "key";//读led和key的数值
+    readList << "led";
     i = j = 0;
 
     write_flag = false;
     read_write_flag = false;
     read_none = true;
     state = 0;
+    count = 0;
 }
 
 Sys_ctl::~Sys_ctl()
@@ -39,6 +41,7 @@ void Sys_ctl::start(void)
     {
         //1.发送device_map和readList给com，com调用tcp508neth的gen_read_vec返回read_vec
         thread->get_data(device_map, readList);
+        device_count = device_map["device"].count();
         state++;
     }
     else if (state == 1)
@@ -174,7 +177,8 @@ int Sys_ctl::get_read_data(QByteArray data, int bits, int index)
     }
     else if (bits == 16)
     {
-
+        unsigned short *p = (unsigned short *)data.data();
+        return p[index];
     }
 }
 
@@ -208,14 +212,22 @@ void Sys_ctl::read_map(QVector<data_exchange> data)
     qDebug() << "Sys_ctl::read_map ";
     for (int i = 0; i < data.size(); i++)
     {
-        qDebug() << "返回的数据data[i].name_variable " << i << " " << data[i].name_variable_old;
+        qDebug() << "返回的数据data[i].name_variable " << i << " " << data[i].name_variable;
     }
-    this->read_data = data;
+
+    count++;
+    this->read_data += data;
+
     if (data.count() != 0)
     {
         read_none = false;//不加这一句，写会主动调用start()，造成错误
     }
-    start();//开始采集读数据
+
+    if (count == device_count)
+    {
+       start();//开始采集读数据
+    }
+
 }
 
 void Sys_ctl::setConfigureFile(ConfigFile *configFile)
@@ -338,6 +350,8 @@ void Sys_ctl::connect_resume()
     read_none = true;
     data_saves.clear();
     state = 0;
+    count = 0;
+
     start();
 }
 

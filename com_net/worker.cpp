@@ -41,7 +41,7 @@ void Worker::doWork(data_exchange l, QTcpSocket *tcp)
 void Worker::doWork(QString dev_name, QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map,
                     QStringList readList, QTcpSocket *tcp)
 {
-    qDebug() << "Worker::doWork "<< dev_name << device_map << readList;
+    qDebug() << "Worker::doWork "<< dev_name ;
     QVector<data_exchange> data = dev_driver.get_read_vec(dev_name, device_map, readList);
 //    for (int i = 0; i < data.count(); i++)
 //    {

@@ -51,6 +51,7 @@ private:
     //error_dialog *dlg_neterror;
     int i, j;
     int state;
+    int count;
     QStringList readList;
 
     bool write_flag;
@@ -62,6 +63,8 @@ private:
 
     QVector<data_exchange> read_data;
     int get_read_data(QByteArray data, int bits, int index);
+
+    int device_count;
 };
 
 #endif // SYS_CTL_H

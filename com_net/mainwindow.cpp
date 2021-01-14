@@ -157,9 +157,9 @@ void MainWindow::handle_gui(QTcpSocket *guiSocket)
         QStringList readList;
         in >> device_map >> readList;
         //qDebug() << device_map << readList;
-
+        int device_count = device_map["device"].count();
         //对每个设备，调用驱动的gen_read_vec函数
-        for (int i = 0; i < device_map["device"].count(); i++)
+        for (int i = 0; i < device_count; i++)
         {
             QString dev_name = device_map["device"][i]["name"].toString();
             //qDebug() << "dev_name" << dev_name;
@@ -254,6 +254,7 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
     }
     else
     {
+        qDebug() << "网络发送";
          tcp->write(data);//tcp连接没有关闭，正常发送数据
     }
 
@@ -279,6 +280,7 @@ qDebug() << "MainWindow::data_handle1" << dev_name << tcp << data;
     //qDebug() << "MainWindow::data_handle2" << dev_name << tcp << data;
 }
 
+//读多个vec的数据，整合到一起返回给gui
 void MainWindow::read_vec(QString dev_name, QVector<data_exchange> data, QTcpSocket *tcp)
 {
     qDebug() << "MainWindow::read_vec " << dev_name;
@@ -286,17 +288,27 @@ void MainWindow::read_vec(QString dev_name, QVector<data_exchange> data, QTcpSoc
 //        qDebug() <<"-------------------------------"<< data[i].name_variable << data[i].name_variable_old;
 //    }
     //接收到驱动返回的data数据，返回给gui
+    //static int count = 0;
+    //static CustomVectorData d;
+    CustomVectorData d;
+    //count++;
+    d.l = data;
+
     QByteArray data_send;
     int id = 4;
-    CustomVectorData d;
-    d.l = data;
+
+    //if (count == device_count)
+    //{
+    for (int i = 0; i < data.count(); i++)
+    {
+        qDebug() << data.at(i).name_variable;
+    }
     QDataStream * stream = new QDataStream(&data_send, QIODevice::WriteOnly);
     (*stream) << id << d;//将data序列化写入QByteArray
-    //(*stream) << data;
-    //qt_tcp.clientSockets->write(data_send);
-    //emit resultReady(dev_driver.data_save.device, tcp_save, data_send);//返回数据及相关变量
+
     data_handle(dev_name, tcp, data_send);
     delete stream;
+    //}
 }
 
 //处理gui网络断开的资源回收问题

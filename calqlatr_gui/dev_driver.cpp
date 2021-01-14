@@ -139,6 +139,7 @@ void Dev_driver::write_data(QMap<QString, QMap<int, QMap<QString, QVariant>>> de
 
 //com发数据来了，收数据，emit信号
 //如果收到的id是2，则代表出错
+//com一次把两条数据返回了，gui如何区分两条数据？
 void Dev_driver::handle_data(QByteArray &data)
 {
 
@@ -147,8 +148,10 @@ void Dev_driver::handle_data(QByteArray &data)
     int id;
     QByteArray data_fil;
     QVector<data_exchange> read_vec;
-
+    //qDebug() << "-------------------------" << "Dev_driver::handle_data" << data.length();
     in >> id;//将数据留出到custom_data_rev，反序列化
+    //qDebug() << "-------------------------" << "Dev_driver::handle_data" << data.length();
+    //qDebug() << "-------------------------" << "Dev_driver::handle_data" << data.size();
     if (id == 1)
     {
         in >> data_fil;
@@ -162,12 +165,24 @@ void Dev_driver::handle_data(QByteArray &data)
     else if (id == 4)//读device map返回
     {
         CustomVectorData data;
+        //qDebug() << "-------------------------" << "id == 4";
         in >> data;
+        emit read_map(data.l);
+
+        int id;
+        in >> id;
+        //qDebug() << "-------------------------空数据时" << "id == " << id;
+        while(id == 4)//说明还有数据
+        {
+            in >> data;
+            emit read_map(data.l);
+            in >> id;
+        }
 
         //QVector<data_exchange> k = data.l;
         //qDebug() << "(id == 4)读device map返回" << ;
         //for ()
-        emit read_map(data.l);
+
     }
 }
 

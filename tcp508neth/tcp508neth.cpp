@@ -26,54 +26,58 @@ QVector<data_exchange> gen_read_vec(QMap<QString, QMap<int, QMap<QString, QVaria
             //遍历leds（包括led和key），识别其中可以读组合的个体，如果可以组合则组合，如果不可组合则生成新的组合体
             for (int j = 0; j < leds.count(); j++)
             {
-                data_range d;
-                //取出当前组的元素的variable，判断当前组的范围
-                int variable = leds[j]["variable"].toInt();
+                if (leds[j]["device"].toString() == "tcp508neth")
+                {
+                    data_range d;
+                    //取出当前组的元素的variable，判断当前组的范围
+                    int variable = leds[j]["variable"].toInt();
 
-                if (variable >= 1 && variable <=10000)//DO
-                {
-                    d.range_min = 1;d.range_max = 10000;
-                }
-                else if (variable >= 10001 && variable <=20000)//DI
-                {
-                    d.range_min = 10001;d.range_max = 20000;
-                }
-                else if (variable >= 40001 && variable <=50000)//AO
-                {
-                    d.range_min = 40001;d.range_max = 50000;
-                }
-
-                d.data.read_write = 0;
-                d.data.dev_id = leds[j]["dev_id"].toInt();
-                d.data.device = leds[j]["device"].toString();
-                d.data.name_variable[leds[j]["name"].toString()] = leds[j]["variable"].toInt() - d.range_min;
-                d.data.name_variable_old[leds[j]["name"].toString()] = leds[j]["variable"].toInt();
-                //遍历vector，寻找可以合并的，如果不能合并，则创建新的vector对象
-                bool merge = false;
-
-                for (int i = 0; i < read_data.count(); i++)
-                {
-                    if (read_data.at(i).data.dev_id == d.data.dev_id && read_data.at(i).data.device == d.data.device &&
-                            read_data.at(i).range_min == d.range_min && read_data.at(i).range_max == d.range_max)
+                    if (variable >= 1 && variable <=10000)//DO
                     {
-                        //可以合并,合并
-                        read_data[i].data.name_variable[leds[j]["name"].toString()] = leds[j]["variable"].toInt() - d.range_min;
-                        read_data[i].data.name_variable_old[leds[j]["name"].toString()] = leds[j]["variable"].toInt();
-                        merge = true;
-                        break;
+                        d.range_min = 1;d.range_max = 10000;
+                    }
+                    else if (variable >= 10001 && variable <=20000)//DI
+                    {
+                        d.range_min = 10001;d.range_max = 20000;
+                    }
+                    else if (variable >= 40001 && variable <=50000)//AO
+                    {
+                        d.range_min = 40001;d.range_max = 50000;
+                    }
+
+                    d.data.read_write = 0;
+                    d.data.dev_id = leds[j]["dev_id"].toInt();
+                    d.data.device = leds[j]["device"].toString();
+                    d.data.name_variable[leds[j]["name"].toString()] = leds[j]["variable"].toInt() - d.range_min;
+                    d.data.name_variable_old[leds[j]["name"].toString()] = leds[j]["variable"].toInt();
+                    //遍历vector，寻找可以合并的，如果不能合并，则创建新的vector对象
+                    bool merge = false;
+
+                    for (int i = 0; i < read_data.count(); i++)
+                    {
+                        if (read_data.at(i).data.dev_id == d.data.dev_id && read_data.at(i).data.device == d.data.device &&
+                                read_data.at(i).range_min == d.range_min && read_data.at(i).range_max == d.range_max)
+                        {
+                            //可以合并,合并
+                            read_data[i].data.name_variable[leds[j]["name"].toString()] = leds[j]["variable"].toInt() - d.range_min;
+                            read_data[i].data.name_variable_old[leds[j]["name"].toString()] = leds[j]["variable"].toInt();
+                            merge = true;
+                            break;
+                        }
+                    }
+
+                    if (merge == false)
+                    {
+                        //没有找到可以合并的，插入vector
+                        //qDebug() << "cant merge" << d.data.name_variable;
+                        read_data << d;
                     }
                 }
-
-                if (merge == false)
-                {
-                    //没有找到可以合并的，插入vector
-                    qDebug() << "cant merge" << d.data.name_variable;
-                    read_data << d;
-                }
-
             }
         }
     }
+
+
 
     //从data_range中提取data_exchange
     for (int i = 0; i < read_data.count(); i++)
@@ -81,8 +85,37 @@ QVector<data_exchange> gen_read_vec(QMap<QString, QMap<int, QMap<QString, QVaria
         data << read_data[i].data;
     }
 
+    //给read_data name_variable减去基准
+    //qDebug() << "data.count()" << data.count();
+    for (int i = 0; i < data.count(); i++)
+    {
+        QMap<QString, int> name_var = data.at(i).name_variable;
+        QVector<int> sort;
+        QMap<QString, int>::iterator iter = name_var.begin();
+        //qDebug() << "start0" << name_var.count();
+        //qDebug() << "start1";
+        while(iter != name_var.end())
+        {
+            sort << iter.value();
+            //qDebug() << "-------------";
+            iter++;
+        }
+        qSort(sort.begin(), sort.end());
+
+        //遍历元素，减去最小值
+        iter = name_var.begin();
+        while(iter != name_var.end())
+        {
+//                iter.value() = iter.value() - sort.first();
+              name_var[iter.key()] = iter.value() - sort.first();
+              iter++;
+        }
+        data_exchange f = data.at(i);
+        f.name_variable = name_var;
+        data.replace(i, f);
+    }
+
     return data;
-    //qSort(data.name_variable.begin(), data.end(), compare);
 }
 
 //根据参数，生成tcp508neth指令
@@ -252,6 +285,15 @@ QByteArray output_filter(QByteArray data)
             return_data[i + 4] = data.at(3+i);
         }
 
+        //翻转高低位为小端模式
+        unsigned char p;
+        for (int i = 0; i < data.at(2)/2; i++) {
+            //return_data[i + 4] = data.at(3+i);
+            p = return_data.at(4 + i*2+1);
+            return_data[4 + i*2+1] = return_data.at(4 + i*2);
+            return_data[4 + i*2] = p;
+        }
+
         return return_data;
     }
 
@@ -279,8 +321,25 @@ QByteArray input_data_exchange(data_exchange *data_ex)
     //遍历name_variable里的variable变量，生成rtu访问code
     QMap<QString, int> name_variable = data_ex->name_variable_old;
     QMap<QString, int>::iterator iter = name_variable.begin();
+    //name_variable里不一定是按照大小排序的，先排序
+    QVector<int> i;
 
-    int variable = name_variable.first();
+    if (iter != name_variable.end())
+    {
+        while(iter != name_variable.end())
+        {
+            i << iter.value();
+            iter++;
+        }
+        qSort(i.begin(), i.end());
+        //count = i.last() - i.first() + 1;
+    }
+    else
+    {
+        i << name_variable.first();
+    }
+
+    int variable = i.first();
     if (read_write == 0)//如果是读
     {
 
@@ -304,21 +363,7 @@ QByteArray input_data_exchange(data_exchange *data_ex)
 
         //count = name_variable.last() - name_variable.first() + 1;
         //map不是sort好的，需要手动寻找最大和最小值
-        if (iter != name_variable.end())
-        {
-            QVector<int> i;
-            while(iter != name_variable.end())
-            {
-                i << iter.value();
-                iter++;
-            }
-            qSort(i.begin(), i.end());
-            count = i.last() - i.first() + 1;
-        }
-        else
-        {
-            count = 1;
-        }
+        count = i.last() - i.first() + 1;
     }
     else
     {
