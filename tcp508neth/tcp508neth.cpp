@@ -178,7 +178,7 @@ QByteArray gen_code(uchar addr, uchar control_byte, ushort start, ushort count, 
     {
         QByteArray data;
         int byte_count = byte_send.count();
-        data.resize(9+byte_count);
+        data.resize(7+byte_count);
         data[0] = addr;
         data[1] = control_byte;
         data[2] = (start & 0xff00) >> 8;
@@ -229,6 +229,30 @@ QByteArray gen_code(uchar addr, uchar control_byte, ushort start, ushort count, 
         data[3] = (start & 0xff);
         data[4] = (count & 0xff00) >> 8;
         data[5] = (count & 0xff);
+
+        header[5] = data.size();
+        return header + data;
+    }
+
+    //写AO
+    //发送 01 10 00 00 00 01 02 xx xx crc crc
+    if (control_byte == 0x10)
+    {
+        QByteArray data;
+        int byte_count = byte_send.count();
+        data.resize(7+byte_count);
+        data[0] = addr;
+        data[1] = control_byte;
+        data[2] = (start & 0xff00) >> 8;
+        data[3] = (start & 0xff);
+        data[4] = (count & 0xff00) >> 8;
+        data[5] = (count & 0xff);
+        data[6] = byte_count;
+        int i = 0;
+        for (; i < byte_count; i++)
+            data[7+i] = byte_send.at(i);
+        //data[6] = 0x88;
+        //data[7] = 0x88;
 
         header[5] = data.size();
         return header + data;
@@ -367,12 +391,18 @@ QByteArray input_data_exchange(data_exchange *data_ex)
     }
     else
     {
-        //写(目前只支持写DO，写只支持单个写，不支持多个写)
+        //写(目前只支持单写DO,多写AO)
         if (variable >= 1 && variable <= 10000)
         {
             control_byte = 0x05;//写key 写DO
             start = variable - 1;//从哪开始写
             count = 0xff00;//固定写法
+        }
+        else if (variable >= 40001 && variable <= 50000)
+        {
+            control_byte = 0x10;//写key 写DO
+            start = variable - 40001;//从哪开始写
+            count = data.count()/2;
         }
     }
 
