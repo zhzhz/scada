@@ -1,6 +1,7 @@
 #include "sys_ctl.h"
 #include "qdebug.h"
 #include "QQuickItem"
+#include "writestrategyfactor.h"
 
 Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
 {
@@ -15,10 +16,12 @@ Sys_ctl::Sys_ctl(QQuickItem *qmlItem, QObject *parent) : QObject(parent)
     i = j = 0;
 
     write_flag = false;
-    read_write_flag = false;
+    is_write_instruct = false;
     read_none = true;
     state = 0;
     count = 0;
+    is_write_instruct = false;
+    writeAfterRead = false;
 }
 
 Sys_ctl::~Sys_ctl()
@@ -31,7 +34,7 @@ Sys_ctl::~Sys_ctl()
 //修改发送为线程发送方式
 void Sys_ctl::start(void)
 {
-    qDebug() << "Sys_ctl::start" << read_write_flag;
+    qDebug() << "Sys_ctl::start" << is_write_instruct;
     QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map = configFile->device_map;
 
     QByteArray data;
@@ -46,19 +49,36 @@ void Sys_ctl::start(void)
     }
     else if (state == 1)
     {
-        if (read_write_flag == false)//发送读指令
+        //        if (read_write_flag == false)//发送读指令
+        //        {
+        //            thread->get_data(read_data.at(i));
+        //        }
+        //        else {
+        //            //有写指令，发送写指令
+
+        //            write_flag = true;
+        //            qDebug() << "write plc data;----------------------------------";
+        //            data_save = data_saves.at(0);//取出全局最开始的那条指令
+        //            thread->get_data(data_save);
+        //            //dev_driver->write_data(&data_save);
+        //        }
+
+        if (is_write_instruct == true)
         {
+            //写指令，可能有多条指令会包含读指令
+            //1.单写DO指令（只有写）
+            //2.多写AO指令（先读后写）
+            //从buf中取出指令，如果是读执行读，如果是写执行写(读写是相同的get_data函数)
+            write_flag = true;
+            data_save = data_saves.at(0);
+            thread->get_data(data_save);
+        }
+        else
+        {
+            //空闲的读指令
             thread->get_data(read_data.at(i));
         }
-        else {
-            //有写指令，发送写指令
 
-            write_flag = true;
-            qDebug() << "write plc data;----------------------------------";
-            data_save = data_saves.at(0);//取出全局最开始的那条指令
-            thread->get_data(data_save);
-            //dev_driver->write_data(&data_save);
-        }
     }
 
 }
@@ -78,31 +98,8 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
     //QMap<int, QMap<QString, QVariant> > keys = configFile->getDevice("key");
     QMap<QString, QMap<int, QMap<QString, QVariant>>> device_map = configFile->device_map;
 
-    if (read_write_flag == false)
+    if (is_write_instruct == false)
     {
-//        QMap<int, QMap<QString, QVariant>> leds = device_map[readList.at(i)];
-//        if (j < leds.size() - 1)
-//        {
-
-//            j++;
-//            //qDebug() << "-----------------------------j" << j;
-//        }
-//        else
-//        {
-//            //i++;//如果当前读项已经读完，转移到下一个读项
-//            j = 0;
-//            if (i < readList.size() - 1)
-//            {
-
-//                i++;
-//                //qDebug() << "-----------------------------i" << i;
-//            }
-//            else
-//            {
-//                i = 0;
-//                //qDebug() << "-----------------------------i==0";
-//            }
-//        }
         if (i < read_data.count() - 1)
         {
             i++;
@@ -114,55 +111,65 @@ void Sys_ctl::data_come(QByteArray &data, data_exchange data_save)
 
     }
 
+
+
+
+    /////////////////////////////////////////////////////////////////////////////
+
+    WriteStrategyFactor factor;
+    //qDebug() << is_write_instruct << " " << data_save.name_variable;
+    //write_flag代表有没有执行write部分
+    //如果不用write_flag而用is_write_instruct，会造成is_write_instruct == 1时调用data_come出错
+    if (write_flag == false)
+    {
+
+        writeStrategy.genReadStrategy(factor.genReadStrategy(write_flag, this), data, data_save,
+                                      0);
+    }
+
+
+
+
     if (write_flag == true)//如果data_saves为空，则恢复
     {
+        if (data_save.read_write == 0)
+        {
+            //先读后写
+            qDebug() << "方式1" << data_save.name_variable;
+            writeStrategy.genReadStrategy(factor.genReadStrategy(write_flag, this), data, data_save,
+                                                      WriteStrategys.at(0));
+        }
+        else
+        {
+                //单纯的写
+            qDebug() << "方式2" << data_save.name_variable;
+                writeStrategy.genReadStrategy(factor.genReadStrategy(write_flag, this), data, data_save,
+                                                          WriteStrategys.at(0));
+                WriteStrategys.remove(0);
+
+        }
+
+
+
         data_saves.remove(0);//从全局去除最开始的那条指令
+
 
         if (data_saves.size() == 0)
         {
             //没有要发送的写指令了
-            read_write_flag = false;
+
+            is_write_instruct = false;
         }
         else
         {
             //还有要发送的写指令，read_write_flag保持写状态
-            read_write_flag = true;
+            is_write_instruct = true;
         }
 
         write_flag = false;
     }
 
-    //qDebug() << "------------------------------回来1";
 
-    //看看数据是不是led数据，根据led数据设置gui显示
-    if (data_save.read_write == 0)
-    {
-        int *countp = (int *)data.data();
-        int bits = *countp;
-        data.remove(0, 4);
-
-        //循环读出name_variable数据
-        QMap<QString, int>::iterator iter = data_save.name_variable.begin();
-        while (iter != data_save.name_variable.end())
-        {
-            //qDebug() << "Iterator " << iter.key() << ":" << iter.value(); // 迭代器
-            QQuickItem* item = qmlItem->findChild<QQuickItem*>(iter.key());
-            int i = iter.value();
-            item->setProperty("text", get_read_data(data, bits, i));//如果bit是1，如此操作
-            iter++;
-        }
-
-        //qDebug() << "-----------------------------------" << data_save.name << item;
-
-        //qDebug() << "返回数据了："<< data_save.name_variable;
-    }
-    else {
-//        QQuickItem* item = qmlItem->findChild<QQuickItem*>(data_save.name);
-//        //qDebug() << "-----------------------------------" << data_save.name << item;
-//        item->setProperty("fontSize", 20);
-    }
-
-    //qDebug() << "------------------------------回来2";
     start();//继续采集数据
 }
 
@@ -249,65 +256,83 @@ void Sys_ctl::setConfigureFile(ConfigFile *configFile)
 //}
 
 //目前只有key会到这，因此可以简化
+//void Sys_ctl::button_clicked(QString button_name)
+//{
+//    //QPushButton *pushbutton=qobject_cast<QPushButton *>(sender());
+//    //找到指针对应的configure参数。
+//    //先找到指针对应的name，然后对应到configure
+//    qDebug() << "-----------------------------------------------------------" << button_name;
+//    QByteArray data;data[0] = 0;
+
+//    //gui_info *info = gui->get_gui_info_byptr(pushbutton);//利用info的name部分
+//    //根据name找到包含name的led项或者key项
+//    //void *gui_info = configFile->get_gui_info_byname(info->name);
+//    QMap<QString, QVariant> gui_info = configFile->get_gui_info_byname(button_name);
+//    //bug在这个地方调用了qmap的[]方法，所以生成了一个包含led的空数组
+
+
+//    write_data(gui_info, "key", data);
+
+//}
+
 void Sys_ctl::button_clicked(QString button_name)
 {
-    //QPushButton *pushbutton=qobject_cast<QPushButton *>(sender());
-    //找到指针对应的configure参数。
-    //先找到指针对应的name，然后对应到configure
-    qDebug() << "-----------------------------------------------------------" << button_name;
-    QByteArray data;data[0] = 0;
 
-    //gui_info *info = gui->get_gui_info_byptr(pushbutton);//利用info的name部分
-    //根据name找到包含name的led项或者key项
-    //void *gui_info = configFile->get_gui_info_byname(info->name);
+//    qDebug() << "-----------------------------------------------------------" << button_name;
+//    QByteArray data;data[0] = 0;
+
+
+//    QMap<QString, QVariant> gui_info = configFile->get_gui_info_byname(button_name);
+
+
+
+//    write_data(gui_info, "key", data);
+
+
+//鼠标按下，现在可能有两种按钮，一种是单写DO，一种是多写AO，其中AO需要先读后写，两条指令都写入buffer中
     QMap<QString, QVariant> gui_info = configFile->get_gui_info_byname(button_name);
-    //bug在这个地方调用了qmap的[]方法，所以生成了一个包含led的空数组
 
 
-    write_data(gui_info, "key", data);
-
-}
-
-//把写数据缓存起来，在start中判断发送
-//修改这个函数，使支持多个写指令，否则后一条写指令会覆盖前一条指令
-void Sys_ctl::write_data(QMap<QString, QVariant>data, QString data_type,QByteArray data_write)
-{
-    data_exchange data_save;
-    read_write_flag = true;//判断读和写的总开关
-
-    data_save.read_write = 1;
-    data_save.write_data = data_write;
-
-    //data_save.name = data["name"].toString();
-    data_save.device = data["device"].toString();
-    data_save.dev_id = data["dev_id"].toInt();
-    //data_save.variable = data["variable"].toInt();
-    data_save.name_variable[data["name"].toString()] = data["variable"].toInt();
-    //让name_variable和name_variable_old一样就可以了
-    data_save.name_variable_old = data_save.name_variable;
-
-//    if (data_type == "led")
-//    {
-//        led *led_data = (led *)data;
-//        data_save.name = led_data->name;
-//        data_save.device = led_data->device;
-//        data_save.dev_id = led_data->dev_id;
-//        data_save.variable = led_data->variable;
-//    }
-//    else if (data_type == "key") {
-//        key *key_data = (key *)data;
-//        data_save.name = key_data->name;
-//        data_save.device = key_data->device;
-//        data_save.dev_id = key_data->dev_id;
-//        data_save.variable = key_data->variable;
-//    }
-
-    data_saves << data_save;//将当前发送指令保存到全局
+    is_write_instruct = true;//下一条指令为写指令
+    //根据当前variable变量生成写策略函数
+    WriteStrategyFactor factor;
+    genWriteStrategy = factor.genWriteStrategy(gui_info["variable"].toInt(), this);
+    WriteStrategys << genWriteStrategy;//把写策略存入向量中
+    writeStrategy.genWriteStrategy(genWriteStrategy, gui_info);
 
     if (read_none == 1)
     {
         start();
     }
+
+}
+
+//把写数据缓存起来，在start中判断发送
+void Sys_ctl::write_read_data(QMap<QString, QVariant>data, int read_write,QByteArray data_write, int index)
+{
+    data_exchange data_save;
+    //is_write_instruct = true;//判断读和写的总开关
+
+    data_save.read_write = read_write;
+    data_save.write_data = data_write;
+
+
+    data_save.device = data["device"].toString();
+    data_save.dev_id = data["dev_id"].toInt();
+
+    data_save.name_variable[data["name"].toString()] = data["variable"].toInt();
+    //让name_variable和name_variable_old一样就可以了
+    data_save.name_variable_old = data_save.name_variable;
+
+    if (index == 0)
+    {
+        data_saves << data_save;//将当前发送指令保存到全局最尾端
+    }
+    else
+    {
+        data_saves.insert(index, data_save);//将当前发送指令保存到index位置上
+    }
+
 }
 
 //void Sys_ctl::write_data(void *data, QString data_type,QByteArray data_write)
@@ -346,11 +371,13 @@ void Sys_ctl::connect_resume()
 {
     i = j = 0;
     write_flag = false;
-    read_write_flag = false;
+    is_write_instruct = false;
     read_none = true;
     data_saves.clear();
     state = 0;
     count = 0;
+    is_write_instruct = false;
+    writeAfterRead = false;
 
     start();
 }

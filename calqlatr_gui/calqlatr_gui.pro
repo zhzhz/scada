@@ -15,7 +15,10 @@ SOURCES += main.cpp \
     client.cpp \
     controller.cpp \
     testbutton.cpp \
-    worker.cpp
+    worker.cpp \
+    writestrategy.cpp \
+    writestrategybase.cpp \
+    writestrategyfactor.cpp
 
 RESOURCES += calqlatr.qrc
 
@@ -40,4 +43,7 @@ HEADERS += \
     client.h \
     controller.h \
     testbutton.h \
-    worker.h
+    worker.h \
+    writestrategy.h \
+    writestrategybase.h \
+    writestrategyfactor.h

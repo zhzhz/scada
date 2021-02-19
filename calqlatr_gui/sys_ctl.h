@@ -10,6 +10,8 @@
 //#include "error_dialog.h"
 #include "QTimer"
 #include "controller.h"
+#include "writestrategy.h"
+
 class QQuickItem;
 
 class Sys_ctl : public QObject
@@ -19,10 +21,12 @@ public:
     explicit Sys_ctl(QQuickItem *qmlItem, QObject *parent = nullptr);
     ~Sys_ctl();
 
+    QQuickItem *qmlItem;
+    int get_read_data(QByteArray data, int bits, int index);
     void setConfigureFile(ConfigFile *configFile);
     //void setGui(Gui *gui);
 
-    void write_data(QMap<QString, QVariant> data, QString data_type, QByteArray data_write);
+    void write_read_data(QMap<QString, QVariant> data, int read_write, QByteArray data_write, int index);
 
 signals:
 public slots:
@@ -42,9 +46,11 @@ private:
     ConfigFile *configFile;
     //Gui *gui;
 
-    bool read_write_flag;
+    bool is_write_instruct;
+    bool writeAfterRead;
     data_exchange data_save;
     QVector <data_exchange> data_saves;
+    QVector <WriteStrategyBase*> WriteStrategys;
     bool read_none;
 
     //error_dialog *dlg;
@@ -57,14 +63,17 @@ private:
     bool write_flag;
     //QTimer *m_timer;
 
-    QQuickItem *qmlItem;
+
 
     Controller *thread;
 
     QVector<data_exchange> read_data;
-    int get_read_data(QByteArray data, int bits, int index);
+
 
     int device_count;
+    //bool is_write_instruct;
+    WriteStrategy writeStrategy;
+    WriteStrategyBase* genWriteStrategy;
 };
 
 #endif // SYS_CTL_H

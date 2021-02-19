@@ -255,6 +255,7 @@ QByteArray gen_code(uchar addr, uchar control_byte, ushort start, ushort count, 
         //data[7] = 0x88;
 
         header[5] = data.size();
+        qDebug() << header + data;
         return header + data;
     }
 
@@ -318,6 +319,14 @@ QByteArray output_filter(QByteArray data)
             return_data[4 + i*2] = p;
         }
 
+        return return_data;
+    }
+
+    //多写AO
+    if (data.at(1) == 0x10)
+    {
+        QByteArray return_data;
+        return_data[0] = 1;//假设成功
         return return_data;
     }
 
@@ -400,12 +409,13 @@ QByteArray input_data_exchange(data_exchange *data_ex)
         }
         else if (variable >= 40001 && variable <= 50000)
         {
-            control_byte = 0x10;//写key 写DO
+            control_byte = 0x10;//写key 写AO
             start = variable - 40001;//从哪开始写
+            qDebug() << "----------------------------写AO" << start << " " << data.count();
             count = data.count()/2;
         }
     }
 
-    return gen_code(addr, control_byte, start, count, NULL);
+    return gen_code(addr, control_byte, start, count, data);
 }
 
